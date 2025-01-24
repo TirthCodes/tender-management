@@ -1,12 +1,20 @@
 import LoginForm from "@/components/auth/login-form";
+import { getCurrentSession } from "@/lib/server/session";
 import Link from "next/link";
 import React from "react";
+import { redirect } from "next/navigation";
 
-export default function Page() {
+export default async function LoginPage() {
+  const { session } = await getCurrentSession();
+
+  if (session !== null) {
+    return redirect("/tenders");
+  }
+
   return (
     <div className="container relative h-svh flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
-        <div className="absolute inset-0 bg-zinc-900" />
+      <div className="relative hidden h-full flex-col bg-muted p-10 text-black dark:border-r lg:flex">
+        <div className="absolute inset-0" />
         <div className="relative z-20 flex items-center text-lg font-medium">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -38,7 +46,6 @@ export default function Page() {
               Login to your account
             </p>
           </div>
-          {/* form goes here */}
           <LoginForm />
           <p className="px-8 text-center text-sm text-muted-foreground">
             By clicking continue, you agree to our{" "}
