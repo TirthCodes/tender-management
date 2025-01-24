@@ -1,1 +1,0 @@
-export { UsersEntity } from "./Users";

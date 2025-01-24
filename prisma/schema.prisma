@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model User {
+  id      Int      @id @default(autoincrement())
+  stUsername   String   @unique
+  stPasswordHash String
+  stRole       UserRole @default(USER)
+  dtCreatedAt  DateTime @default(now())
+  dtUpdatedAt  DateTime @updatedAt
+
+  sessions Session[]
+}
+
+model Session {
+  id String @id
+  userId Int
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Tender {
+  id              Int          @id @default(autoincrement())
+  voucherNumber   String
+  date            DateTime
+  name            String
+  type            String?
+  notePercentage  Float?
+  roughCts        Float?
+  roughSize       String?
+  pndCts          Float?
+  roughPrice      Float?
+  roughTotal      Float?
+}
+
+model MainLot {
+  id          Int             @id @default(autoincrement())
+  stName        String
+  stRemarks     String? @db.Text
+  inPcs         Int
+  stCts         String
+  dcRate        Float 
+  dcAmount      Float 
+  dtCreatedAt   DateTime @default(now())
+  dtUpdatedAt   DateTime @updatedAt
+}
+
+model Color {
+  id          Int     @id @default(autoincrement())
+  stName        String
+  stShortName   String
+  inSerial      Int
+}
+
+model Clarity {
+  id          Int     @id @default(autoincrement())
+  stName        String
+  stShortName   String
+  inSerial      Int
+}
+
+model Flourence {
+  id          Int     @id @default(autoincrement())
+  stName        String
+  stShortName   String  
+  inSerial      Int
+}
+
+model Shape {
+  id          Int     @id @default(autoincrement())
+  stName        String
+  stShortName   String
+  inSerial      Int
+}
+
