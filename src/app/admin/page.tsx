@@ -9,19 +9,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { getCurrentSession } from "@/lib/server/session";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 import { LogoutButton } from "@/components/logout-button";
+import Link from "next/link";
 
 export default async function Admin() {
   const { user } = await getCurrentSession();
@@ -37,6 +30,9 @@ export default async function Admin() {
       <div className="flex items-center justify-between">
         <h1 className="font-bold tracking-tighter text-3xl">All Users</h1>
         <div className="flex gap-4">
+          <Link href={"/tenders"}>
+            <Button className="font-semibold">Go to Dashboard</Button>
+          </Link>
           <Dialog>
             <DialogTrigger asChild>
               <Button className="font-semibold">+ Create New User</Button>
@@ -54,50 +50,56 @@ export default async function Admin() {
           <LogoutButton />
         </div>
       </div>
-      <div className="border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className=" bg-gray-100 hover:bg-gray-100">
-              <TableHead className="font-semibold px-4 capitalize">
-                Username
-              </TableHead>
-              <TableHead className="font-semibold px-4 capitalize">
-                Role
-              </TableHead>
-              <TableHead className="font-semibold px-4 capitalize">
-                Actions
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id} className="hover:bg-gray-50">
-                <TableCell className="font-medium px-4">
-                  {user.stUsername}
-                </TableCell>
-                <TableCell className="px-4 ">
-                  <Badge
-                    className={`px-3 py-1 rounded-full
-                  `}
-                  >
-                    {user.stRole}
-                  </Badge>
-                </TableCell>
-                <TableCell className="flex gap-2 px-4 justify-end">
-                  <Button variant="outline" className="hover:bg-gray-100">
-                    Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="text-red-600 hover:bg-red-50 hover:text-red-700"
-                  >
-                    Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="bg-gray-200 p-4">
+        <div className="inline-block bg-white w-full  align-middle">
+          <table className="divide-y min-w-full divide-gray-300">
+            <thead className="">
+              <tr className=" divide-x divide-gray-200">
+                <th
+                  scope="col"
+                  className="py-3.5 pl-4 pr-4 text-left text-sm font-semibold text-gray-900"
+                >
+                  Username
+                </th>
+                <th
+                  scope="col"
+                  className="py-3.5 pl-4 pr-4 text-left text-sm font-semibold text-gray-900"
+                >
+                  Role
+                </th>
+                <th
+                  scope="col"
+                  className="py-3.5 pl-4 pr-4 text-left text-sm font-semibold text-gray-900"
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {users.map((user) => (
+                <tr key={user.id} className="divide-x divide-gray-200">
+                  <td className="whitespace-nowrap py-4 pl-4 pr-4 text-sm font-medium text-gray-900">
+                    {user.stUsername}
+                  </td>
+                  <td className="whitespace-nowrap p-4 text-sm text-gray-500">
+                    <Badge>{user.stRole}</Badge>
+                  </td>
+                  <td className="whitespace-nowrap py-4 pl-4 pr-4 text-sm text-gray-500">
+                    <Button variant="secondary" className="border mr-4">
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

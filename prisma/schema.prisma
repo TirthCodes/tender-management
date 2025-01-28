@@ -77,7 +77,8 @@ model Clarity {
   inSerial      Int
 }
 
-model Flourence {
+
+model Fluorescence {
   id          Int     @id @default(autoincrement())
   stName        String
   stShortName   String  

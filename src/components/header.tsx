@@ -4,32 +4,29 @@ import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { LogoutButton } from "./logout-button";
+import { Button } from "./ui/button";
 
 const navigation = [
-  { name: "Colors", href: "/colors" },
-  { name: "Shapes", href: "/shapes" },
-  { name: "Clarity", href: "/clarity" },
-  { name: "Flourescence", href: "/flourescence" },
+  { name: "Colors", href: "/tenders/colors" },
+  { name: "Shapes", href: "/tenders/shapes" },
+  { name: "Clarity", href: "/tenders/clarity" },
+  { name: "Flourescence", href: "/tenders/fluorescence" },
   { name: "Main Lot", href: "/main-lot" },
 ];
 
-export default function Header() {
+export default function Header({ user }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="bg-white shadow-md sticky top-0 w-full">
       <nav
         aria-label="Global"
-        className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
+        className="flex items-center justify-between p-6 lg:px-8"
       >
         <div className="flex items-center gap-x-12">
           <a href="#" className="-m-1.5 p-1.5">
             <span className="sr-only">Your Company</span>
-            <img
-              alt=""
-              src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-              className="h-8 w-auto"
-            />
+            <span className="font-semibold text-xl">Genz Diamonds</span>
           </a>
           <div className="hidden lg:flex lg:gap-x-12">
             {navigation.map((item) => (
@@ -53,7 +50,11 @@ export default function Header() {
             <Bars3Icon aria-hidden="true" className="h-6 w-6" />
           </button>
         </div>
+
         <div className="hidden lg:flex">
+          {user.role === "ADMIN" && (
+            <Button className="mr-4">Manage Users</Button>
+          )}
           <LogoutButton />
         </div>
       </nav>
@@ -67,11 +68,7 @@ export default function Header() {
           <div className="flex items-center justify-between">
             <a href="#" className="-m-1.5 p-1.5">
               <span className="sr-only">Your Company</span>
-              <img
-                alt=""
-                src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-                className="h-8 w-auto"
-              />
+              <span className="font-semibold text-xl">Genz Diamonds</span>
             </a>
             <button
               type="button"
@@ -95,7 +92,9 @@ export default function Header() {
                   </a>
                 ))}
               </div>
+
               <div className="py-6">
+                <Button>Manage Users</Button>
                 <LogoutButton />
               </div>
             </div>
