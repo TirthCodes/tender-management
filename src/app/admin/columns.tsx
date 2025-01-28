@@ -1,9 +1,18 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { User } from "@prisma/client";
+import Link from "next/link";
 
-export const columns: ColumnDef<Pick<User, "username" | "role">>[] = [
+import { Button } from "@/components/ui/button";
+import { deleteUser } from "./actions";
+
+export type User = {
+  id: number;
+  username: string;
+  role: string;
+};
+
+export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "username",
     header: "Username",
@@ -11,5 +20,25 @@ export const columns: ColumnDef<Pick<User, "username" | "role">>[] = [
   {
     accessorKey: "role",
     header: "Role",
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => (
+      <div className="flex gap-2">
+        <Button asChild size="sm" variant="outline">
+          <Link href={`/admin/users/${row.original.id}/edit`}>Edit</Link>
+        </Button>
+        <Button
+          size="sm"
+          variant="destructive"
+          onClick={async () => {
+            await deleteUser(row.original.id);
+            window.location.reload();
+          }}
+        >
+          Delete
+        </Button>
+      </div>
+    ),
   },
 ];
