@@ -38,17 +38,60 @@ model Session {
 }
 
 model Tender {
-  id              Int          @id @default(autoincrement())
-  voucherNumber   String
-  date            DateTime
-  name            String
-  type            String?
-  notePercentage  Float?
-  roughCts        Float?
-  roughSize       String?
-  pndCts          Float?
-  roughPrice      Float?
-  roughTotal      Float?
+  id                  Int          @id @default(autoincrement())
+  stVoucherNumber     DateTime     
+  stTenderName        String
+  stTenderType        String  // single stone, rough lot, multi lot, mix lot
+  dcNotePercentage    Float  
+  stLotNo             String
+  stRoughName         String
+  inTotalRoughPcs     Int 
+  dcTotalRoughCts     Float?
+  dcRoughSize         Float?
+  dcRoughPrice        Float?
+  dcRoughTotal        Float?
+
+  dcBidPrice          Float
+  dcResultCost        Float
+  dcFinalCostPrice    Float
+  dcTotalAmount       Float
+  dcResultPerCt       Float
+  dcFinalBidPrice     Float
+  
+  dcResultTotal       Float
+  dcFinalTotalAmount  Float
+
+  dtCreatedAt          DateTime @default(now())
+  dtUpdatedAt          DateTime @updatedAt
+  tenderDetails        TenderDetailsTable[]
+}
+
+
+model TenderDetailsTable {
+  id                Int          @id @default(autoincrement())
+  tender            Tender       @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  tenderId          Int
+  inRoughPcs        Int
+  dcRoughCts        Float
+  color             Color        @relation(fields: [colorId], references: [id], onDelete: Cascade)
+  colorId           Int          @unique
+  clarity           Clarity      @relation(fields: [clarityId], references: [id], onDelete: Cascade)
+  clarityId         Int          @unique
+  flourence         Flourence    @relation(fields: [flourenceId], references: [id], onDelete: Cascade)
+  flourenceId       Int          @unique
+  shape             Shape        @relation(fields: [shapeId], references: [id], onDelete: Cascade)
+  shapeId           Int          @unique
+  stColorGrade      String
+  dcPolCts          Float
+  dcPolPer          Float
+  dcDepth           Float?
+  dcTable           Float?
+  dcRatio           Float?
+  dcSellPrice       Float
+  dcCostPrice       Float
+  stDescription     String?      @db.Text
+  dtCreatedAt       DateTime @default(now())
+  dtUpdatedAt       DateTime @updatedAt
 }
 
 model MainLot {
@@ -68,6 +111,9 @@ model Color {
   stName        String
   stShortName   String
   inSerial      Int
+  dtCreatedAt   DateTime @default(now())
+  dtUpdatedAt   DateTime @updatedAt
+  tenderDetils  TenderDetailsTable?
 }
 
 model Clarity {
@@ -75,6 +121,9 @@ model Clarity {
   stName        String
   stShortName   String
   inSerial      Int
+  dtCreatedAt   DateTime @default(now())
+  dtUpdatedAt   DateTime @updatedAt
+  tenderDetils  TenderDetailsTable?
 }
 
 
@@ -83,6 +132,9 @@ model Fluorescence {
   stName        String
   stShortName   String  
   inSerial      Int
+  dtCreatedAt   DateTime @default(now())
+  dtUpdatedAt   DateTime @updatedAt
+  tenderDetils  TenderDetailsTable?
 }
 
 model Shape {
@@ -90,5 +142,8 @@ model Shape {
   stName        String
   stShortName   String
   inSerial      Int
+  dtCreatedAt   DateTime @default(now())
+  dtUpdatedAt   DateTime @updatedAt
+  tenderDetils  TenderDetailsTable?
 }
 
