@@ -26,7 +26,7 @@ export default function Header({ user }) {
         <div className="flex items-center gap-x-12">
           <a href="#" className="-m-1.5 p-1.5">
             <span className="sr-only">Your Company</span>
-            <span className="font-semibold text-xl">Genz Diamonds</span>
+            <span className="font-semibold text-xl">Tender</span>
           </a>
           <div className="hidden lg:flex lg:gap-x-12">
             {navigation.map((item) => (

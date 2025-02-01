@@ -57,7 +57,7 @@ model Tender {
   dcTotalAmount       Float
   dcResultPerCt       Float
   dcFinalBidPrice     Float
-  
+
   dcResultTotal       Float
   dcFinalTotalAmount  Float
 
@@ -77,8 +77,8 @@ model TenderDetailsTable {
   colorId           Int          @unique
   clarity           Clarity      @relation(fields: [clarityId], references: [id], onDelete: Cascade)
   clarityId         Int          @unique
-  flourence         Flourence    @relation(fields: [flourenceId], references: [id], onDelete: Cascade)
-  flourenceId       Int          @unique
+  fluorescence         Fluorescence    @relation(fields: [fluorescenceId], references: [id], onDelete: Cascade)
+  fluorescenceId      Int          @unique
   shape             Shape        @relation(fields: [shapeId], references: [id], onDelete: Cascade)
   shapeId           Int          @unique
   stColorGrade      String
