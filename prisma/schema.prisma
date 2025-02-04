@@ -69,18 +69,18 @@ model Tender {
 
 model TenderDetailsTable {
   id                Int          @id @default(autoincrement())
-  tender            Tender       @relation(fields: [tenderId], references: [id], onDelete: Cascade)
   tenderId          Int
+  tender            Tender       @relation(fields: [tenderId], references: [id], onDelete: Cascade)
   inRoughPcs        Int
   dcRoughCts        Float
-  color             Color        @relation(fields: [colorId], references: [id], onDelete: Cascade)
   colorId           Int          @unique
-  clarity           Clarity      @relation(fields: [clarityId], references: [id], onDelete: Cascade)
+  color             Color        @relation(fields: [colorId], references: [id], onDelete: Cascade)
   clarityId         Int          @unique
-  fluorescence         Fluorescence    @relation(fields: [fluorescenceId], references: [id], onDelete: Cascade)
+  clarity           Clarity      @relation(fields: [clarityId], references: [id], onDelete: Cascade)
   fluorescenceId      Int          @unique
-  shape             Shape        @relation(fields: [shapeId], references: [id], onDelete: Cascade)
+  fluorescence        Fluorescence    @relation(fields: [fluorescenceId], references: [id], onDelete: Cascade)
   shapeId           Int          @unique
+  shape             Shape        @relation(fields: [shapeId], references: [id], onDelete: Cascade)
   stColorGrade      String
   dcPolCts          Float
   dcPolPer          Float
@@ -113,7 +113,8 @@ model Color {
   inSerial      Int
   dtCreatedAt   DateTime @default(now())
   dtUpdatedAt   DateTime @updatedAt
-  tenderDetils  TenderDetailsTable?
+
+  tenderDetails  TenderDetailsTable?
 }
 
 model Clarity {
@@ -123,7 +124,8 @@ model Clarity {
   inSerial      Int
   dtCreatedAt   DateTime @default(now())
   dtUpdatedAt   DateTime @updatedAt
-  tenderDetils  TenderDetailsTable?
+
+  tenderDetails  TenderDetailsTable?
 }
 
 
@@ -134,7 +136,8 @@ model Fluorescence {
   inSerial      Int
   dtCreatedAt   DateTime @default(now())
   dtUpdatedAt   DateTime @updatedAt
-  tenderDetils  TenderDetailsTable?
+
+  tenderDetails  TenderDetailsTable?
 }
 
 model Shape {
@@ -144,6 +147,7 @@ model Shape {
   inSerial      Int
   dtCreatedAt   DateTime @default(now())
   dtUpdatedAt   DateTime @updatedAt
-  tenderDetils  TenderDetailsTable?
+
+  tenderDetails  TenderDetailsTable?
 }
 

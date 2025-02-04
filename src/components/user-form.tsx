@@ -26,7 +26,7 @@ export default function UserForm() {
 
   return (
     <form action={action} className="grid gap-4 py-4">
-      <div className="grid items-start grid-cols-4 items-center gap-4">
+      <div className="grid items-start grid-cols-4 gap-4">
         <Label htmlFor="username" className="text-right">
           Username
         </Label>
