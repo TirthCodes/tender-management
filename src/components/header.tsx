@@ -11,6 +11,7 @@ const navigation = [
   { name: "Shapes", href: "/tenders/shapes" },
   { name: "Clarity", href: "/tenders/clarity" },
   { name: "Flourescence", href: "/tenders/fluorescence" },
+  // { name: "Tenders", href: "/tenders" },
   { name: "Main Lot", href: "/main-lot" },
 ];
 
@@ -21,7 +22,7 @@ export default function Header({ user }) {
     <header className="bg-white shadow-md sticky top-0 w-full">
       <nav
         aria-label="Global"
-        className="flex items-center justify-between p-6 lg:px-8"
+        className="flex items-center justify-between p-4 lg:px-6"
       >
         <div className="flex items-center gap-x-12">
           <a href="#" className="-m-1.5 p-1.5">

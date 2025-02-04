@@ -11,7 +11,7 @@ export default async function Layout({
   return (
     <div>
       <Header user={user} />
-      <main className="p-6">{children}</main>
+      <main className="p-4">{children}</main>
     </div>
   );
 }
