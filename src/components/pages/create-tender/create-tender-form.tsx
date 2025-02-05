@@ -594,7 +594,19 @@ export function CreateTenderForm({
           ></Column>
           <Column
             field="po"
+            header="Sale Amount"
+            headerStyle={{ paddingBlock: "1px" }}
+            style={{ paddingBlock: "2px" }}
+          ></Column>
+          <Column
+            field="po"
             header="Cost Price"
+            headerStyle={{ paddingBlock: "1px" }}
+            style={{ paddingBlock: "2px" }}
+          ></Column>
+          <Column
+            field="po"
+            header="Cost Amount"
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
