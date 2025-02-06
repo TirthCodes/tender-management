@@ -1,8 +1,15 @@
 import { CreateTenderForm } from "@/components/pages/create-tender/create-tender-form";
+import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
-
+import { getCurrentSession } from "@/lib/server/session";
+import { redirect } from "next/navigation";
 
 export default async function CreateTenderPage() {
+  const { user } = await getCurrentSession();
+
+  if (user === null) {
+    return redirect("/auth/login");
+  }
 
   const [colors, clarities, fluorescence, shapes] = await Promise.all([
     prisma.color.findMany({
@@ -11,8 +18,8 @@ export default async function CreateTenderPage() {
         stShortName: true,
       },
       orderBy: {
-        inSerial: "asc"
-      }
+        inSerial: "asc",
+      },
     }),
     prisma.clarity.findMany({
       select: {
@@ -20,8 +27,8 @@ export default async function CreateTenderPage() {
         stShortName: true,
       },
       orderBy: {
-        inSerial: "asc"
-      }
+        inSerial: "asc",
+      },
     }),
     prisma.fluorescence.findMany({
       select: {
@@ -29,8 +36,8 @@ export default async function CreateTenderPage() {
         stShortName: true,
       },
       orderBy: {
-        inSerial: "asc"
-      }
+        inSerial: "asc",
+      },
     }),
     prisma.shape.findMany({
       select: {
@@ -38,12 +45,19 @@ export default async function CreateTenderPage() {
         stShortName: true,
       },
       orderBy: {
-        inSerial: "asc"
-      }
-    })
-  ])
+        inSerial: "asc",
+      },
+    }),
+  ]);
 
   return (
-    <CreateTenderForm colorOptions={colors} clarityOptions={clarities} fluorescenceOptions={fluorescence} shapeOptions={shapes} />
-  )
+    <>
+      <CreateTenderForm
+        colorOptions={colors}
+        clarityOptions={clarities}
+        fluorescenceOptions={fluorescence}
+        shapeOptions={shapes}
+      />
+    </>
+  );
 }

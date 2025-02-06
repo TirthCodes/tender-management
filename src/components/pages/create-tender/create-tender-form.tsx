@@ -1,25 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import clsx from "clsx";
-import { CheckIcon, Plus, PlusCircle, Trash, Trash2 } from "lucide-react";
-import { ChevronDownIcon } from "@heroicons/react/16/solid";
+import { format } from "date-fns";
 import {
-  Combobox,
-  ComboboxButton,
-  ComboboxInput,
-  ComboboxOption,
-  ComboboxOptions,
-} from "@headlessui/react";
+  CalendarIcon,
+  Check,
+  ChevronsUpDown,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { getCurrentSession } from "@/lib/server/session";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { AutoComplete } from "primereact/autocomplete";
 import { useQuery } from "@tanstack/react-query";
 import {
   getClarityOptions,
@@ -27,24 +23,35 @@ import {
   getFluorescenceOptions,
   getShapeOptions,
 } from "@/services/options";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const tenderTypes = ["Single Stone", "Rough Lot", "Mix Lot", "Multi Lot"];
-
-const defaultOptions = {
-  color: [
-    "F VID Y",
-    "F VID ORANGY Y",
-    "F INT Y",
-    "1FIY/2FY",
-    "F LIT Y",
-    "Y Z",
-    "F BRSH Y",
-    "F BR GR Y",
-  ],
-  clarity: ["VVS1", "VS1", "VS1(MILKY)"],
-  flr: ["N(YU)", "N", "N(YU)", "F"],
-  shape: ["CUSHION", "PEAR", "HEART", "RADIANT", ""],
-};
+const types = [
+  { value: "singleStone", label: "Single Stone" },
+  { value: "roughLot", label: "Rough Lot" },
+  { value: "mixLot", label: "Mix Lot" },
+];
 
 const initialPayload = {
   voucherNumber: "FS39",
@@ -122,15 +129,6 @@ const initialPayload = {
   finalTotalAmount: 20000,
 };
 
-// const colorOptions = [
-//   { label: "F VID Y", value: "F VID Y", id: 1 },
-//   {
-//     label: "F VID ORANGY Y",
-//     value: "F VID ORANGY Y",
-//     id: 2,
-//   },
-// ];
-
 interface Option {
   id: number;
   stShortName: string;
@@ -149,14 +147,6 @@ export function CreateTenderForm({
   fluorescenceOptions,
   shapeOptions,
 }: CreateTenderFormProps) {
-  // const { user } = await getCurrentSession();
-
-  // if (user === null) {
-  //   return redirect("/auth/login");
-  // }
-
-  // --- Local state for form inputs ---
-
   // invalidate the query when you add new data to any option
   const { data: colorsOptions } = useQuery({
     queryKey: ["color-options"],
@@ -184,8 +174,16 @@ export function CreateTenderForm({
 
   const [payload] = useState(initialPayload);
   const [items, setItems] = useState(initialPayload.items);
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  const [date, setDate] = useState<Date>();
   const [colors] = useState(colorOptions);
-  const [filteredColors, setFilteredColors] = useState([]);
+
+  const filteredColors = colorOptions.filter(
+    (
+      color // filter the color options
+    ) => color.stShortName.toLowerCase().includes(value.toLowerCase())
+  );
 
   const textEditor = (props) => {
     return (
@@ -194,6 +192,7 @@ export function CreateTenderForm({
         value={props.rowData[props.field]}
         placeholder="Enter text"
         onChange={(e) => onEditorValueChange(props, e.target.value)}
+        className="w-full m-0"
       />
     );
   };
@@ -204,28 +203,58 @@ export function CreateTenderForm({
     setItems(updatedItems);
   };
 
-  const colorEditor = (props) => {
+  const allEditor = (props) => {
     return (
-      <AutoComplete
-        value={props.rowData[props.field]}
-        suggestions={filteredColors}
-        completeMethod={(e) => searchColor(e)}
-        field="label"
-        dropdown
-        forceSelection={false} // allow free text if desired
-        onChange={(e) => onEditorValueChange(props, e.value)}
-      />
+      // <AutoComplete
+      //   value={props.rowData[props.field]}
+      //   suggestions={filteredColors}
+      //   completeMethod={(e) => searchColor(e)}
+      //   field="label"
+      //   dropdown
+      //   forceSelection={false} // allow free text if desired
+      //   onChange={(e) => onEditorValueChange(props, e.value)}
+      // />
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <input
+            placeholder="Select Color..."
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onFocus={() => setOpen(true)}
+            className="w-[200px] border rounded-md"
+          />
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0">
+          <Command>
+            <CommandList>
+              <CommandEmpty>No color found.</CommandEmpty>
+              <CommandGroup>
+                {filteredColors.map((color) => (
+                  <CommandItem
+                    key={color.stShortName}
+                    value={color.stShortName}
+                    onSelect={(currentValue) => {
+                      setValue(currentValue === value ? "" : currentValue);
+                      setOpen(false);
+                    }}
+                  >
+                    {color.stShortName}
+                    <Check
+                      className={cn(
+                        "ml-auto",
+                        value === color.stShortName
+                          ? "opacity-100"
+                          : "opacity-0"
+                      )}
+                    />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
     );
-  };
-
-  const searchColor = (event) => {
-    const query = event.query;
-    let _filteredColors = colors.filter((option) =>
-      option.label.toLowerCase().includes(query.toLowerCase())
-    );
-    // Option to add a new color.
-    _filteredColors.push({ label: "Add New", value: "Add New", id: 0 });
-    setFilteredColors(_filteredColors);
   };
 
   const actionBodyTemplate = (rowData, options) => {
@@ -332,90 +361,80 @@ export function CreateTenderForm({
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-4">
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                  <Label>Voucher Date</Label>
-                  <Input
-                    type="date"
-                    value={voucherDate}
-                    onChange={(e) => setVoucherDate(e.target.value)}
-                  />
+                <div className="flex w-full items-center">
+                  <Label className="whitespace-nowrap mr-4">Voucher Date</Label>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[200px] justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon />
+                        {date ? format(date, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                  <Label>Tender Name</Label>
+
+                <div className="flex w-full items-center">
+                  <Label className="whitespace-nowrap mr-4">Tender Name</Label>
                   <Input
                     type="text"
                     value={tenderName}
                     onChange={(e) => setTenderName(e.target.value)}
                     placeholder="Single Stone Tender"
+                    className="w-[200px]"
                   />
                 </div>
               </div>
 
               <div className="flex flex-col gap-4">
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                  <Label>Tender Type</Label>
-                  <Combobox
-                    value={selectedTenderType}
-                    onChange={(e) => setSelectedTenderType(e.target.value)}
-                    onClose={() => setQuery("")}
-                  >
-                    <div className="relative">
-                      <ComboboxInput
-                        displayValue={(tender) => tender?.name}
-                        onChange={(event) => setQuery(event.target.value)}
-                        placeholder="Select tender type"
-                        className={clsx(
-                          "w-full rounded-lg border bg-white/5 py-1.5 pr-8 pl-3 text-sm/6 text-black",
-                          "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-black/25"
-                        )}
-                      />
-                      <ComboboxButton className="group absolute top-2.5 right-2.5">
-                        <ChevronDownIcon className="size-4 fill-black group-data-[hover]:fill-black" />
-                      </ComboboxButton>
-                    </div>
-                    <ComboboxOptions
-                      anchor="bottom start"
-                      transition
-                      className={clsx(
-                        "w-52 rounded-xl border border-black/50 bg-white p-1 [--anchor-gap:var(--spacing-1, 16px)] empty:invisible",
-                        "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0"
-                      )}
-                    >
-                      {[
-                        { id: 1, name: "Single Stone" },
-                        { id: 2, name: "Rough Lot" },
-                        { id: 3, name: "Multi Lot" },
-                        { id: 4, name: "Mix Lot" },
-                      ].map((tender) => (
-                        <ComboboxOption
-                          key={tender.id}
-                          value={tender}
-                          className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-black/10"
-                        >
-                          <CheckIcon className="invisible size-4 fill-transparent group-data-[selected]:visible" />
-                          <div className="text-sm/6 text-black">
-                            {tender.name}
-                          </div>
-                        </ComboboxOption>
-                      ))}
-                    </ComboboxOptions>
-                  </Combobox>
+                <div className="flex w-full items-center">
+                  <Label className="whitespace-nowrap mr-4">Tender Type</Label>
+                  <Select>
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="Select a tender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="singleStone">
+                          Single Stone
+                        </SelectItem>
+                        <SelectItem value="roughLot">Rough Lot</SelectItem>
+                        <SelectItem value="mixLot">Mix Lot</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                  <Label>Note %</Label>
+                <div className="flex w-full items-center">
+                  <Label className="whitespace-nowrap mr-4">Note %</Label>
                   <Input
                     type="number"
                     step="any"
                     value={notePercent}
                     onChange={(e) => setNotePercent(e.target.value)}
                     placeholder="Enter note"
+                    className="w-[200px]"
                   />
                 </div>
               </div>
+
               <div className="col-span-2">
-                <div className="grid w-full  items-center gap-1.5">
-                  <Label>Remark</Label>
+                <div className="flex w-full items-center">
+                  <Label className="whitespace-nowrap mr-4">Remark</Label>
                   <Input
                     type="text"
                     value={tenderName}
@@ -436,32 +455,32 @@ export function CreateTenderForm({
           <CardContent>
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col gap-4">
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                  <Label>LOT NO</Label>
+                <div className="flex w-full items-center">
+                  <Label className="whitespace-nowrap mr-4">Lot No.</Label>
                   <Input type="text" placeholder="FS39" />
                 </div>
 
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                  <Label>Rough Cts.</Label>
+                <div className="flex w-full items-center">
+                  <Label className="whitespace-nowrap mr-4">Rough Cts.</Label>
                   <Input type="number" placeholder="24.4" />
                 </div>
               </div>
 
               <div className="flex flex-col gap-4">
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                  <Label>Rough Name</Label>
+                <div className="flex w-full items-center">
+                  <Label className="whitespace-nowrap mr-4">Rough Name</Label>
                   <Input type="text" placeholder="" />
                 </div>
 
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                  <Label>Rough Size</Label>
+                <div className="flex w-full items-center">
+                  <Label className="whitespace-nowrap mr-4">Rough Size</Label>
                   <Input type="number" placeholder="Enter rough size" />
                 </div>
               </div>
 
               <div className="flex flex-col gap-4">
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                  <Label>Rough Pcs.</Label>
+                <div className="flex w-full items-center">
+                  <Label className="whitespace-nowrap mr-4">Rough Pcs.</Label>
                   <Input type="number" placeholder="Enter rough pcs" />
                 </div>
 
@@ -474,13 +493,13 @@ export function CreateTenderForm({
             </div>
 
             <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="grid w-full max-w-sm items-center gap-1.5">
-                <Label>Rough Price</Label>
+              <div className="flex w-full items-center">
+                <Label className="whitespace-nowrap mr-4">Rough Price</Label>
                 <Input type="number" placeholder="Enter rough price" />
               </div>
 
-              <div className="grid w-full max-w-sm items-center gap-1.5">
-                <Label>Rough Total</Label>
+              <div className="flex w-full items-center">
+                <Label className="whitespace-nowrap mr-4">Rough Total</Label>
                 <Input type="number" placeholder="Enter rough total" />
               </div>
             </div>
@@ -510,25 +529,27 @@ export function CreateTenderForm({
             field="totalRoughPieces"
             header="Pcs."
             editor={(props) => textEditor(props)}
-            style={{ width: "20%", paddingBlock: "2px"  }}
+            style={{ width: "20%", paddingBlock: "2px" }}
             headerStyle={{ paddingBlock: "1px" }}
           ></Column>
           <Column
             field="totalRoughCarats"
             header="Cts."
+            editor={(props) => textEditor(props)}
             style={{ paddingBlock: "2px" }}
             headerStyle={{ paddingBlock: "1px" }}
           ></Column>
           <Column
             field="color"
             header="Color"
-            editor={(props) => colorEditor(props)}
+            editor={(props) => allEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
             field="colorGrade"
             header="C.GD"
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
@@ -553,72 +574,84 @@ export function CreateTenderForm({
           <Column
             field="po"
             header="Pol. Cts."
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
             field="po"
             header="Pol. %"
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
             field="po"
             header="Depth"
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
             field="po"
             header="Table"
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
             field="po"
             header="Ratio"
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
             field="po"
             header="Labour"
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
             field="po"
             header="Sale Price"
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
             field="po"
             header="Sale Amount"
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
             field="po"
             header="Cost Price"
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
             field="po"
             header="Cost Amount"
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
             field="po"
             header="Tops Ammt"
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
             field="po"
             header="Incription"
+            editor={(props) => textEditor(props)}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
           ></Column>
