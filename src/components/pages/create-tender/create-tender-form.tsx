@@ -1,16 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import {
-  CalendarIcon,
-  Check,
-  ChevronsUpDown,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { CalendarIcon, Check, Plus, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -42,15 +37,38 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { z } from "zod";
 
-const types = [
-  { value: "singleStone", label: "Single Stone" },
-  { value: "roughLot", label: "Rough Lot" },
-  { value: "mixLot", label: "Mix Lot" },
+// const types = [
+//   { value: "singleStone", label: "Single Stone" },
+//   { value: "roughLot", label: "Rough Lot" },
+//   { value: "mixLot", label: "Mix Lot" },
+// ];
+
+const initialRow = [
+  {
+    roughPieces: 1,
+    roughCarats: 0,
+    color: "",
+    colorGrade: 0,
+    clarity: "",
+    flr: "",
+    shape: "",
+    polishCarats: 0,
+    polishPercent: 0,
+    depth: 0,
+    table: 0,
+    ratio: 0,
+    labour: 0,
+    salePrice: 0,
+    saleAmount: 0,
+    costPrice: 0,
+    costAmount: 0,
+    incription: "",
+  },
 ];
 
 const initialPayload = {
@@ -141,6 +159,49 @@ interface CreateTenderFormProps {
   shapeOptions: Option[];
 }
 
+const createTenderSchema = z.object({
+  voucherDate: z.string(),
+  tenderType: z.string(),
+  tenderName: z.string().trim().min(2, { message: "Tender name is required!" }),
+  notePercent: z.string().trim().min(2, { message: "Note % is required!" }),
+  remark: z.string().trim().optional(),
+  lotNo: z.string().trim().min(1, { message: "Lot no.is required!" }),
+  roughName: z.string().trim().min(2, { message: "Rough name is required!" }),
+  roughPcs: z.string().trim().min(1, { message: "Rough pcs is required!" }),
+  roughCts: z.string().trim().min(1, { message: "Rough cts is required!" }),
+  roughSize: z.string().trim().min(1, { message: "Rough size is required!" }),
+  roughPrice: z.string().trim().min(1, { message: "Rough price is required!" }),
+  roughTotal: z.string().trim().min(1, { message: "Rough total is required!" }),
+  bidPrice: z.string().trim().min(1, { message: "Bid price is required!" }),
+  totalAmount: z
+    .string()
+    .trim()
+    .min(1, { message: "Total amount is required!" }),
+  resultCost: z.string().trim().min(1, { message: "Result cost is required!" }),
+  resultPerCarat: z
+    .string()
+    .trim()
+    .min(1, { message: "Result per carat is required!" }),
+  resultTotal: z
+    .string()
+    .trim()
+    .min(1, { message: "Result total is required!" }),
+  finalCostPrice: z
+    .string()
+    .trim()
+    .min(1, { message: "Final cost price is required!" }),
+  finalBidPrice: z
+    .string()
+    .trim()
+    .min(1, { message: "Final bid price is required!" }),
+  finalTotalAmount: z
+    .string()
+    .trim()
+    .min(1, { message: "Final total amount is required!" }),
+});
+
+type CreateTenderFormValues = z.infer<typeof createTenderSchema>;
+
 export function CreateTenderForm({
   colorOptions,
   clarityOptions,
@@ -173,17 +234,42 @@ export function CreateTenderForm({
   });
 
   const [payload] = useState(initialPayload);
-  const [items, setItems] = useState(initialPayload.items);
+  const [items, setItems] = useState(initialRow);
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [values, setValues] = useState("");
   const [date, setDate] = useState<Date>();
   const [colors] = useState(colorOptions);
 
-  const filteredColors = colorOptions.filter(
-    (
-      color // filter the color options
-    ) => color.stShortName.toLowerCase().includes(value.toLowerCase())
-  );
+  useEffect(() => {
+    if (date) {
+      setValue("voucherDate", date.toLocaleDateString());
+      if (errors.voucherDate) {
+        setError("voucherDate", {
+          message: undefined,
+        });
+      }
+    }
+  }, [date]);
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+    setValue,
+    setError,
+  } = useForm<CreateTenderFormValues>({
+    mode: "onBlur",
+    resolver: zodResolver(createTenderSchema),
+  });
+
+  // const filteredColors = colorOptions.filter(
+  //   (
+  //     color // filter the color options
+  //   ) => color.stShortName.toLowerCase().includes(value.toLowerCase())
+  // );
 
   const textEditor = (props) => {
     return (
@@ -205,21 +291,12 @@ export function CreateTenderForm({
 
   const allEditor = (props) => {
     return (
-      // <AutoComplete
-      //   value={props.rowData[props.field]}
-      //   suggestions={filteredColors}
-      //   completeMethod={(e) => searchColor(e)}
-      //   field="label"
-      //   dropdown
-      //   forceSelection={false} // allow free text if desired
-      //   onChange={(e) => onEditorValueChange(props, e.value)}
-      // />
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <input
             placeholder="Select Color..."
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
+            value={values}
+            onChange={(e) => setValues(e.target.value)}
             onFocus={() => setOpen(true)}
             className="w-[200px] border rounded-md"
           />
@@ -229,12 +306,12 @@ export function CreateTenderForm({
             <CommandList>
               <CommandEmpty>No color found.</CommandEmpty>
               <CommandGroup>
-                {filteredColors.map((color) => (
+                {colorOptions.map((color) => (
                   <CommandItem
                     key={color.stShortName}
                     value={color.stShortName}
                     onSelect={(currentValue) => {
-                      setValue(currentValue === value ? "" : currentValue);
+                      setValues(currentValue === values ? "" : currentValue);
                       setOpen(false);
                     }}
                   >
@@ -242,7 +319,7 @@ export function CreateTenderForm({
                     <Check
                       className={cn(
                         "ml-auto",
-                        value === color.stShortName
+                        values === color.stShortName
                           ? "opacity-100"
                           : "opacity-0"
                       )}
@@ -260,6 +337,7 @@ export function CreateTenderForm({
   const actionBodyTemplate = (rowData, options) => {
     return (
       <Button
+        type="button"
         className="bg-red-600"
         size="icon"
         onClick={() => deleteRow(options.rowIndex)}
@@ -349,10 +427,18 @@ export function CreateTenderForm({
 
   // ((((((items.cost price + 0) * 97%) - 180) * items.polishCarat) % items.roughCarats) - 50) / 106%).fixed(2)
 
-  const bidPrice = 8169.51;
+  const handleAddRow = () => {
+    setItems([...items, initialRow[0]]);
+  };
+
+  async function onSubmit(data: CreateTenderFormValues) {
+    console.log(data, "data");
+  }
+
+  console.log(errors, "eroor");
 
   return (
-    <div>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div className="grid w-full grid-cols-2 gap-4">
         <Card>
           <CardHeader>
@@ -360,87 +446,118 @@ export function CreateTenderForm({
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-4">
-                <div className="flex w-full items-center">
-                  <Label className="whitespace-nowrap mr-4">Voucher Date</Label>
-
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-[200px] justify-start text-left font-normal",
-                          !date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon />
-                        {date ? format(date, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
+              <div className="flex w-full items-center">
+                <Label className="w-[100px] shrink-0">Voucher Date</Label>
+                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !date && "text-muted-foreground",
+                        `${
+                          errors.voucherDate?.message && "border border-red-500"
+                        }`
+                      )}
+                    >
+                      <CalendarIcon
+                        className={`${
+                          errors.voucherDate?.message && "text-red-500"
+                        }`}
                       />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
+                      {date ? (
+                        format(date, "PPP")
+                      ) : (
+                        <span
+                          className={`${
+                            errors.voucherDate?.message && "text-red-500"
+                          }`}
+                        >
+                          Pick a date
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={(newDate) => {
+                        setDate(newDate);
+                        setCalendarOpen(false);
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="flex w-full items-center">
+                <Label className="w-[94px] shrink-0">Tender Type</Label>
+                <Select
+                  onValueChange={(value) => {
+                    setValue("tenderType", value);
+                    if (errors.tenderType) {
+                      setError("tenderType", {
+                        message: undefined,
+                      });
+                    }
+                  }}
+                >
+                  <SelectTrigger
+                    className={cn(
+                      "w-full",
+                      errors.tenderType?.message &&
+                        "border border-red-500 text-red-500"
+                    )}
+                  >
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="singleStone">Single Stone</SelectItem>
+                      <SelectItem value="roughLot">Rough Lot</SelectItem>
+                      <SelectItem value="mixLot">Mix Lot</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex w-full items-center">
+                <Label className="w-[100px] shrink-0">Tender Name</Label>
+                <Input
+                  type="text"
+                  {...register("tenderName")}
+                  className={cn(
+                    errors.tenderName?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                  placeholder="Single Stone Tender"
+                />
+              </div>
+              <div className="flex w-full items-center justify-between">
+                <Label className="w-[94px] shrink-0">Note %</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  {...register("notePercent")}
+                  className={cn(
+                    errors.notePercent?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                  placeholder="106"
+                />
+              </div>
+              <div className="col-span-full">
                 <div className="flex w-full items-center">
-                  <Label className="whitespace-nowrap mr-4">Tender Name</Label>
+                  <Label className="w-[100px] shrink-0">Remark</Label>
                   <Input
                     type="text"
-                    value={tenderName}
-                    onChange={(e) => setTenderName(e.target.value)}
-                    placeholder="Single Stone Tender"
-                    className="w-[200px]"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <div className="flex w-full items-center">
-                  <Label className="whitespace-nowrap mr-4">Tender Type</Label>
-                  <Select>
-                    <SelectTrigger className="w-[200px]">
-                      <SelectValue placeholder="Select a tender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="singleStone">
-                          Single Stone
-                        </SelectItem>
-                        <SelectItem value="roughLot">Rough Lot</SelectItem>
-                        <SelectItem value="mixLot">Mix Lot</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex w-full items-center">
-                  <Label className="whitespace-nowrap mr-4">Note %</Label>
-                  <Input
-                    type="number"
-                    step="any"
-                    value={notePercent}
-                    onChange={(e) => setNotePercent(e.target.value)}
-                    placeholder="Enter note"
-                    className="w-[200px]"
-                  />
-                </div>
-              </div>
-
-              <div className="col-span-2">
-                <div className="flex w-full items-center">
-                  <Label className="whitespace-nowrap mr-4">Remark</Label>
-                  <Input
-                    type="text"
-                    value={tenderName}
-                    onChange={(e) => setTenderName(e.target.value)}
+                    {...register("remark")}
+                    className={cn(
+                      "w-full",
+                      errors.remark?.message && "border border-red-500"
+                    )}
                     placeholder="MIX SAWABLE-MAKEABLE YELLOW (AVG - 1.83)"
-                    className="w-full"
                   />
                 </div>
               </div>
@@ -453,54 +570,91 @@ export function CreateTenderForm({
             <CardTitle>Rough Details</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col gap-4">
-                <div className="flex w-full items-center">
-                  <Label className="whitespace-nowrap mr-4">Lot No.</Label>
-                  <Input type="text" placeholder="FS39" />
-                </div>
-
-                <div className="flex w-full items-center">
-                  <Label className="whitespace-nowrap mr-4">Rough Cts.</Label>
-                  <Input type="number" placeholder="24.4" />
-                </div>
+            <div className="grid grid-cols-6 gap-x-3 gap-y-4">
+              <div className="flex w-full items-center col-span-2">
+                <Label className="w-[88px] shrink-0">Lot No.</Label>
+                <Input
+                  type="text"
+                  {...register("lotNo")}
+                  placeholder="FS39"
+                  className={cn(
+                    errors.lotNo?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                />
+              </div>
+              <div className="flex w-full items-center col-span-2">
+                <Label className="w-[94px] shrink-0">Rough Name</Label>
+                <Input
+                  type="text"
+                  {...register("roughName")}
+                  placeholder="Name"
+                  className={cn(
+                    errors.roughName?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                />
+              </div>
+              <div className="flex w-full items-center col-span-2">
+                <Label className="w-[84px] shrink-0">Rough Pcs.</Label>
+                <Input
+                  type="number"
+                  {...register("roughPcs")}
+                  placeholder="4"
+                  className={cn(
+                    errors.roughPcs?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                />
+              </div>
+              <div className="flex w-full items-center col-span-3">
+                <Label className="w-[88px] shrink-0">Rough Cts.</Label>
+                <Input
+                  type="number"
+                  {...register("roughCts")}
+                  placeholder="24.4"
+                  className={cn(
+                    errors.roughCts?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                />
+              </div>
+              <div className="flex w-full items-center col-span-3">
+                <Label className="w-[88px] shrink-0">Rough Size</Label>
+                <Input
+                  {...register("roughSize")}
+                  type="number"
+                  placeholder="4.96"
+                  className={cn(
+                    errors.roughSize?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                />
+              </div>
+              <div className="flex w-full items-center col-span-3">
+                <Label className="w-[88px] shrink-0">Rough Price</Label>
+                <Input
+                  {...register("roughPrice")}
+                  type="number"
+                  placeholder="243"
+                  className={cn(
+                    errors.roughPrice?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                />
               </div>
 
-              <div className="flex flex-col gap-4">
-                <div className="flex w-full items-center">
-                  <Label className="whitespace-nowrap mr-4">Rough Name</Label>
-                  <Input type="text" placeholder="" />
-                </div>
-
-                <div className="flex w-full items-center">
-                  <Label className="whitespace-nowrap mr-4">Rough Size</Label>
-                  <Input type="number" placeholder="Enter rough size" />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <div className="flex w-full items-center">
-                  <Label className="whitespace-nowrap mr-4">Rough Pcs.</Label>
-                  <Input type="number" placeholder="Enter rough pcs" />
-                </div>
-
-                {/* Pending carat only needed in multi lot */}
-                {/* <div className="grid w-full max-w-sm items-center gap-1.5">
-                  <Label>PND Cts.</Label>
-                  <Input type="text" placeholder="Enter PND carats" />
-                </div> */}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="flex w-full items-center">
-                <Label className="whitespace-nowrap mr-4">Rough Price</Label>
-                <Input type="number" placeholder="Enter rough price" />
-              </div>
-
-              <div className="flex w-full items-center">
-                <Label className="whitespace-nowrap mr-4">Rough Total</Label>
-                <Input type="number" placeholder="Enter rough total" />
+              <div className="flex w-full items-center col-span-3">
+                <Label className="w-[88px] shrink-0">Rough Total</Label>
+                <Input
+                  {...register("roughTotal")}
+                  type="number"
+                  placeholder="999"
+                  className={cn(
+                    errors.roughTotal?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                />
               </div>
             </div>
           </CardContent>
@@ -515,12 +669,11 @@ export function CreateTenderForm({
           scrollable
           resizableColumns
           scrollHeight="401px"
-          // rows={3}
           footer={footer}
           tableStyle={{ marginBottom: "24px", whiteSpace: "nowrap" }}
         >
           <Column
-            body={() => payload.lotNo}
+            body={() => watch("lotNo")}
             headerStyle={{ paddingBlock: "1px" }}
             style={{ paddingBlock: "2px" }}
             header="Lot"
@@ -529,7 +682,7 @@ export function CreateTenderForm({
             field="totalRoughPieces"
             header="Pcs."
             editor={(props) => textEditor(props)}
-            style={{ width: "20%", paddingBlock: "2px" }}
+            style={{ paddingBlock: "2px" }}
             headerStyle={{ paddingBlock: "1px" }}
           ></Column>
           <Column
@@ -656,9 +809,23 @@ export function CreateTenderForm({
             style={{ paddingBlock: "2px" }}
           ></Column>
           <Column
-            body={actionBodyTemplate}
+            body={(_rowData, options) => (
+              <Button
+                type="button"
+                className="bg-red-600"
+                size="icon"
+                onClick={() => deleteRow(options.rowIndex)}
+              >
+                <Trash2 />
+              </Button>
+            )}
             header={() => (
-              <Button size="icon" className="rounded-full">
+              <Button
+                type="button"
+                onClick={() => handleAddRow()}
+                size="icon"
+                className="rounded-full"
+              >
                 <Plus />
               </Button>
             )}
@@ -680,47 +847,91 @@ export function CreateTenderForm({
               <div className="flex flex-col gap-4">
                 <div className="flex w-full max-w-sm items-center gap-1.5">
                   <Label className="w-32">Bid Price</Label>
-                  <Input type="number" readOnly disabled value={bidPrice} />
+                  <Input
+                    type="number"
+                    {...register("bidPrice")}
+                    readOnly
+                    disabled
+                  />
                 </div>
                 <div className="flex w-full max-w-sm items-center gap-1.5">
                   <Label className="w-32">Total Amount</Label>
-                  <Input type="number" readOnly disabled />
+
+                  <Input
+                    type="number"
+                    {...register("totalAmount")}
+                    readOnly
+                    disabled
+                  />
                 </div>
               </div>
 
               <div className="flex flex-col gap-4">
                 <div className="flex w-full max-w-sm items-center gap-1.5">
                   <Label className="w-32">Result Cost</Label>
-                  <Input type="number" disabled readOnly />
+                  <Input
+                    type="number"
+                    {...register("resultCost")}
+                    disabled
+                    readOnly
+                  />
                 </div>
                 <div className="flex w-full max-w-sm items-center gap-1.5">
                   <Label className="w-32">Result / Cts</Label>
-                  <Input type="number" readOnly disabled />
+                  <Input
+                    type="number"
+                    {...register("resultPerCarat")}
+                    readOnly
+                    disabled
+                  />
                 </div>
                 <div className="flex w-full max-w-sm items-center gap-1.5">
                   <Label className="w-32">Result Total</Label>
-                  <Input type="number" />
+                  <Input
+                    type="number"
+                    {...register("resultTotal")}
+                    placeholder="10000"
+                  />
                 </div>
               </div>
 
               <div className="flex flex-col gap-4">
                 <div className="flex w-full max-w-sm items-center gap-1.5">
                   <Label className="w-52">Final Cost Price</Label>
-                  <Input type="number" readOnly disabled />
+                  <Input
+                    type="number"
+                    {...register("finalCostPrice")}
+                    readOnly
+                    disabled
+                  />
                 </div>
                 <div className="flex w-full max-w-sm items-center gap-1.5">
                   <Label className="w-52">Final Bid Price</Label>
-                  <Input type="number" />
+                  <Input
+                    type="number"
+                    {...register("finalBidPrice")}
+                    placeholder="20000"
+                  />
                 </div>
                 <div className="flex w-full max-w-sm items-center gap-1.5">
                   <Label className="w-52">Final Total Amount</Label>
-                  <Input type="number" readOnly disabled />
+                  <Input
+                    type="number"
+                    {...register("finalTotalAmount")}
+                    readOnly
+                    disabled
+                  />
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-    </div>
+      <div className="flex justify-end">
+        <Button className="mt-4" type="submit">
+          Submit
+        </Button>
+      </div>
+    </form>
   );
 }
