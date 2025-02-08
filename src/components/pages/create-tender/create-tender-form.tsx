@@ -42,12 +42,6 @@ import {
 } from "@/components/ui/select";
 import { z } from "zod";
 
-// const types = [
-//   { value: "singleStone", label: "Single Stone" },
-//   { value: "roughLot", label: "Rough Lot" },
-//   { value: "mixLot", label: "Mix Lot" },
-// ];
-
 const initialRow = [
   {
     roughPieces: 1,
