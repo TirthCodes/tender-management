@@ -17,6 +17,9 @@ import AutoCompleteInput from "@/components/ui/auto-complete-input";
 import ColorDialog from "@/components/dialog/color-dialog";
 import { TenderDetails, TotalValues } from "@/lib/types/tender";
 import { Option } from "@/lib/types/common";
+import ClarityDialog from "@/components/dialog/clarity-dialog";
+import FlrDialog from "@/components/dialog/flr-dialog";
+import ShapeDialog from "@/components/dialog/shape-dialog";
 
 const columns = [
   "Lot",
@@ -211,6 +214,7 @@ export function TenderDetailsDataTable({
                           index
                         )
                       }
+                      createDialogContent={<ClarityDialog />}
                     />
                   </TableCell>
                   <TableCell className="border-collapse border border-gray-300">
@@ -228,6 +232,7 @@ export function TenderDetailsDataTable({
                           index
                         )
                       }
+                      createDialogContent={<FlrDialog />}
                     />
                   </TableCell>
                   <TableCell className="border-collapse border border-gray-300">
@@ -245,6 +250,7 @@ export function TenderDetailsDataTable({
                           index
                         )
                       }
+                      createDialogContent={<ShapeDialog />}
                     />
                   </TableCell>
                   <TableCell className="border-collapse border border-gray-300">
