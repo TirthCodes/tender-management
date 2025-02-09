@@ -57,7 +57,7 @@ export const columns: ColumnDef<Color>[] = [
   },
 ];
 
-function ColorDialogForm({ initialData }: { initialData?: Color }) {
+export function ColorDialogForm({ initialData }: { initialData?: Color }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -76,7 +76,7 @@ function ColorDialogForm({ initialData }: { initialData?: Color }) {
             Create a new color for the application.
           </DialogDescription> */}
         </DialogHeader>
-        <ColorForm initialData={initialData} onSuccess={() => setOpen(false)} />
+        <ColorForm initialData={initialData} closeDialog={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );

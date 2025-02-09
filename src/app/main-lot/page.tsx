@@ -1,7 +1,6 @@
+import React from 'react'
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
-import { columns } from "./columns";
-import { prisma } from "@/lib/prisma";
 import {
   Dialog,
   DialogContent,
@@ -11,19 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { ColorForm } from "@/components/color-form";
 
-export default async function ColorsPage() {
-  const colors = await prisma.color.findMany({
-    select: {
-      id: true,
-      stShortName: true,
-      stName: true,
-      inSerial: true,
-    },
-    orderBy: {
-      inSerial: "asc",
-    }
-  });
-
+export default function MainLotPage() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -45,5 +32,5 @@ export default async function ColorsPage() {
       </div>
       <DataTable columns={columns} data={colors} />
     </div>
-  );
+  )
 }

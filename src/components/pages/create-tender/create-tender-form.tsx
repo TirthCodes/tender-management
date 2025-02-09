@@ -2,15 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Check, Plus, Trash2 } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
 import { useQuery } from "@tanstack/react-query";
 import {
   getClarityOptions,
@@ -23,13 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -41,110 +33,35 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { z } from "zod";
+import {
+  TenderDetailsDataTable,
+} from "./tender-details-data-table";
+import { Option } from "@/lib/types/common";
+import { CostDetails, TenderDetails, TotalValues } from "@/lib/types/tender";
 
-const initialRow = [
-  {
-    roughPieces: 1,
-    roughCarats: 0,
-    color: "",
-    colorGrade: 0,
-    clarity: "",
-    flr: "",
-    shape: "",
-    polishCarats: 0,
-    polishPercent: 0,
-    depth: 0,
-    table: 0,
-    ratio: 0,
-    labour: 0,
-    salePrice: 0,
-    saleAmount: 0,
-    costPrice: 0,
-    costAmount: 0,
-    incription: "",
-  },
-];
-
-const initialPayload = {
-  voucherNumber: "FS39",
-  tenderName: "Tender 1",
-  tenderType: "Single Stone",
-  notePercent: "10",
-  lotNo: "FS39",
-  roughName: "Rough 1",
-  totalRoughPieces: 1,
-  totalRoughCarats: 3.5,
-  roughtSize: 4.96,
-  pndCarats: 0,
-  roughPrice: 20000,
-  roughTotal: 4.96,
-  items: [
-    {
-      roughPieces: 1,
-      roughCarats: 4.96,
-      color: "F VID Y", // initial value; later you might store the id instead
-      colorGrade: 10,
-      clarity: "VVS1",
-      flr: "N(YU)",
-      shape: "HEART",
-      polishCarats: 2.5,
-      polishPercent: 50.4,
-      depth: 55.0,
-      table: 58,
-      ratio: 0.86,
-      sellPrice: 20000,
-      costPrice: 18000,
-      incription: "RD-2.35",
-    },
-    {
-      roughPieces: 1,
-      roughCarats: 4.57,
-      color: "F VID Y",
-      colorGrade: 10,
-      clarity: "VS1",
-      flr: "N",
-      shape: "PEAR",
-      polishCarats: 2.1,
-      polishPercent: 45.95,
-      depth: 68.0,
-      table: 63,
-      ratio: 1.55,
-      sellPrice: 25000,
-      costPrice: 22000,
-      incription: "RD-2.00IHR-2.60",
-    },
-    {
-      roughPieces: 1,
-      roughCarats: 4.11,
-      color: "F VID ORANGY Y",
-      colorGrade: 10,
-      clarity: "VVS1",
-      flr: "N(YU)",
-      shape: "CUSHION",
-      polishCarats: 2.5,
-      polishPercent: 60.83,
-      depth: 69.0,
-      table: 64,
-      ratio: 1.0,
-      sellPrice: 20000,
-      costPrice: 16782,
-      incription: "RD- 1.89 JOVO",
-    },
-  ],
-  bidPrice: 20000,
-  totalAmount: 20000,
-  resultCost: 18000,
-  resultPerCarat: 0.86,
-  resultTotal: 18000,
-  finalCostPrice: 18000,
-  finalBidPrice: 20000,
-  finalTotalAmount: 20000,
+export const initialRow = {
+  pcs: 0,
+  carats: 0,
+  color: { id: 0, stShortName: "" },
+  colorGrade: 0,
+  clarity: { id: 0, stShortName: "" },
+  flr: { id: 0, stShortName: "" },
+  shape: { id: 0, stShortName: "" },
+  polCts: 0,
+  polPercent: 0,
+  depth: 0,
+  table: 0,
+  ratio: 0,
+  labour: 0,
+  salePrice: 0,
+  saleAmount: 0,
+  costPrice: 0,
+  costAmount: 0,
+  topsAmount: 0,
+  incription: "",
 };
 
-interface Option {
-  id: number;
-  stShortName: string;
-}
+const initialTenderDetails = [initialRow];
 
 interface CreateTenderFormProps {
   colorOptions: Option[];
@@ -202,7 +119,6 @@ export function CreateTenderForm({
   fluorescenceOptions,
   shapeOptions,
 }: CreateTenderFormProps) {
-  // invalidate the query when you add new data to any option
   const { data: colorsOptions } = useQuery({
     queryKey: ["color-options"],
     queryFn: getColorOptions,
@@ -227,13 +143,17 @@ export function CreateTenderForm({
     initialData: shapeOptions,
   });
 
-  const [payload] = useState(initialPayload);
-  const [items, setItems] = useState(initialRow);
-  const [open, setOpen] = useState(false);
+  const [tenderDetails, setTenderDetails] = useState<TenderDetails[]>(initialTenderDetails);
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [values, setValues] = useState("");
   const [date, setDate] = useState<Date>();
-  const [colors] = useState(colorOptions);
+  const [totalValues, setTotalValues] = useState<TotalValues>({
+    pcs: 0,
+    carats: 0,
+    polCts: 0,
+    polPercent: 0,
+    salePrice: 0,
+    costPrice: 0,
+  }); 
 
   useEffect(() => {
     if (date) {
@@ -250,7 +170,7 @@ export function CreateTenderForm({
     register,
     handleSubmit,
     watch,
-    reset,
+    // reset,
     formState: { errors },
     setValue,
     setError,
@@ -259,177 +179,45 @@ export function CreateTenderForm({
     resolver: zodResolver(createTenderSchema),
   });
 
-  // const filteredColors = colorOptions.filter(
-  //   (
-  //     color // filter the color options
-  //   ) => color.stShortName.toLowerCase().includes(value.toLowerCase())
-  // );
+  useEffect(() => {
+    if(tenderDetails.length > 0) {
+      // const calculatedBidPrice = parseFloat(
+      //   (
+      //     (((row.costPrice + row.topsAmount) * 0.97 - 180) * row.polCts) /
+      //       row.carats -
+      //     50 / (notePercent / 100)
+      //   ).toFixed(2)
+      // );
+    }
+  }, [tenderDetails])
 
-  const textEditor = (props) => {
-    return (
-      <Input
-        type="text"
-        value={props.rowData[props.field]}
-        placeholder="Enter text"
-        onChange={(e) => onEditorValueChange(props, e.target.value)}
-        className="w-full m-0"
-      />
+  const handleDetailsValueChange = (
+    value: TenderDetails,
+    index: number,
+    action?: string
+  ) => {
+    if (action === "delete") {
+      setTenderDetails(tenderDetails.filter((_i, idx) => idx !== index));
+      return;
+    }
+    if (index > tenderDetails.length) {
+      setTenderDetails([...tenderDetails, value]);
+      return;
+    }
+    const indexToUpdate = tenderDetails.findIndex((_i, idx) => idx === index);
+    setTenderDetails(
+      tenderDetails.map((item, i) => {
+        if (i === indexToUpdate) {
+          return value;
+        }
+        return item;
+      })
     );
-  };
-
-  const onEditorValueChange = (props, value) => {
-    const updatedItems = [...items];
-    updatedItems[props.rowIndex][props.field] = value;
-    setItems(updatedItems);
-  };
-
-  const allEditor = (props) => {
-    return (
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <input
-            placeholder="Select Color..."
-            value={values}
-            onChange={(e) => setValues(e.target.value)}
-            onFocus={() => setOpen(true)}
-            className="w-[200px] border rounded-md"
-          />
-        </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
-          <Command>
-            <CommandList>
-              <CommandEmpty>No color found.</CommandEmpty>
-              <CommandGroup>
-                {colorOptions.map((color) => (
-                  <CommandItem
-                    key={color.stShortName}
-                    value={color.stShortName}
-                    onSelect={(currentValue) => {
-                      setValues(currentValue === values ? "" : currentValue);
-                      setOpen(false);
-                    }}
-                  >
-                    {color.stShortName}
-                    <Check
-                      className={cn(
-                        "ml-auto",
-                        values === color.stShortName
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
-                    />
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    );
-  };
-
-  const actionBodyTemplate = (rowData, options) => {
-    return (
-      <Button
-        type="button"
-        className="bg-red-600"
-        size="icon"
-        onClick={() => deleteRow(options.rowIndex)}
-      >
-        <Trash2 />
-      </Button>
-    );
-  };
-
-  // Remove a row by index.
-  const deleteRow = (index) => {
-    const updatedItems = items.filter((item, i) => i !== index);
-    setItems(updatedItems);
-  };
-
-  const footer = (
-    <div className="flex justify-between">
-      <div></div>
-      <div></div>
-      <div className="flex items-center gap-1 text-sm">
-        <span className="text-neutral-400">Pcs</span>
-        <span>151</span>
-      </div>
-      <div className="flex items-center gap-1 text-sm">
-        <span className="text-neutral-400">Carats</span>
-        <span>562</span>
-      </div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-
-      <div className="flex items-center gap-1 text-sm">
-        <span className="text-neutral-400">Pol. Cats.</span>
-        <span>5.65</span>
-      </div>
-      <div className="flex items-center gap-1 text-sm">
-        <span className="text-neutral-400">Pol.%</span>
-        <span>202.36</span>
-      </div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div className="flex items-center gap-1 text-sm">
-        <span className="text-neutral-400">Sell Price</span>
-        <span>6680</span>
-      </div>
-      <div className="flex items-center gap-1 text-sm">
-        <span className="text-neutral-400">Cost Price</span>
-        <span>6680</span>
-      </div>
-      <div></div>
-    </div>
-  );
-
-  // Add a new row with default empty values (you can prepopulate the lotNo if desired).
-  const addRow = () => {
-    const newRow = {
-      roughPieces: "",
-      roughCarats: "",
-      color: "",
-      colorGrade: "",
-      clarity: "",
-      flr: "",
-      shape: "",
-      polishCarats: "",
-      polishPercent: "",
-      depth: "",
-      table: "",
-      ratio: "",
-      sellPrice: "",
-      costPrice: "",
-      incription: "",
-    };
-    setItems([...items, newRow]);
-  };
-
-  const [selectedTenderType, setSelectedTenderType] = useState("");
-  const [voucherDate, setVoucherDate] = useState("");
-  const [tenderName, setTenderName] = useState("");
-  const [notePercent, setNotePercent] = useState("");
-
-  const totalSellPrice = items.reduce((acc, item) => acc + item.sellPrice, 0);
-  const totalCostPrice = items.reduce((acc, item) => acc + item.costPrice, 0);
-
-  // ((((((items.cost price + 0) * 97%) - 180) * items.polishCarat) % items.roughCarats) - 50) / 106%).fixed(2)
-
-  const handleAddRow = () => {
-    setItems([...items, initialRow[0]]);
   };
 
   async function onSubmit(data: CreateTenderFormValues) {
     console.log(data, "data");
   }
-
-  console.log(errors, "eroor");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -655,180 +443,19 @@ export function CreateTenderForm({
         </Card>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-lg border-x">
-        <DataTable
-          value={items}
-          showGridlines
-          editMode="cell"
-          scrollable
-          resizableColumns
-          scrollHeight="401px"
-          footer={footer}
-          tableStyle={{ marginBottom: "24px", whiteSpace: "nowrap" }}
-        >
-          <Column
-            body={() => watch("lotNo")}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-            header="Lot"
-          />
-          <Column
-            field="totalRoughPieces"
-            header="Pcs."
-            editor={(props) => textEditor(props)}
-            style={{ paddingBlock: "2px" }}
-            headerStyle={{ paddingBlock: "1px" }}
-          ></Column>
-          <Column
-            field="totalRoughCarats"
-            header="Cts."
-            editor={(props) => textEditor(props)}
-            style={{ paddingBlock: "2px" }}
-            headerStyle={{ paddingBlock: "1px" }}
-          ></Column>
-          <Column
-            field="color"
-            header="Color"
-            editor={(props) => allEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="colorGrade"
-            header="C.GD"
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="clarity"
-            header="Clarity"
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="flr"
-            header="FLR"
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="shape"
-            header="Shape"
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="po"
-            header="Pol. Cts."
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="po"
-            header="Pol. %"
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="po"
-            header="Depth"
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="po"
-            header="Table"
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="po"
-            header="Ratio"
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="po"
-            header="Labour"
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="po"
-            header="Sale Price"
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="po"
-            header="Sale Amount"
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="po"
-            header="Cost Price"
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="po"
-            header="Cost Amount"
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="po"
-            header="Tops Ammt"
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            field="po"
-            header="Incription"
-            editor={(props) => textEditor(props)}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          ></Column>
-          <Column
-            body={(_rowData, options) => (
-              <Button
-                type="button"
-                className="bg-red-600"
-                size="icon"
-                onClick={() => deleteRow(options.rowIndex)}
-              >
-                <Trash2 />
-              </Button>
-            )}
-            header={() => (
-              <Button
-                type="button"
-                onClick={() => handleAddRow()}
-                size="icon"
-                className="rounded-full"
-              >
-                <Plus />
-              </Button>
-            )}
-            align={"center"}
-            alignHeader={"center"}
-            headerStyle={{ paddingBlock: "1px" }}
-            style={{ paddingBlock: "2px" }}
-          />
-        </DataTable>
+      <div className="mt-4 overflow-hidden rounded-lg border">
+        <TenderDetailsDataTable
+          lotNo={watch("lotNo")}
+          totalValues={totalValues}
+          setTotalValues={setTotalValues}
+          notePercent={parseInt(watch("notePercent"))}
+          handleValueChange={handleDetailsValueChange}
+          data={tenderDetails}
+          colors={colorsOptions}
+          clarities={claritiesOptions}
+          fluorescences={fluorescencesOptions}
+          shapes={shapesOptions}
+        />
       </div>
 
       <div className="grid grid-cols-1 mt-4">

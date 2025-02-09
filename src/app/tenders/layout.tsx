@@ -9,9 +9,9 @@ export default async function Layout({
   const { user } = await getCurrentSession();
 
   return (
-    <div>
+    <>
       <Header user={user} />
       <main className="p-4">{children}</main>
-    </div>
+    </>
   );
 }

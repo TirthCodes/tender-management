@@ -5,26 +5,42 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { createColor, updateColor } from "@/app/tenders/colors/actions";
 import { Color } from "@/app/tenders/colors/columns";
+import { toast } from "react-toastify";
+import { getQueryClient } from "@/app/providers";
 
 export function ColorForm({
   initialData,
-  onSuccess,
+  closeDialog,
 }: {
   initialData?: Color;
-  onSuccess?: () => void;
+  closeDialog?: () => void;
 }) {
   const router = useRouter();
 
   async function handleSubmit(formData: FormData) {
     try {
+      const queryClient = getQueryClient();
       if (initialData) {
-        await updateColor(initialData.id, formData);
+        const response = await updateColor(initialData.id, formData);
+        if (response.success) {
+          toast.success(response.message);
+          queryClient.invalidateQueries({ queryKey: ["color-options"] });
+          closeDialog?.();
+        } else {
+          toast.error(response.message);
+        }
       } else {
-        await createColor(formData);
+        const response = await createColor(formData);
+        if (response.success) {
+          toast.success(response.message);
+          queryClient.invalidateQueries({ queryKey: ["color-options"] });
+        } else {
+          toast.error(response.message);
+        }
       }
       router.refresh();
-      onSuccess?.();
     } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Error submitting form");
       console.error("Form submission failed:", error);
     }
   }

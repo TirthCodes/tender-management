@@ -5,6 +5,7 @@ import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { LogoutButton } from "./logout-button";
 import { Button } from "./ui/button";
+import { User } from "@prisma/client";
 
 const navigation = [
   { name: "Colors", href: "/tenders/colors" },
@@ -15,11 +16,11 @@ const navigation = [
   { name: "Main Lot", href: "/main-lot" },
 ];
 
-export default function Header({ user }) {
+export default function Header({ user }: { user: User | null }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white shadow-md sticky top-0 w-full">
+    <header className="bg-white shadow-md sticky z-[100] top-0 w-full">
       <nav
         aria-label="Global"
         className="flex items-center justify-between p-4 lg:px-6"
@@ -53,7 +54,7 @@ export default function Header({ user }) {
         </div>
 
         <div className="hidden lg:flex">
-          {user.role === "ADMIN" && (
+          {user?.stRole === "ADMIN" && (
             <Button className="mr-4">Manage Users</Button>
           )}
           <LogoutButton />

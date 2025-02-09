@@ -24,7 +24,7 @@ model User {
   stPasswordHash  String
   stRole          UserRole    @default(USER)
   dtCreatedAt     DateTime    @default(now())
-  dtUpdatedAt     DateTime    @updatedAt
+  dtUpdatedAt     DateTime    @updatedAt @default(now())
   sessions Session[]
 }
 
@@ -64,11 +64,11 @@ model Tender {
 
   dtCreatedAt          DateTime               @default(now())
   dtUpdatedAt          DateTime               @updatedAt
-  tenderDetails        TenderDetailsTable[]
+  tenderDetails        TenderDetails[]
 }
 
 
-model TenderDetailsTable {
+model TenderDetails {
   id                Int             @id @default(autoincrement())
   
   tenderId          Int
@@ -130,7 +130,7 @@ model Color {
   inSerial          Int
   dtCreatedAt       DateTime                @default(now())
   dtUpdatedAt       DateTime                @updatedAt
-  tenderDetails     TenderDetailsTable[]
+  tenderDetails     TenderDetails[]
 }
 
 model Clarity {
@@ -140,7 +140,7 @@ model Clarity {
   inSerial          Int
   dtCreatedAt       DateTime                @default(now())
   dtUpdatedAt       DateTime                @updatedAt
-  tenderDetails     TenderDetailsTable[]
+  tenderDetails     TenderDetails[]
 }
 
 model Fluorescence {
@@ -150,7 +150,7 @@ model Fluorescence {
   inSerial          Int
   dtCreatedAt       DateTime                @default(now())
   dtUpdatedAt       DateTime                @updatedAt
-  tenderDetails     TenderDetailsTable[]
+  tenderDetails     TenderDetails[]
 } 
 
 model Shape { 
@@ -160,6 +160,6 @@ model Shape {
   inSerial          Int
   dtCreatedAt       DateTime                @default(now())
   dtUpdatedAt       DateTime                @updatedAt
-  tenderDetails     TenderDetailsTable[]
+  tenderDetails     TenderDetails[]
 }
 

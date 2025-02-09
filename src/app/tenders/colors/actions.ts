@@ -4,28 +4,49 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
 export async function createColor(formData: FormData) {
-  await prisma.color.create({
-    data: {
-      stName: formData.get("stName") as string,
-      stShortName: formData.get("stShortName") as string,
-      inSerial: Number(formData.get("inSerial")),
-    },
-  });
-
-  return redirect("/tenders/colors");
+  try {
+    await prisma.color.create({
+      data: {
+        stName: formData.get("stName") as string,
+        stShortName: formData.get("stShortName") as string,
+        inSerial: Number(formData.get("inSerial")),
+      },
+    });
+    // return redirect("/tenders/colors");
+    return {
+      success: true,
+      message: "Color created successfully",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Error creating color",
+    }
+  }
 }
 
 export async function updateColor(id: number, formData: FormData) {
-  await prisma.color.update({
-    where: { id },
-    data: {
-      stName: formData.get("stName") as string,
-      stShortName: formData.get("stShortName") as string,
-      inSerial: Number(formData.get("inSerial")),
-    },
-  });
+  try {
+    
+    await prisma.color.update({
+      where: { id },
+      data: {
+        stName: formData.get("stName") as string,
+        stShortName: formData.get("stShortName") as string,
+        inSerial: Number(formData.get("inSerial")),
+      },
+    });
 
-  return redirect("/tenders/colors");
+    return {
+      success: true,
+      message: "Color updated successfully",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Error updating color",
+    }
+  }
 }
 
 export async function deleteColor(id: number) {
