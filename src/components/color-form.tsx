@@ -7,6 +7,7 @@ import { createColor, updateColor } from "@/app/tenders/colors/actions";
 import { Color } from "@/app/tenders/colors/columns";
 import { toast } from "react-toastify";
 import { getQueryClient } from "@/app/providers";
+import { useState } from "react";
 
 export function ColorForm({
   initialData,
@@ -15,11 +16,20 @@ export function ColorForm({
   initialData?: Color;
   closeDialog?: () => void;
 }) {
+  
+  const [isPending, setIsPending] = useState(false);
+  
   const router = useRouter();
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsPending(true);
+
     try {
+      const formData = new FormData(e.currentTarget);
       const queryClient = getQueryClient();
+
       if (initialData) {
         const response = await updateColor(initialData.id, formData);
         if (response.success) {
@@ -34,6 +44,9 @@ export function ColorForm({
         if (response.success) {
           toast.success(response.message);
           queryClient.invalidateQueries({ queryKey: ["color-options"] });
+          if(e.currentTarget) {
+            e.currentTarget.reset()
+          }
         } else {
           toast.error(response.message);
         }
@@ -42,11 +55,13 @@ export function ColorForm({
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Error submitting form");
       console.error("Form submission failed:", error);
+    } finally {
+      setIsPending(false);
     }
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4 max-w-md">
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
       <div className="space-y-1">
         <label className="text-sm font-medium">Name</label>
         <Input
@@ -72,7 +87,7 @@ export function ColorForm({
           defaultValue={initialData?.inSerial || ""}
         />
       </div>
-      <Button type="submit">{initialData ? "Update" : "Create"}</Button>
+      <Button disabled={isPending} type="submit">{initialData ? "Update" : "Create"}</Button>
     </form>
   );
 }

@@ -5,32 +5,64 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { createShape, updateShape } from "@/app/tenders/shapes/actions";
 import { Shape } from "@/app/tenders/shapes/columns";
+import { useRef, useState } from "react";
+import { getQueryClient } from "@/app/providers";
+import { toast } from "react-toastify";
 
 export function ShapeForm({
   initialData,
-  onSuccess,
+  closeDialog,
 }: {
   initialData?: Shape;
-  onSuccess?: () => void;
+  closeDialog?: () => void;
 }) {
+  const [isPending, setIsPending] = useState(false);
+  
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement | null>(null);
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setIsPending(true);
+
     try {
+      const formData = new FormData(e.currentTarget);
+      const queryClient = getQueryClient();
+
       if (initialData) {
-        await updateShape(initialData.id, formData);
+        const response = await updateShape(initialData.id, formData);
+        if (response.success) {
+          toast.success(response.message);
+          queryClient.invalidateQueries({ queryKey: ["shape-options"] });
+          closeDialog?.();
+        } else {
+          toast.error(response.message);
+        }
       } else {
-        await createShape(formData);
+        const response = await createShape(formData);
+        if (response.success) {
+          toast.success(response.message);
+          queryClient.invalidateQueries({ queryKey: ["shape-options"] });
+          if(formRef.current) {
+            formRef.current.reset() 
+          }
+        } else {
+          toast.error(response.message);
+        }
       }
       router.refresh();
-      onSuccess?.();
     } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Error submitting form");
       console.error("Form submission failed:", error);
+    } finally { 
+      setIsPending(false);
     }
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4 max-w-md">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 max-w-md">
       <div className="space-y-1">
         <label className="text-sm font-medium">Name</label>
         <Input
@@ -56,7 +88,7 @@ export function ShapeForm({
           defaultValue={initialData?.inSerial || ""}
         />
       </div>
-      <Button type="submit">{initialData ? "Update" : "Create"}</Button>
+      <Button disabled={isPending} type="submit">{initialData ? "Update" : "Create"}</Button>
     </form>
   );
 }

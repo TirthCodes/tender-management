@@ -26,9 +26,9 @@ export const mainLotColums: ColumnDef<MainLot>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => (
+    cell: () => (
       <div className="flex gap-2">
-        <ColorDialogForm initialData={row.original} />
+        {/* <ColorDialogForm initialData={row.original} />
         <Button
           variant="destructive"
           onClick={async () => {
@@ -37,7 +37,7 @@ export const mainLotColums: ColumnDef<MainLot>[] = [
           }}
         >
           Delete
-        </Button>
+        </Button> */}
       </div>
     ),
   },

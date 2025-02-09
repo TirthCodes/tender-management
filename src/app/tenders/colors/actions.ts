@@ -1,7 +1,6 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
 
 export async function createColor(formData: FormData) {
   try {
@@ -50,7 +49,18 @@ export async function updateColor(id: number, formData: FormData) {
 }
 
 export async function deleteColor(id: number) {
-  await prisma.color.delete({
-    where: { id },
-  });
+  try {
+    await prisma.color.delete({
+      where: { id },
+    });
+    return {
+      success: true,
+      message: "Color deleted successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Error deleting color",
+    };
+  }
 }

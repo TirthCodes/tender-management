@@ -82,7 +82,7 @@ function FluorescenceDialogForm({
         </DialogHeader>
         <FluorescenceForm
           initialData={initialData}
-          onSuccess={() => setOpen(false)}
+          closeDialog={() => setOpen(false)}
         />
       </DialogContent>
     </Dialog>

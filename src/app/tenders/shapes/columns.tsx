@@ -75,7 +75,7 @@ function ShapeDialogForm({ initialData }: { initialData?: Shape }) {
             Create a new color for the application.
           </DialogDescription> */}
         </DialogHeader>
-        <ShapeForm initialData={initialData} onSuccess={() => setOpen(false)} />
+        <ShapeForm initialData={initialData} closeDialog={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );

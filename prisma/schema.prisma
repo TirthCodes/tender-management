@@ -86,7 +86,7 @@ model TenderDetails {
   shapeId           Int          
   shape             Shape           @relation(fields: [shapeId], references: [id], onDelete: Cascade)
   
-  stColorGrade      String
+  stColorGrade      Int
   
   dcPolCts          Decimal         @db.Decimal(10, 2)
   dcPolPer          Decimal         @db.Decimal(10, 2)

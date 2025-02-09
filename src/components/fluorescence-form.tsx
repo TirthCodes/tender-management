@@ -8,32 +8,63 @@ import {
   updateFluorescence,
 } from "@/app/tenders/fluorescence/actions";
 import { Fluorescence } from "@/app/tenders/fluorescence/columns";
+import React, { useRef, useState } from "react";
+import { toast } from "react-toastify";
+import { getQueryClient } from "@/app/providers";
 
 export function FluorescenceForm({
   initialData,
-  onSuccess,
+  closeDialog,
 }: {
   initialData?: Fluorescence;
-  onSuccess?: () => void;
+  closeDialog?: () => void;
 }) {
-  const router = useRouter();
 
-  async function handleSubmit(formData: FormData) {
+  const [isPending, setIsPending] = useState(false);
+  
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setIsPending(true);
     try {
+      const formData = new FormData(e.currentTarget);
+      const queryClient = getQueryClient();
+
       if (initialData) {
-        await updateFluorescence(initialData.id, formData);
+        const response = await updateFluorescence(initialData.id, formData);
+        if (response.success) {
+          toast.success(response.message);
+          queryClient.invalidateQueries({ queryKey: ["fluorescence-options"] });
+          closeDialog?.();
+        } else {
+          toast.error(response.message);
+        }
       } else {
-        await createFluorescence(formData);
+        const response = await createFluorescence(formData);
+        if (response.success) {
+          toast.success(response.message);
+          queryClient.invalidateQueries({ queryKey: ["fluorescence-options"] });
+          if(formRef.current) {
+            formRef.current.reset()
+          }
+        } else {
+          toast.error(response.message);
+        }
       }
       router.refresh();
-      onSuccess?.();
     } catch (error) {
       console.error("Form submission failed:", error);
+    } finally {
+      setIsPending(false);
     }
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4 max-w-md">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 max-w-md">
       <div className="space-y-1">
         <label className="text-sm font-medium">Name</label>
         <Input
@@ -59,7 +90,7 @@ export function FluorescenceForm({
           defaultValue={initialData?.inSerial || ""}
         />
       </div>
-      <Button type="submit">{initialData ? "Update" : "Create"}</Button>
+      <Button disabled={isPending} type="submit">{initialData ? "Update" : "Create"}</Button>
     </form>
   );
 }

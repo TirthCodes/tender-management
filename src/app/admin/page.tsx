@@ -50,9 +50,9 @@ export default async function Admin() {
           <LogoutButton />
         </div>
       </div>
-      <div className="bg-gray-200 p-4">
-        <div className="inline-block bg-white w-full  align-middle">
-          <table className="divide-y min-w-full divide-gray-300">
+      <div className="border border-gray-200 rounded-md">
+        <div className="inline-block bg-white w-full  align-middle rounded-md">
+          <table className="divide-y min-w-full divide-gray-300 rounded-md">
             <thead className="">
               <tr className=" divide-x divide-gray-200">
                 <th

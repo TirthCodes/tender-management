@@ -22,7 +22,7 @@ export default function DialogWrapper({
   isEdit,
 }: DialogWrapperProps) {
   return (
-    <DialogContent className={contentClass ? contentClass : ""}>
+    <DialogContent className={contentClass ? contentClass : "z-[100]"}>
       <DialogHeader>
         <DialogTitle>{title}</DialogTitle>
         <DialogDescription>

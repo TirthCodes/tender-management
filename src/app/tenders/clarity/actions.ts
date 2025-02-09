@@ -1,35 +1,64 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
 
 export async function createClarity(formData: FormData) {
-  await prisma.clarity.create({
-    data: {
-      stName: formData.get("stName") as string,
-      stShortName: formData.get("stShortName") as string,
-      inSerial: Number(formData.get("inSerial")),
-    },
-  });
-
-  return redirect("/tenders/clarity");
+  try {
+    await prisma.clarity.create({
+      data: {
+        stName: formData.get("stName") as string,
+        stShortName: formData.get("stShortName") as string,
+        inSerial: Number(formData.get("inSerial")),
+      },
+    });
+    return {
+      success: true,
+      message: "Clarity created successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Error creating clarity",
+    };
+  }
 }
 
 export async function updateClarity(id: number, formData: FormData) {
-  await prisma.clarity.update({
-    where: { id },
-    data: {
-      stName: formData.get("stName") as string,
-      stShortName: formData.get("stShortName") as string,
-      inSerial: Number(formData.get("inSerial")),
-    },
-  });
+  try {
+    await prisma.clarity.update({
+      where: { id },
+      data: {
+        stName: formData.get("stName") as string,
+        stShortName: formData.get("stShortName") as string,
+        inSerial: Number(formData.get("inSerial")),
+      },
+    });
 
-  return redirect("/tenders/clarity");
+    return {
+      success: true,
+      message: "Clarity updated successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Error updating clarity",
+    };
+  }
 }
 
 export async function deleteClarity(id: number) {
-  await prisma.clarity.delete({
-    where: { id },
-  });
+  try {
+    await prisma.clarity.delete({
+      where: { id },
+    });
+    return {
+      success: true,
+      message: "Clarity deleted successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Error deleting clarity",
+    };
+  }
 }

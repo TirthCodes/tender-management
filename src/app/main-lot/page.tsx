@@ -1,5 +1,5 @@
 import React from 'react'
-import { DataTable } from "@/components/ui/data-table";
+// import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ColorForm } from "@/components/color-form";
+// import { ColorForm } from "@/components/color-form";
 
 export default function MainLotPage() {
   return (
@@ -26,11 +26,11 @@ export default function MainLotPage() {
                 Create a new color for the application.
               </DialogDescription> */}
             </DialogHeader>
-            <ColorForm />
+            {/* <ColorForm /> */}
           </DialogContent>
         </Dialog>
       </div>
-      <DataTable columns={columns} data={colors} />
+      {/* <DataTable columns={columns} data={colors} /> */}
     </div>
   )
 }

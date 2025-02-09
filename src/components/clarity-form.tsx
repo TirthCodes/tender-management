@@ -5,32 +5,63 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { createClarity, updateClarity } from "@/app/tenders/clarity/actions";
 import { Clarity } from "@/app/tenders/clarity/columns";
+import { toast } from "react-toastify";
+import { getQueryClient } from "@/app/providers";
+import { useState } from "react";
 
 export function ClarityForm({
   initialData,
-  onSuccess,
+  closeDialog,
 }: {
   initialData?: Clarity;
-  onSuccess?: () => void;
+  closeDialog?: () => void;
 }) {
+  
+  const [isPending, setIsPending] = useState(false);
+
   const router = useRouter();
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setIsPending(true);
+
     try {
+      const formData = new FormData(e.currentTarget);
+      const queryClient = getQueryClient();
+
       if (initialData) {
-        await updateClarity(initialData.id, formData);
+        const response = await updateClarity(initialData.id, formData);
+        if (response.success) {
+          toast.success(response.message);
+          queryClient.invalidateQueries({ queryKey: ["clarity-options"] });
+          closeDialog?.();
+        } else {
+          toast.error(response.message);
+        }
       } else {
-        await createClarity(formData);
+        const response = await createClarity(formData);
+        if (response.success) {
+          toast.success(response.message);
+          queryClient.invalidateQueries({ queryKey: ["clarity-options"] });
+          if(e.currentTarget) {
+            e.currentTarget.reset()
+          }
+        } else {
+          toast.error(response.message);
+        }
       }
       router.refresh();
-      onSuccess?.();
     } catch (error) {
       console.error("Form submission failed:", error);
+    } finally {
+      setIsPending(false);
     }
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4 max-w-md">
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
       <div className="space-y-1">
         <label className="text-sm font-medium">Name</label>
         <Input
@@ -56,7 +87,7 @@ export function ClarityForm({
           defaultValue={initialData?.inSerial || ""}
         />
       </div>
-      <Button type="submit">{initialData ? "Update" : "Create"}</Button>
+      <Button disabled={isPending} type="submit">{initialData ? "Update" : "Create"}</Button>
     </form>
   );
 }

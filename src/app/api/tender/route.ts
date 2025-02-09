@@ -1,0 +1,157 @@
+import { prisma } from "@/lib/prisma";
+import { getCurrentSession } from "@/lib/server/session";
+import { TenderDetails } from "@/lib/types/tender";
+
+export async function POST(req: Request) {
+  const session = await getCurrentSession();
+
+  if (!session.user || !session.session) {
+    return Response.json(
+      {
+        success: false,
+        message: "Unauthorized",
+      },
+      { status: 401 }
+    );
+  }
+
+  try {
+    const body = await req.json();
+    console.log(body, "body");
+
+    const {
+      voucherDate,
+      tenderName,
+      tenderType,
+      notePercent,
+      remark,
+      lotNo,
+      roughName,
+      roughPcs,
+      roughCts,
+      roughSize,
+      roughPrice,
+      roughTotal,
+      bidPrice,
+      resultCost,
+      finalCostPrice,
+      totalAmount,
+      resultPerCarat,
+      finalBidPrice,
+      resultTotal,
+      finalTotalAmount,
+      tenderDetails,
+    } = body;
+
+    //   {
+    //     "voucherDate": "10/02/2025",
+    //     "tenderType": "singleStone",
+    //     "tenderName": "Single Stone Tender",
+    //     "notePercent": "106",
+    //     "remark": "",
+    //     "lotNo": "FS39",
+    //     "roughName": "Rough FS39",
+    //     "roughPcs": "1",
+    //     "roughCts": "4.96",
+    //     "roughSize": "4.96",
+    //     "roughPrice": "1000",
+    //     "roughTotal": "1000",
+    //     "bidPrice": 8169.51,
+    //     "totalAmount": 40520.77,
+    //     "resultCost": 22919.43,
+    //     "resultPerCarat": 10438.53,
+    //     "resultTotal": "51775.11",
+    //     "finalCostPrice": 17998.9,
+    //     "finalBidPrice": "8169",
+    //     "finalTotalAmount": 40518.24,
+    //     "tenderDetails": "[{\"pcs\":1,\"carats\":4.96,\"color\":{\"id\":1,\"stShortName\":\"F VID Y\"},\"colorGrade\":10,\"clarity\":{\"id\":5,\"stShortName\":\"VVS1\"},\"flr\":{\"id\":3,\"stShortName\":\"N(YU)\"},\"shape\":{\"id\":3,\"stShortName\":\"HEART\"},\"polCts\":2.5,\"polPercent\":50.4,\"depth\":55,\"table\":58,\"ratio\":0.86,\"labour\":0,\"salePrice\":20000,\"saleAmount\":0,\"costPrice\":18000,\"costAmount\":0,\"topsAmount\":0,\"incription\":\"RD-2.35\"}]"
+    // }
+
+    const tender = await prisma.tender.create({
+      data: {
+        dtVoucherDate: new Date(voucherDate),
+        stTenderName: tenderName,
+        stTenderType: tenderType,
+        dcNotePercentage: parseFloat(notePercent),
+        stRemark: remark,
+        stLotNo: lotNo,
+        stRoughName: roughName,
+        inTotalRoughPcs: parseInt(roughPcs),
+        dcTotalRoughCts: parseFloat(roughCts),
+        dcRoughSize: parseFloat(roughSize),
+        dcRoughPrice: parseFloat(roughPrice),
+        dcRoughTotal: parseFloat(roughTotal),
+        dcBidPrice: bidPrice,
+        dcResultCost: resultCost,
+        dcFinalCostPrice: finalCostPrice,
+        dcTotalAmount: totalAmount,
+        dcResultPerCt: resultPerCarat,
+        dcFinalBidPrice: parseFloat(finalBidPrice),
+        dcResultTotal: parseFloat(resultTotal),
+        dcFinalTotalAmount: finalTotalAmount,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const parseTenderDetails = JSON.parse(tenderDetails) as TenderDetails[];
+
+    console.log(parseTenderDetails, "parseTenderDetails");
+    if (tender && parseTenderDetails.length > 0) {
+      const tenderDetailsPayload = parseTenderDetails.map((tenderDetail) => ({
+        tenderId: tender.id,
+
+        inRoughPcs: tenderDetail.pcs,
+        dcRoughCts: tenderDetail.carats,
+
+        colorId: tenderDetail.color.id,
+        clarityId: tenderDetail.clarity.id,
+        fluorescenceId: tenderDetail.flr.id,
+        shapeId: tenderDetail.shape.id,
+
+        stColorGrade: tenderDetail.colorGrade,
+
+        dcPolCts: tenderDetail.polCts,
+        dcPolPer: tenderDetail.polPercent,
+
+        dcDepth: tenderDetail.depth || 0,
+        dcTable: tenderDetail.table || 0,
+        dcRatio: tenderDetail.ratio || 0,
+
+        inLabour: tenderDetail.labour || 0,
+
+        dcSalePrice: tenderDetail.salePrice || 0,
+        dcSaleAmount: tenderDetail.saleAmount || 0,
+
+        dcCostPrice: tenderDetail.costPrice || 0,
+        dcCostAmount: tenderDetail.costAmount || 0,
+
+        dcTopsAmount: tenderDetail.topsAmount || 0,
+
+        stIncription: tenderDetail.incription || "",
+      }));
+
+      await prisma.tenderDetails.createMany({
+        data: tenderDetailsPayload,
+      });
+    }
+
+    return Response.json(
+      {
+        success: true,
+        message: "Tender created successfully",
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    return Response.json(
+      {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Error creating tender",
+      },
+      { status: 500 }
+    );
+  }
+}

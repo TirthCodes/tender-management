@@ -18,6 +18,7 @@ export interface TotalValues {
   polPercent: number;
   salePrice: number;
   costPrice: number;
+  topsAmount: number;
 }
 
 export interface TenderDetails {

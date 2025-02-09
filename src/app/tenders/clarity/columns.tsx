@@ -78,7 +78,7 @@ function ClarityDialogForm({ initialData }: { initialData?: Clarity }) {
         </DialogHeader>
         <ClarityForm
           initialData={initialData}
-          onSuccess={() => setOpen(false)}
+          closeDialog={() => setOpen(false)}
         />
       </DialogContent>
     </Dialog>

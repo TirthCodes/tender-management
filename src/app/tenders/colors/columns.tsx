@@ -59,7 +59,6 @@ export const columns: ColumnDef<Color>[] = [
 
 export function ColorDialogForm({ initialData }: { initialData?: Color }) {
   const [open, setOpen] = useState(false);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
