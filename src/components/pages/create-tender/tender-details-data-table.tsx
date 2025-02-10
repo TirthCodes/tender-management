@@ -142,7 +142,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-center"
                         name="pcs"
                         type="number"
                         value={row.pcs || ""}
@@ -164,7 +164,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="carats"
                         type="number"
                         value={row.carats || ""}
@@ -207,7 +207,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="colorGrade"
                         type="number"
                         value={row.colorGrade || ""}
@@ -292,7 +292,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="polCts"
                         type="number"
                         value={row.polCts || ""}
@@ -314,7 +314,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="polPercent"
                         type="number"
                         value={row.polPercent || ""}
@@ -336,7 +336,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="depth"
                         type="number"
                         value={row.depth || ""}
@@ -358,7 +358,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="table"
                         type="number"
                         value={row.table || ""}
@@ -380,7 +380,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="ratio"
                         type="number"
                         value={row.ratio || ""}
@@ -402,7 +402,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="labour"
                         type="number"
                         value={row.labour || ""}
@@ -424,7 +424,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="salePrice"
                         type="number"
                         value={row.salePrice || ""}
@@ -446,7 +446,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="saleAmount"
                         type="number"
                         value={row.saleAmount || ""}
@@ -468,7 +468,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="costPrice"
                         type="number"
                         value={row.costPrice || ""}
@@ -490,7 +490,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="costAmount"
                         type="number"
                         value={row.costAmount || ""}
@@ -512,7 +512,7 @@ export function TenderDetailsDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 text-right"
                         name="topsAmount"
                         type="number"
                         value={row.topsAmount || ""}

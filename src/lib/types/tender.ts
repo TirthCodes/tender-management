@@ -34,7 +34,6 @@ export interface TenderDetails {
   depth: number;
   table: number;
   ratio: number;
-  labour: number;
   salePrice: number;
   saleAmount: number;
   costPrice: number;

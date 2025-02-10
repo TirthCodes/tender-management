@@ -41,9 +41,14 @@ model Tender {
   dtVoucherDate        DateTime     
   stTenderName         String
   stTenderType         String                 // single stone, rough lot, multi lot, mix lot
-  dcNotePercentage     Decimal                @db.Decimal(10, 2)  
+  dcNetPercentage     Decimal                @db.Decimal(10, 2)  
   stRemark             String?                @db.Text
   
+  stPersonName         String
+  dcLabour             Decimal                @db.Decimal(10, 2)
+  stStatus             String?                // win, loss, 
+
+
   stLotNo              String
   stRoughName          String
   inTotalRoughPcs      Int 
@@ -94,8 +99,6 @@ model TenderDetails {
   dcDepth           Decimal?        @db.Decimal(10, 2)
   dcTable           Decimal?        @db.Decimal(10, 2)
   dcRatio           Decimal?        @db.Decimal(10, 2)
-
-  inLabour          Int
 
   dcSalePrice       Decimal?        @db.Decimal(10, 2)
   dcSaleAmount      Decimal?        @db.Decimal(10, 2)

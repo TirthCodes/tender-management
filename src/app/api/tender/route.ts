@@ -22,10 +22,12 @@ export async function POST(req: Request) {
     const {
       voucherDate,
       tenderName,
+      personName,
       tenderType,
-      notePercent,
+      netPercent,
       remark,
       lotNo,
+      labour,
       roughName,
       roughPcs,
       roughCts,
@@ -72,7 +74,9 @@ export async function POST(req: Request) {
         dtVoucherDate: new Date(voucherDate),
         stTenderName: tenderName,
         stTenderType: tenderType,
-        dcNotePercentage: parseFloat(notePercent),
+        dcNetPercentage: parseFloat(netPercent),
+        stPersonName: personName,
+        dcLabour: parseFloat(labour),
         stRemark: remark,
         stLotNo: lotNo,
         stRoughName: roughName,
@@ -118,8 +122,6 @@ export async function POST(req: Request) {
         dcDepth: tenderDetail.depth || 0,
         dcTable: tenderDetail.table || 0,
         dcRatio: tenderDetail.ratio || 0,
-
-        inLabour: tenderDetail.labour || 0,
 
         dcSalePrice: tenderDetail.salePrice || 0,
         dcSaleAmount: tenderDetail.saleAmount || 0,

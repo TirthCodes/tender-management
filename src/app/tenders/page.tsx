@@ -8,7 +8,9 @@ export default async function Tenders() {
       dtVoucherDate: true,
       stTenderName: true,
       stTenderType: true,
-      dcNotePercentage: true,
+      dcNetPercentage: true,
+      stPersonName: true,
+      dcLabour: true,
       stLotNo: true,
       stRoughName: true,
       inTotalRoughPcs: true,
@@ -130,8 +132,8 @@ export default async function Tenders() {
                                 Note %:
                               </span> */}
                               <span className="text-gray-700">
-                                {tender.dcNotePercentage
-                                  ? String(tender.dcNotePercentage)
+                                {tender.dcNetPercentage
+                                  ? String(tender.dcNetPercentage)
                                   : ""}
                               </span>
                             </div>

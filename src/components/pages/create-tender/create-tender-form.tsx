@@ -54,7 +54,6 @@ export const initialRow = {
   depth: 0,
   table: 0,
   ratio: 0,
-  labour: 0,
   salePrice: 0,
   saleAmount: 0,
   costPrice: 0,
@@ -76,7 +75,9 @@ const createTenderSchema = z.object({
   voucherDate: z.string(),
   tenderType: z.string(),
   tenderName: z.string().trim().min(2, { message: "Tender name is required!" }),
-  notePercent: z.string().trim().min(2, { message: "Note % is required!" }),
+  personName: z.string().trim().min(2, { message: "Person name is required!" }),
+  netPercent: z.string().trim().min(2, { message: "Note % is required!" }),
+  labour: z.string().trim().min(1, { message: "Labour is required!" }),
   remark: z.string().trim().optional(),
   lotNo: z.string().trim().min(1, { message: "Lot no.is required!" }),
   roughName: z.string().trim().min(2, { message: "Rough name is required!" }),
@@ -190,15 +191,15 @@ export function CreateTenderForm({
     }
   }, [date, setValue, errors, setError]);
 
-  const notePercent = watch("notePercent");
+  const netPercent = watch("netPercent");
   const resultTotal = watch("resultTotal");
   const tendetType = watch("tenderType");
   const finalBidPrice = watch("finalBidPrice");
   const roughCts = watch("roughCts");
 
   useEffect(() => {
-    if (notePercent && tendetType) {
-      const notePercentValue = parseFloat(notePercent);
+    if (netPercent && tendetType) {
+      const netPercentValue = parseFloat(netPercent);
       let calculatedBidPrice = 0;
 
       if (tendetType === "singleStone") {
@@ -208,7 +209,7 @@ export function CreateTenderForm({
               totalValues.polCts) /
               totalValues.carats -
               50) /
-            (notePercentValue / 100)
+            (netPercentValue / 100)
           ).toFixed(2)
         );
       } else if (tendetType === "mixLot") {
@@ -217,11 +218,13 @@ export function CreateTenderForm({
             (((totalValues.salePrice * 0.97 - 180) * totalValues.polCts) /
               totalValues.carats -
               50) /
-            (notePercentValue / 100)
+            (netPercentValue / 100)
           ).toFixed(2)
         );
       } else if (tendetType === "roughLot") {
-        calculatedBidPrice = parseFloat(((totalValues.costPrice / (notePercentValue / 100)).toFixed(2)));
+        calculatedBidPrice = parseFloat(
+          (totalValues.costPrice / (netPercentValue / 100)).toFixed(2)
+        );
       }
 
       if (!isNaN(calculatedBidPrice)) {
@@ -231,7 +234,10 @@ export function CreateTenderForm({
           totalAmount = parseFloat(
             (totalValues.carats * calculatedBidPrice).toFixed(2)
           );
-        } else if ((tendetType === "mixLot" || tendetType === "roughLot") && roughCts) {
+        } else if (
+          (tendetType === "mixLot" || tendetType === "roughLot") &&
+          roughCts
+        ) {
           const roughCtsValue = parseFloat(roughCts);
           if (!isNaN(roughCtsValue)) {
             totalAmount = parseFloat(
@@ -250,7 +256,10 @@ export function CreateTenderForm({
             resultPerCarat = parseFloat(
               (resultTotalValue / totalValues.carats).toFixed(2)
             );
-          } else if ((tendetType === "mixLot" || tendetType === "roughLot") && roughCts) {
+          } else if (
+            (tendetType === "mixLot" || tendetType === "roughLot") &&
+            roughCts
+          ) {
             const roughCtsValue = parseFloat(roughCts);
             if (!isNaN(roughCtsValue)) {
               resultPerCarat = parseFloat(
@@ -325,12 +334,12 @@ export function CreateTenderForm({
           let finalTotalAmount = 0;
           if (tendetType === "singleStone") {
             finalTotalAmount = parseFloat(
-              (
-                finalBidPriceValue *
-                totalValues.carats
-              ).toFixed(2)
+              (finalBidPriceValue * totalValues.carats).toFixed(2)
             );
-          } else if ((tendetType === "mixLot" || tendetType === "roughLot") && roughCts) {
+          } else if (
+            (tendetType === "mixLot" || tendetType === "roughLot") &&
+            roughCts
+          ) {
             const roughCtsValue = parseFloat(roughCts);
             if (!isNaN(roughCtsValue)) {
               finalTotalAmount = parseFloat(
@@ -345,7 +354,7 @@ export function CreateTenderForm({
   }, [
     totalValues,
     setValue,
-    notePercent,
+    netPercent,
     tendetType,
     resultTotal,
     finalBidPrice,
@@ -494,13 +503,39 @@ export function CreateTenderForm({
                 />
               </div>
               <div className="flex w-full items-center justify-between">
-                <Label className="w-[94px] shrink-0">Note %</Label>
+                <Label className="w-[94px] shrink-0">Net %</Label>
                 <Input
                   type="number"
                   step="0.01"
-                  {...register("notePercent")}
+                  {...register("netPercent")}
                   className={cn(
-                    errors.notePercent?.message &&
+                    errors.netPercent?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                  placeholder="106"
+                />
+              </div>
+              <div className="flex w-full items-center justify-between">
+                <Label className="w-[100px] shrink-0">Person</Label>
+                <Input
+                  type="text"
+                  step="0.01"
+                  {...register("personName")}
+                  className={cn(
+                    errors.personName?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                  placeholder="106"
+                />
+              </div>
+              <div className="flex w-full items-center justify-between">
+                <Label className="w-[94px] shrink-0">Labour</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  {...register("labour")}
+                  className={cn(
+                    errors.labour?.message &&
                       "border border-red-500 placeholder:text-red-500"
                   )}
                   placeholder="106"
@@ -524,104 +559,106 @@ export function CreateTenderForm({
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Rough Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-6 gap-x-3 gap-y-4">
-              <div className="flex w-full items-center col-span-2">
-                <Label className="w-[88px] shrink-0">Lot No.</Label>
-                <Input
-                  type="text"
-                  {...register("lotNo")}
-                  placeholder="FS39"
-                  className={cn(
-                    errors.lotNo?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
-              <div className="flex w-full items-center col-span-2">
-                <Label className="w-[94px] shrink-0">Rough Name</Label>
-                <Input
-                  type="text"
-                  {...register("roughName")}
-                  placeholder="Name"
-                  className={cn(
-                    errors.roughName?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
-              <div className="flex w-full items-center col-span-2">
-                <Label className="w-[84px] shrink-0">Rough Pcs.</Label>
-                <Input
-                  type="number"
-                  {...register("roughPcs")}
-                  placeholder="4"
-                  className={cn(
-                    errors.roughPcs?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
-              <div className="flex w-full items-center col-span-3">
-                <Label className="w-[88px] shrink-0">Rough Cts.</Label>
-                <Input
-                  type="number"
-                  {...register("roughCts")}
-                  placeholder="24.4"
-                  step={0.01}
-                  className={cn(
-                    errors.roughCts?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
-              <div className="flex w-full items-center col-span-3">
-                <Label className="w-[88px] shrink-0">Rough Size</Label>
-                <Input
-                  {...register("roughSize")}
-                  type="number"
-                  step={0.01}
-                  placeholder="4.96"
-                  className={cn(
-                    errors.roughSize?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
-              <div className="flex w-full items-center col-span-3">
-                <Label className="w-[88px] shrink-0">Rough Price</Label>
-                <Input
-                  {...register("roughPrice")}
-                  type="number"
-                  placeholder="243"
-                  step={0.01}
-                  className={cn(
-                    errors.roughPrice?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
+        {tendetType !== "singleStone" ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Rough Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-6 gap-x-3 gap-y-4">
+                <div className="flex w-full items-center col-span-2">
+                  <Label className="w-[88px] shrink-0">Lot No.</Label>
+                  <Input
+                    type="text"
+                    {...register("lotNo")}
+                    placeholder="FS39"
+                    className={cn(
+                      errors.lotNo?.message &&
+                        "border border-red-500 placeholder:text-red-500"
+                    )}
+                  />
+                </div>
+                <div className="flex w-full items-center col-span-2">
+                  <Label className="w-[94px] shrink-0">Rough Name</Label>
+                  <Input
+                    type="text"
+                    {...register("roughName")}
+                    placeholder="Name"
+                    className={cn(
+                      errors.roughName?.message &&
+                        "border border-red-500 placeholder:text-red-500"
+                    )}
+                  />
+                </div>
+                <div className="flex w-full items-center col-span-2">
+                  <Label className="w-[84px] shrink-0">Rough Pcs.</Label>
+                  <Input
+                    type="number"
+                    {...register("roughPcs")}
+                    placeholder="4"
+                    className={cn(
+                      errors.roughPcs?.message &&
+                        "border border-red-500 placeholder:text-red-500"
+                    )}
+                  />
+                </div>
+                <div className="flex w-full items-center col-span-3">
+                  <Label className="w-[88px] shrink-0">Rough Cts.</Label>
+                  <Input
+                    type="number"
+                    {...register("roughCts")}
+                    placeholder="24.4"
+                    step={0.01}
+                    className={cn(
+                      errors.roughCts?.message &&
+                        "border border-red-500 placeholder:text-red-500"
+                    )}
+                  />
+                </div>
+                <div className="flex w-full items-center col-span-3">
+                  <Label className="w-[88px] shrink-0">Rough Size</Label>
+                  <Input
+                    {...register("roughSize")}
+                    type="number"
+                    step={0.01}
+                    placeholder="4.96"
+                    className={cn(
+                      errors.roughSize?.message &&
+                        "border border-red-500 placeholder:text-red-500"
+                    )}
+                  />
+                </div>
+                <div className="flex w-full items-center col-span-3">
+                  <Label className="w-[88px] shrink-0">Rough Price</Label>
+                  <Input
+                    {...register("roughPrice")}
+                    type="number"
+                    placeholder="243"
+                    step={0.01}
+                    className={cn(
+                      errors.roughPrice?.message &&
+                        "border border-red-500 placeholder:text-red-500"
+                    )}
+                  />
+                </div>
 
-              <div className="flex w-full items-center col-span-3">
-                <Label className="w-[88px] shrink-0">Rough Total</Label>
-                <Input
-                  {...register("roughTotal")}
-                  type="number"
-                  placeholder="999"
-                  step={0.01}
-                  className={cn(
-                    errors.roughTotal?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
+                <div className="flex w-full items-center col-span-3">
+                  <Label className="w-[88px] shrink-0">Rough Total</Label>
+                  <Input
+                    {...register("roughTotal")}
+                    type="number"
+                    placeholder="999"
+                    step={0.01}
+                    className={cn(
+                      errors.roughTotal?.message &&
+                        "border border-red-500 placeholder:text-red-500"
+                    )}
+                  />
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
 
       <div className="mt-4 overflow-hidden rounded-lg border">
@@ -640,9 +677,9 @@ export function CreateTenderForm({
 
       <div className="grid grid-cols-1 mt-4">
         <Card>
-          <CardHeader>
+          {/* <CardHeader>
             <CardTitle>Cost Details</CardTitle>
-          </CardHeader>
+          </CardHeader> */}
           <CardContent>
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col gap-4">
@@ -732,9 +769,7 @@ export function CreateTenderForm({
       </div>
       <div className="flex justify-end gap-2 items-center">
         <Button className="mt-4" type="button">
-          <Link href={"/tenders"}>
-            Cancel
-          </Link>
+          <Link href={"/tenders"}>Cancel</Link>
         </Button>
         <Button disabled={isPending} className="mt-4" type="submit">
           Submit {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -743,3 +778,8 @@ export function CreateTenderForm({
     </form>
   );
 }
+
+// Pol % - (cts * 100) / polcts
+// PolCts - (pol% * cts) / 100
+// Sale Amount - (PolCts * salePricr)
+// Sale Price - (Sale Amount / polcts)
