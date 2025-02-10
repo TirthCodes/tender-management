@@ -101,16 +101,28 @@ export async function loginAction(
   return redirect("/tenders");
 }
 
-export async function logoutAction(): Promise<{ message: string }> {
+export async function logoutAction(): Promise<{ success: boolean; message: string }> {
   const { session } = await getCurrentSession();
 
-  if (session === null) {
-    return {
-      message: "You are not logged in",
-    };
-  }
+  try {
+    if (session === null) {
+      return {
+        success: false,
+        message: "You are not logged in",
+      };
+    }
+    invalidateSession(session.id);
+    deleteSessionTokenCookie();
 
-  invalidateSession(session.id);
-  deleteSessionTokenCookie();
-  return redirect("/auth/login");
+    return {
+      success: true,
+      message: "You have been logged out",
+    };
+    
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Error logging out",
+    }
+  }
 }

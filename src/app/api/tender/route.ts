@@ -3,9 +3,9 @@ import { getCurrentSession } from "@/lib/server/session";
 import { TenderDetails } from "@/lib/types/tender";
 
 export async function POST(req: Request) {
-  const session = await getCurrentSession();
+  const { session, user} = await getCurrentSession();
 
-  if (!session.user || !session.session) {
+  if (!session || !user) {
     return Response.json(
       {
         success: false,
