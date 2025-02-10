@@ -39,6 +39,7 @@ import { TenderDetails, TotalValues } from "@/lib/types/tender";
 import { createTender } from "@/services/tender";
 import { toast } from "react-toastify";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export const initialRow = {
   pcs: 0,
@@ -729,7 +730,12 @@ export function CreateTenderForm({
           </CardContent>
         </Card>
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2 items-center">
+        <Button className="mt-4" type="button">
+          <Link href={"/tenders"}>
+            Cancel
+          </Link>
+        </Button>
         <Button disabled={isPending} className="mt-4" type="submit">
           Submit {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
         </Button>

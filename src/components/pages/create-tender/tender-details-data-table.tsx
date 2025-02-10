@@ -103,9 +103,9 @@ export function TenderDetailsDataTable({
 
   return (
     <>
-      <div className="rounded-md flex-1 flex flex-col min-h-0 h-[25svh]">
+      <div className="rounded-md flex-1 flex flex-col min-h-0 h-[23.5svh]">
         <div className="overflow-x-auto w-auto">
-          <Table className="bg-white mb-14 ">
+          <Table className="bg-white mb-14">
             <TableHeader className="sticky top-0 z-40 bg-white border-b">
               <TableRow>
                 {columns.map((header, index) => {
