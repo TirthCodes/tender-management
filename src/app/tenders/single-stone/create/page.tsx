@@ -1,5 +1,5 @@
 
-import { CreateTenderForm } from "@/components/pages/create-tender/create-tender-form";
+import { CreateSingleStoneTenderForm } from "@/components/pages/create-tender/create-single-stone-form";
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/server/session";
 import { redirect } from "next/navigation";
@@ -51,7 +51,7 @@ export default async function CreateTenderPage() {
   ]);
 
   return (
-    <CreateTenderForm
+    <CreateSingleStoneTenderForm
       colorOptions={colors}
       clarityOptions={clarities}
       fluorescenceOptions={fluorescence}

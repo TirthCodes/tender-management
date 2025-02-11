@@ -41,3 +41,31 @@ export interface TenderDetails {
   topsAmount: number;
   incription: string;
 }
+
+export interface SingleStoneTenderDetails {
+  lotNo: string;
+  roughName: string;
+  roughPcs: number;
+  roughCts: number;
+  roughSize: number;
+  roughPrice: number;
+  roughTotal: number;
+  color: Option;
+  colorGrade: number;
+  clarity: Option;
+  flr: Option;
+  shape: Option;
+  polCts: number;
+  polPercent: number;
+  depth: number;
+  table: number;
+  ratio: number;
+  salePrice: number;
+  saleAmount: number;
+  costPrice: number;
+  costAmount: number;
+  topsAmount: number;
+  incription: string;
+  resultTotal: number;
+  finalBidPrice: number;
+}

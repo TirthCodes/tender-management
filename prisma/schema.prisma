@@ -41,7 +41,7 @@ model Tender {
   dtVoucherDate        DateTime     
   stTenderName         String
   stTenderType         String                 // single stone, rough lot, multi lot, mix lot
-  dcNetPercentage     Decimal                @db.Decimal(10, 2)  
+  dcNetPercentage     Decimal                 @db.Decimal(10, 2)  
   stRemark             String?                @db.Text
   
   stPersonName         String
@@ -72,7 +72,7 @@ model Tender {
   tenderDetails        TenderDetails[]
 }
 
-
+//! change stColorGrade to inColorGrade
 model TenderDetails {
   id                Int             @id @default(autoincrement())
   

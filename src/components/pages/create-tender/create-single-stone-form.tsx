@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,26 +24,25 @@ import {
 
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { z } from "zod";
 import { Option } from "@/lib/types/common";
-import { TenderDetails, TotalValues } from "@/lib/types/tender";
-import { createTender } from "@/services/tender";
+import { SingleStoneTenderDetails, TotalValues } from "@/lib/types/tender";
+import { createSingleTender } from "@/services/tender";
 import { toast } from "react-toastify";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { TenderDetailsDataTable } from "./tender-details-data-table";
+import { SingleTenderDataTable } from "./single-tender-data-table";
+import useKeyPress from "@/hooks/useKeyPress";
 
-export const initialRow = {
-  pcs: 0,
-  carats: 0,
+export const singleInitialRow: SingleStoneTenderDetails = {
+  lotNo: "",
+  roughName: "",
+  roughPcs: 0,
+  roughCts: 0,
+  roughSize: 0,
+  roughPrice: 0,
+  roughTotal: 0,
   color: { id: 0, stShortName: "" },
   colorGrade: 0,
   clarity: { id: 0, stShortName: "" },
@@ -60,9 +59,9 @@ export const initialRow = {
   costAmount: 0,
   topsAmount: 0,
   incription: "",
+  resultTotal: 0,
+  finalBidPrice: 0,
 };
-
-const initialTenderDetails = [initialRow];
 
 interface CreateTenderFormProps {
   colorOptions: Option[];
@@ -79,13 +78,13 @@ const createTenderSchema = z.object({
   netPercent: z.string().trim().min(2, { message: "Note % is required!" }),
   labour: z.string().trim().min(1, { message: "Labour is required!" }),
   remark: z.string().trim().optional(),
-  lotNo: z.string().trim().min(1, { message: "Lot no.is required!" }),
-  roughName: z.string().trim().min(2, { message: "Rough name is required!" }),
-  roughPcs: z.string().trim().min(1, { message: "Rough pcs is required!" }),
-  roughCts: z.string().trim().min(1, { message: "Rough cts is required!" }),
-  roughSize: z.string().trim().min(1, { message: "Rough size is required!" }),
-  roughPrice: z.string().trim().min(1, { message: "Rough price is required!" }),
-  roughTotal: z.string().trim().min(1, { message: "Rough total is required!" }),
+  // lotNo: z.string().trim().min(1, { message: "Lot no.is required!" }),
+  // roughName: z.string().trim().min(2, { message: "Rough name is required!" }),
+  // roughPcs: z.string().trim().min(1, { message: "Rough pcs is required!" }),
+  // roughCts: z.string().trim().min(1, { message: "Rough cts is required!" }),
+  // roughSize: z.string().trim().min(1, { message: "Rough size is required!" }),
+  // roughPrice: z.string().trim().min(1, { message: "Rough price is required!" }),
+  // roughTotal: z.string().trim().min(1, { message: "Rough total is required!" }),
   bidPrice: z.number().min(1, { message: "Bid price is required!" }),
   totalAmount: z.number().min(1, { message: "Total amount is required!" }),
   resultCost: z.number().optional(),
@@ -105,7 +104,7 @@ const createTenderSchema = z.object({
 
 type CreateTenderFormValues = z.infer<typeof createTenderSchema>;
 
-export function CreateTenderForm({
+export function CreateSingleStoneTenderForm({
   colorOptions,
   clarityOptions,
   fluorescenceOptions,
@@ -164,10 +163,12 @@ export function CreateTenderForm({
     resolver: zodResolver(createTenderSchema),
   });
 
+  const formRef = useRef<HTMLFormElement | null>(null);
+
   const [isPending, setIsPending] = useState(false);
 
   const [tenderDetails, setTenderDetails] =
-    useState<TenderDetails[]>(initialTenderDetails);
+    useState<SingleStoneTenderDetails>(singleInitialRow);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [date, setDate] = useState<Date>();
   const [totalValues, setTotalValues] = useState<TotalValues>({
@@ -193,111 +194,56 @@ export function CreateTenderForm({
 
   const netPercent = watch("netPercent");
   const resultTotal = watch("resultTotal");
-  const tendetType = watch("tenderType");
   const finalBidPrice = watch("finalBidPrice");
-  const roughCts = watch("roughCts");
+  const roughCts = tenderDetails?.roughCts;
   const labour = watch("labour");
 
   useEffect(() => {
-    if (netPercent && tendetType && labour) {
+    if (netPercent && labour) {
       const netPercentValue = parseFloat(netPercent);
       const labourValue = parseFloat(labour);
 
       const netPercentage = netPercentValue / 100;
 
-      let calculatedBidPrice = 0;
-
-      if (tendetType === "singleStone") {
-        calculatedBidPrice = parseFloat(
-          (
-            ((((totalValues.costPrice + totalValues.topsAmount) * 0.97 - 180) *
-              totalValues.polCts) /
-              totalValues.carats -
-              labourValue) /
-            netPercentage
-          ).toFixed(2)
-        );
-      } else if (tendetType === "mixLot") {
-        calculatedBidPrice = parseFloat(
-          (
-            (((totalValues.salePrice * 0.97 - 180) * totalValues.polCts) /
-              totalValues.carats -
-              labourValue) /
-            netPercentage
-          ).toFixed(2)
-        );
-      } else if (tendetType === "roughLot") {
-        calculatedBidPrice = parseFloat(
-          (totalValues.costPrice / netPercentage).toFixed(2)
-        );
-      }
+      const calculatedBidPrice = parseFloat(
+        (
+          ((((totalValues.costPrice + totalValues.topsAmount) * 0.97 - 180) *
+            totalValues.polCts) /
+            totalValues.carats -
+            labourValue) /
+          netPercentage
+        ).toFixed(2)
+      );
 
       if (!isNaN(calculatedBidPrice)) {
         setValue("bidPrice", calculatedBidPrice);
-        let totalAmount = 0;
-        if (tendetType === "singleStone") {
-          totalAmount = parseFloat(
-            (totalValues.carats * calculatedBidPrice).toFixed(2)
-          );
-        } else if (
-          (tendetType === "mixLot" || tendetType === "roughLot") &&
-          roughCts
-        ) {
-          const roughCtsValue = parseFloat(roughCts);
-          if (!isNaN(roughCtsValue)) {
-            totalAmount = parseFloat(
-              (calculatedBidPrice * roughCtsValue).toFixed(2)
-            );
-          }
+        const totalAmount = parseFloat(
+          (totalValues.carats * calculatedBidPrice).toFixed(2)
+        );
+        if (!isNaN(totalAmount)) {
+          setValue("totalAmount", totalAmount);
         }
-        setValue("totalAmount", totalAmount);
       }
 
       if (resultTotal) {
         const resultTotalValue = parseFloat(resultTotal);
         if (!isNaN(resultTotalValue)) {
-          let resultPerCarat = 0;
-          if (tendetType === "singleStone") {
-            resultPerCarat = parseFloat(
-              (resultTotalValue / totalValues.carats).toFixed(2)
-            );
-          } else if (
-            (tendetType === "mixLot" || tendetType === "roughLot") &&
-            roughCts
-          ) {
-            const roughCtsValue = parseFloat(roughCts);
-            if (!isNaN(roughCtsValue)) {
-              resultPerCarat = parseFloat(
-                (resultTotalValue / roughCtsValue).toFixed(2)
-              );
-            }
-          }
+          const resultPerCarat = parseFloat(
+            (resultTotalValue / totalValues.carats).toFixed(2)
+          );
 
           if (!isNaN(resultPerCarat)) {
             setValue("resultPerCarat", resultPerCarat);
-            let resultCost = 0;
-            if (tendetType === "singleStone") {
-              resultCost = parseFloat(
-                (
-                  (((resultPerCarat * 0.06 + resultPerCarat + labourValue) *
-                    totalValues.carats) /
-                    totalValues.polCts +
-                    180) /
-                    0.97 -
-                  totalValues.topsAmount
-                ).toFixed(2)
-              );
-            } else if (tendetType === "mixLot") {
-              resultCost = parseFloat(
-                (
-                  (((resultPerCarat * 0.06 + resultPerCarat + labourValue) *
-                    totalValues.carats) /
-                    totalValues.polCts +
-                    180) /
-                  0.97
-                ).toFixed(2)
-              );
-            }
+            const resultCost = parseFloat(
+              (
+                (((resultPerCarat * 0.06 + resultPerCarat + labourValue) *
+                  totalValues.carats) /
+                  totalValues.polCts +
+                  180) /
+                  0.97 -
+                totalValues.topsAmount
+              ).toFixed(2)
+            );
             if (!isNaN(resultCost)) {
               setValue("resultCost", resultCost);
             }
@@ -307,52 +253,28 @@ export function CreateTenderForm({
 
       if (finalBidPrice) {
         const finalBidPriceValue = parseFloat(finalBidPrice);
-        let finalCostPrice = 0;
         if (!isNaN(finalBidPriceValue)) {
-          if (tendetType === "singleStone") {
-            finalCostPrice = parseFloat(
-              (
-                (((finalBidPriceValue * 0.06 + finalBidPriceValue + labourValue) *
-                  totalValues.carats) /
-                  totalValues.polCts +
-                  180) /
-                  0.97 -
-                totalValues.topsAmount
-              ).toFixed(2)
-            );
-          } else if (tendetType === "mixLot") {
-            finalCostPrice = parseFloat(
-              (
-                (((finalBidPriceValue * 0.06 + finalBidPriceValue + labourValue) *
-                  totalValues.carats) /
-                  totalValues.polCts +
-                  180) /
-                0.97
-              ).toFixed(2)
-            );
-          }
+          const finalCostPrice = parseFloat(
+            (
+              (((finalBidPriceValue * 0.06 + finalBidPriceValue + labourValue) *
+                totalValues.carats) /
+                totalValues.polCts +
+                180) /
+                0.97 -
+              totalValues.topsAmount
+            ).toFixed(2)
+          );
 
           if (!isNaN(finalCostPrice)) {
             setValue("finalCostPrice", finalCostPrice);
           }
 
-          let finalTotalAmount = 0;
-          if (tendetType === "singleStone") {
-            finalTotalAmount = parseFloat(
-              (finalBidPriceValue * totalValues.carats).toFixed(2)
-            );
-          } else if (
-            (tendetType === "mixLot" || tendetType === "roughLot") &&
-            roughCts
-          ) {
-            const roughCtsValue = parseFloat(roughCts);
-            if (!isNaN(roughCtsValue)) {
-              finalTotalAmount = parseFloat(
-                (finalBidPriceValue * roughCtsValue).toFixed(2)
-              );
-            }
+          const finalTotalAmount = parseFloat(
+            (finalBidPriceValue * totalValues.carats).toFixed(2)
+          );
+          if (!isNaN(finalTotalAmount)) {
+            setValue("finalTotalAmount", finalTotalAmount);
           }
-          setValue("finalTotalAmount", finalTotalAmount);
         }
       }
     }
@@ -361,61 +283,71 @@ export function CreateTenderForm({
     totalValues,
     setValue,
     netPercent,
-    tendetType,
     resultTotal,
     finalBidPrice,
     roughCts,
   ]);
 
-  const roughPcs = watch("roughPcs");
+  const finalBidPriceDetails = tenderDetails?.finalBidPrice;
+  const resultTotalDetails = tenderDetails?.resultTotal;
 
   useEffect(() => {
-    if (roughPcs) {
-      const roughPcsValue = parseFloat(roughPcs);
-      const roughCtsValue = parseFloat(roughCts);
-
-      if (!isNaN(roughPcsValue)) {
-        const roughSize = parseFloat((roughPcsValue / roughCtsValue).toFixed(2));
-        setValue("roughSize", String(roughSize));
-      }
+    if(finalBidPriceDetails) {
+      setValue("finalBidPrice", String(tenderDetails?.finalBidPrice));
+    } 
+    if(resultTotalDetails) {
+      setValue("resultTotal", String(tenderDetails?.resultTotal));
     }
-  }, [roughPcs, roughCts, setValue]);
+  }, [
+    tenderDetails,
+    finalBidPriceDetails,
+    resultTotalDetails,
+    setValue,
+  ]);
 
   const handleDetailsValueChange = (
-    value: TenderDetails,
-    index: number,
-    action?: string
+    value: SingleStoneTenderDetails,
   ) => {
-    if (action === "delete") {
-      setTenderDetails(tenderDetails.filter((_i, idx) => idx !== index));
-      return;
-    }
-    if (index > tenderDetails.length) {
-      setTenderDetails([...tenderDetails, value]);
-      return;
-    }
-    const indexToUpdate = tenderDetails.findIndex((_i, idx) => idx === index);
-    setTenderDetails(
-      tenderDetails.map((item, i) => {
-        if (i === indexToUpdate) {
-          return value;
-        }
-        return item;
-      })
-    );
+    setTenderDetails(value)
   };
+
+  useKeyPress({ backPath: "/tenders", ref: formRef });
 
   async function onSubmit(data: CreateTenderFormValues) {
     setIsPending(true);
 
     const payload = {
       ...data,
-      tenderDetails: JSON.stringify(tenderDetails),
+      lotNo: tenderDetails.lotNo,
+      roughName: tenderDetails.roughName,
+      roughPcs: tenderDetails.roughPcs,
+      roughCts: tenderDetails.roughCts,
+      roughSize: tenderDetails.roughSize,
+      roughPrice: tenderDetails.roughPrice,
+      roughTotal: tenderDetails.roughTotal,
+      tenderDetails: {
+        pcs: tenderDetails.roughPcs,
+        carats: tenderDetails.roughCts,
+        color: tenderDetails.color,
+        colorGrade: tenderDetails.colorGrade,
+        clarity: tenderDetails.clarity,
+        flr: tenderDetails.flr,
+        shape: tenderDetails.shape,
+        polCts: tenderDetails.polCts,
+        polPercent: tenderDetails.polPercent,
+        depth: tenderDetails.depth,
+        table: tenderDetails.table,
+        ratio: tenderDetails.ratio,
+        salePrice: tenderDetails.salePrice,
+        saleAmount: tenderDetails.saleAmount,
+        costPrice: tenderDetails.costPrice,
+        costAmount: tenderDetails.costAmount,
+        topsAmount: tenderDetails.topsAmount,
+        incription: tenderDetails.incription,
+      },
     };
 
-    console.log(payload, "payload");
-
-    const response = await createTender(payload);
+    const response = await createSingleTender(payload);
     if (response.success) {
       toast.success(response.message);
       redirect("/tenders");
@@ -426,7 +358,7 @@ export function CreateTenderForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
       <div className="grid w-full grid-cols-2 gap-4">
         <Card>
           <CardHeader>
@@ -482,33 +414,17 @@ export function CreateTenderForm({
               </div>
               <div className="flex w-full items-center">
                 <Label className="w-[94px] shrink-0">Tender Type</Label>
-                <Select
-                  onValueChange={(value) => {
-                    setValue("tenderType", value);
-                    if (errors.tenderType) {
-                      setError("tenderType", {
-                        message: undefined,
-                      });
-                    }
-                  }}
-                >
-                  <SelectTrigger
-                    className={cn(
-                      "w-full",
-                      errors.tenderType?.message &&
-                        "border border-red-500 text-red-500"
-                    )}
-                  >
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {/* <SelectItem value="singleStone">Single Stone</SelectItem> */}
-                      <SelectItem value="roughLot">Rough Lot</SelectItem>
-                      <SelectItem value="mixLot">Mix Lot</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                <Input
+                  type="text"
+                  {...register("tenderType")}
+                  readOnly
+                  defaultValue={"Single Stone"}
+                  className={cn(
+                    errors.tenderType?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                  placeholder="Single Stone"
+                />
               </div>
               <div className="flex w-full items-center">
                 <Label className="w-[100px] shrink-0">Tender Name</Label>
@@ -578,112 +494,10 @@ export function CreateTenderForm({
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Rough Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-6 gap-x-3 gap-y-4">
-              <div className="flex w-full items-center col-span-3">
-                <Label className="w-[88px] shrink-0">Lot No.</Label>
-                <Input
-                  type="text"
-                  {...register("lotNo")}
-                  placeholder="FS39"
-                  className={cn(
-                    errors.lotNo?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
-              <div className="flex w-full items-center col-span-3">
-                <Label className="w-[94px] shrink-0">Rough Name</Label>
-                <Input
-                  type="text"
-                  {...register("roughName")}
-                  placeholder="Name"
-                  className={cn(
-                    errors.roughName?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
-              <div className="flex w-full items-center col-span-2">
-                <Label className="w-[88px] shrink-0">Rough Pcs.</Label>
-                <Input
-                  type="number"
-                  {...register("roughPcs")}
-                  placeholder="4"
-                  className={cn(
-                    errors.roughPcs?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
-              <div className="flex w-full items-center col-span-2">
-                <Label className="w-[88px] shrink-0">Rough Cts.</Label>
-                <Input
-                  type="number"
-                  {...register("roughCts")}
-                  placeholder="24.4"
-                  step={0.01}
-                  className={cn(
-                    errors.roughCts?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
-              <div className="flex w-full items-center col-span-2">
-                <Label className="w-[88px] shrink-0">Rough Size</Label>
-                <Input
-                  {...register("roughSize")}
-                  disabled
-                  readOnly
-                  type="number"
-                  step={0.01}
-                  placeholder="4.96"
-                  className={cn(
-                    errors.roughSize?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
-              <div className="flex w-full items-center col-span-3">
-                <Label className="w-[88px] shrink-0">Rough Price</Label>
-                <Input
-                  {...register("roughPrice")}
-                  type="number"
-                  placeholder="243"
-                  step={0.01}
-                  className={cn(
-                    errors.roughPrice?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
-
-              <div className="flex w-full items-center col-span-3">
-                <Label className="w-[88px] shrink-0">Rough Total</Label>
-                <Input
-                  {...register("roughTotal")}
-                  type="number"
-                  placeholder="999"
-                  step={0.01}
-                  className={cn(
-                    errors.roughTotal?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       <div className="mt-4 overflow-hidden rounded-lg border">
-        <TenderDetailsDataTable
-          lotNo={watch("lotNo")}
+        <SingleTenderDataTable
           totalValues={totalValues}
           setTotalValues={setTotalValues}
           handleValueChange={handleDetailsValueChange}
@@ -799,7 +613,7 @@ export function CreateTenderForm({
   );
 }
 
-// Pol % - (polcts / cts) * 100
+// Pol % - (cts * 100) / polcts
 // PolCts - (pol% * cts) / 100
 // Sale Amount - (PolCts * salePricr)
 // Sale Price - (Sale Amount / polcts)

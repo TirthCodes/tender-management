@@ -176,7 +176,7 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
                 focusedIndex === index ? "bg-gray-100" : ""
               }`}
             >
-              <span className="font-semibold text-lg">{item.stShortName}</span>
+              <span className="font-semibold text-base">{item.stShortName}</span>
             </li>
           ))}
           <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>

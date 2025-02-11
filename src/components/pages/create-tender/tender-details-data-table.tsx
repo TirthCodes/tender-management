@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/table";
 import { PlusCircle, Trash2 } from "lucide-react";
 import React, { useEffect } from "react";
-import { initialRow } from "./create-tender-form";
 import AutoCompleteInput from "@/components/ui/auto-complete-input";
 import ColorDialog from "@/components/dialog/color-dialog";
 import { TenderDetails, TotalValues } from "@/lib/types/tender";
@@ -20,6 +19,7 @@ import { Option } from "@/lib/types/common";
 import ClarityDialog from "@/components/dialog/clarity-dialog";
 import FlrDialog from "@/components/dialog/flr-dialog";
 import ShapeDialog from "@/components/dialog/shape-dialog";
+import { initialRow } from "./create-tender-form";
 
 const columns = [
   "Lot",
@@ -35,7 +35,6 @@ const columns = [
   "Depth",
   "Table",
   "Ratio",
-  "Labour",
   "Sale Price",
   "Sale Amnt",
   "Cost Price",
@@ -393,28 +392,6 @@ export function TenderDetailsDataTable({
                             {
                               ...row,
                               ratio: value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="0"
-                      />
-                    </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20 text-right"
-                        name="labour"
-                        type="number"
-                        value={row.labour || ""}
-                        step={0.01}
-                        onChange={(e) => {
-                          const value = e.target.value
-                            ? parseFloat(e.target.value)
-                            : 0;
-                          handleValueChange(
-                            {
-                              ...row,
-                              labour: value,
                             },
                             index
                           );
