@@ -28,9 +28,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { z } from "zod";
 import { Option } from "@/lib/types/common";
 import { SingleStoneTenderDetails, TotalValues } from "@/lib/types/tender";
-import { createSingleTender } from "@/services/tender";
-import { toast } from "react-toastify";
-import { redirect } from "next/navigation";
+// import { createSingleTender } from "@/services/tender";
+// import { toast } from "react-toastify";
+// import { redirect } from "next/navigation";
 import Link from "next/link";
 import { SingleTenderDataTable } from "./single-tender-data-table";
 import useKeyPress from "@/hooks/useKeyPress";
@@ -60,7 +60,7 @@ export const singleInitialRow: SingleStoneTenderDetails = {
   topsAmount: 0,
   incription: "",
   resultTotal: 0,
-  finalBidPrice: 0,
+  // finalBidPrice: 0,
 };
 
 interface CreateTenderFormProps {
@@ -85,21 +85,13 @@ const createTenderSchema = z.object({
   // roughSize: z.string().trim().min(1, { message: "Rough size is required!" }),
   // roughPrice: z.string().trim().min(1, { message: "Rough price is required!" }),
   // roughTotal: z.string().trim().min(1, { message: "Rough total is required!" }),
-  bidPrice: z.number().min(1, { message: "Bid price is required!" }),
-  totalAmount: z.number().min(1, { message: "Total amount is required!" }),
-  resultCost: z.number().optional(),
-  resultPerCarat: z
-    .number()
-    .min(1, { message: "Result per carat is required!" }),
-  resultTotal: z.string().min(1, { message: "Result total is required!" }),
-  finalCostPrice: z.number().optional(),
-  finalBidPrice: z
-    .string()
-    .trim()
-    .min(1, { message: "Final bid price is required!" }),
-  finalTotalAmount: z
-    .number()
-    .min(1, { message: "Final total amount is required!" }),
+  // bidPrice: z.number().min(1, { message: "Bid price is required!" }),
+  // totalAmount: z.number().min(1, { message: "Total amount is required!" }),
+  // resultCost: z.number().optional(),
+  // resultPerCarat: z
+  //   .number()
+  //   .min(1, { message: "Result per carat is required!" }),
+  // resultTotal: z.string().min(1, { message: "Result total is required!" }),
 });
 
 type CreateTenderFormValues = z.infer<typeof createTenderSchema>;
@@ -153,7 +145,7 @@ export function CreateSingleStoneTenderForm({
   const {
     register,
     handleSubmit,
-    watch,
+    // watch,
     // reset,
     formState: { errors },
     setValue,
@@ -168,7 +160,8 @@ export function CreateSingleStoneTenderForm({
   const [isPending, setIsPending] = useState(false);
 
   const [tenderDetails, setTenderDetails] =
-    useState<SingleStoneTenderDetails>(singleInitialRow);
+    useState<SingleStoneTenderDetails[]>([singleInitialRow]);
+    console.log(tenderDetails,"details")
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [date, setDate] = useState<Date>();
   const [totalValues, setTotalValues] = useState<TotalValues>({
@@ -192,123 +185,142 @@ export function CreateSingleStoneTenderForm({
     }
   }, [date, setValue, errors, setError]);
 
-  const netPercent = watch("netPercent");
-  const resultTotal = watch("resultTotal");
-  const finalBidPrice = watch("finalBidPrice");
-  const roughCts = tenderDetails?.roughCts;
-  const labour = watch("labour");
+  // const netPercent = watch("netPercent");
+  // const resultTotal = watch("resultTotal");
+  // const roughCts = totalValues?.carats;
+  // const labour = watch("labour");
+  // const bidPrice = watch("bidPrice");
 
-  useEffect(() => {
-    if (netPercent && labour) {
-      const netPercentValue = parseFloat(netPercent);
-      const labourValue = parseFloat(labour);
+  // useEffect(() => {
+  //   if (netPercent && labour) {
+  //     const netPercentValue = parseFloat(netPercent);
+  //     const labourValue = parseFloat(labour);
 
-      const netPercentage = netPercentValue / 100;
+  //     const netPercentage = netPercentValue / 100;
 
-      const calculatedBidPrice = parseFloat(
-        (
-          ((((totalValues.costPrice + totalValues.topsAmount) * 0.97 - 180) *
-            totalValues.polCts) /
-            totalValues.carats -
-            labourValue) /
-          netPercentage
-        ).toFixed(2)
-      );
+  //     const calculatedBidPrice = parseFloat(
+  //       (
+  //         ((((totalValues.costPrice + totalValues.topsAmount) * 0.97 - 180) *
+  //           totalValues.polCts) /
+  //           totalValues.carats -
+  //           labourValue) /
+  //         netPercentage
+  //       ).toFixed(2)
+  //     );
 
-      if (!isNaN(calculatedBidPrice)) {
-        setValue("bidPrice", calculatedBidPrice);
-        const totalAmount = parseFloat(
-          (totalValues.carats * calculatedBidPrice).toFixed(2)
-        );
-        if (!isNaN(totalAmount)) {
-          setValue("totalAmount", totalAmount);
-        }
-      }
+  //     if (!isNaN(calculatedBidPrice)) {
+  //       setValue("bidPrice", calculatedBidPrice);
+  //       const totalAmount = parseFloat(
+  //         (totalValues.carats * calculatedBidPrice).toFixed(2)
+  //       );
+  //       if (!isNaN(totalAmount)) {
+  //         setValue("totalAmount", totalAmount);
+  //       }
+  //     }
 
-      if (resultTotal) {
-        const resultTotalValue = parseFloat(resultTotal);
-        if (!isNaN(resultTotalValue)) {
-          const resultPerCarat = parseFloat(
-            (resultTotalValue / totalValues.carats).toFixed(2)
-          );
+  //     if (resultTotal) {
+  //       const resultTotalValue = parseFloat(resultTotal);
+  //       if (!isNaN(resultTotalValue)) {
+  //         const resultPerCarat = parseFloat(
+  //           (resultTotalValue / totalValues.carats).toFixed(2)
+  //         );
 
-          if (!isNaN(resultPerCarat)) {
-            setValue("resultPerCarat", resultPerCarat);
-            const resultCost = parseFloat(
-              (
-                (((resultPerCarat * 0.06 + resultPerCarat + labourValue) *
-                  totalValues.carats) /
-                  totalValues.polCts +
-                  180) /
-                  0.97 -
-                totalValues.topsAmount
-              ).toFixed(2)
-            );
-            if (!isNaN(resultCost)) {
-              setValue("resultCost", resultCost);
-            }
-          }
-        }
-      }
+  //         if (!isNaN(resultPerCarat)) {
+  //           setValue("resultPerCarat", resultPerCarat);
+  //           const resultCost = parseFloat(
+  //             (
+  //               (((resultPerCarat * 0.06 + resultPerCarat + labourValue) *
+  //                 totalValues.carats) /
+  //                 totalValues.polCts +
+  //                 180) /
+  //                 0.97 -
+  //               totalValues.topsAmount
+  //             ).toFixed(2)
+  //           );
+  //           if (!isNaN(resultCost)) {
+  //             setValue("resultCost", resultCost);
+  //           }
+  //         }
+  //       }
+  //     }
 
-      if (finalBidPrice) {
-        const finalBidPriceValue = parseFloat(finalBidPrice);
-        if (!isNaN(finalBidPriceValue)) {
-          const finalCostPrice = parseFloat(
-            (
-              (((finalBidPriceValue * 0.06 + finalBidPriceValue + labourValue) *
-                totalValues.carats) /
-                totalValues.polCts +
-                180) /
-                0.97 -
-              totalValues.topsAmount
-            ).toFixed(2)
-          );
+  //     if (bidPrice) {
+  //       if (!isNaN(bidPrice)) {
+  //         const finalCostPrice = parseFloat(
+  //           (
+  //             (((bidPrice * 0.06 + bidPrice + labourValue) *
+  //               totalValues.carats) /
+  //               totalValues.polCts +
+  //               180) /
+  //               0.97 -
+  //             totalValues.topsAmount
+  //           ).toFixed(2)
+  //         );
 
-          if (!isNaN(finalCostPrice)) {
-            setValue("finalCostPrice", finalCostPrice);
-          }
+  //         console.log(finalCostPrice, "finalCostPrice")
 
-          const finalTotalAmount = parseFloat(
-            (finalBidPriceValue * totalValues.carats).toFixed(2)
-          );
-          if (!isNaN(finalTotalAmount)) {
-            setValue("finalTotalAmount", finalTotalAmount);
-          }
-        }
-      }
-    }
-  }, [
-    labour,
-    totalValues,
-    setValue,
-    netPercent,
-    resultTotal,
-    finalBidPrice,
-    roughCts,
-  ]);
+          // if (!isNaN(finalCostPrice)) {
+          //   setValue("finalCostPrice", finalCostPrice);
+          // }
 
-  const finalBidPriceDetails = tenderDetails?.finalBidPrice;
-  const resultTotalDetails = tenderDetails?.resultTotal;
+          // const finalTotalAmount = parseFloat(
+          //   (finalBidPriceValue * totalValues.carats).toFixed(2)
+          // );
+          // if (!isNaN(finalTotalAmount)) {
+          //   setValue("finalTotalAmount", finalTotalAmount);
+          // }
+  //       }
+  //     }
+  //   }
+  // }, [
+  //   labour,
+  //   totalValues,
+  //   setValue,
+  //   netPercent,
+  //   resultTotal,
+  //   bidPrice,
+  //   roughCts,
+  // ]);
 
-  useEffect(() => {
-    if(finalBidPriceDetails) {
-      setValue("finalBidPrice", String(tenderDetails?.finalBidPrice));
-    } 
-    if(resultTotalDetails) {
-      setValue("resultTotal", String(tenderDetails?.resultTotal));
-    }
-  }, [
-    tenderDetails,
-    finalBidPriceDetails,
-    resultTotalDetails,
-    setValue,
-  ]);
+  // const finalBidPriceDetails = tenderDetails?.finalBidPrice;
+  // const resultTotalDetails = tenderDetails?.resultTotal;
+
+  // useEffect(() => {
+  //   if(finalBidPriceDetails) {
+  //     setValue("finalBidPrice", String(tenderDetails?.finalBidPrice));
+  //   } 
+  //   if(resultTotalDetails) {
+  //     setValue("resultTotal", String(tenderDetails?.resultTotal));
+  //   }
+  // }, [
+  //   tenderDetails,
+  //   finalBidPriceDetails,
+  //   resultTotalDetails,
+  //   setValue,
+  // ]);
 
   const handleDetailsValueChange = (
     value: SingleStoneTenderDetails,
+    index: number,
+    action?: string
   ) => {
-    setTenderDetails(value)
+    if (action === "delete") {
+      setTenderDetails(tenderDetails.filter((_i, idx) => idx !== index));
+      return;
+    }
+    if (index > tenderDetails.length) {
+      setTenderDetails([...tenderDetails, value]);
+      return;
+    }
+    const indexToUpdate = tenderDetails.findIndex((_i, idx) => idx === index);
+    setTenderDetails(
+      tenderDetails.map((item, i) => {
+        if (i === indexToUpdate) {
+          return value;
+        }
+        return item;
+      })
+    );
   };
 
   useKeyPress({ backPath: "/tenders", ref: formRef });
@@ -316,45 +328,47 @@ export function CreateSingleStoneTenderForm({
   async function onSubmit(data: CreateTenderFormValues) {
     setIsPending(true);
 
-    const payload = {
-      ...data,
-      lotNo: tenderDetails.lotNo,
-      roughName: tenderDetails.roughName,
-      roughPcs: tenderDetails.roughPcs,
-      roughCts: tenderDetails.roughCts,
-      roughSize: tenderDetails.roughSize,
-      roughPrice: tenderDetails.roughPrice,
-      roughTotal: tenderDetails.roughTotal,
-      tenderDetails: {
-        pcs: tenderDetails.roughPcs,
-        carats: tenderDetails.roughCts,
-        color: tenderDetails.color,
-        colorGrade: tenderDetails.colorGrade,
-        clarity: tenderDetails.clarity,
-        flr: tenderDetails.flr,
-        shape: tenderDetails.shape,
-        polCts: tenderDetails.polCts,
-        polPercent: tenderDetails.polPercent,
-        depth: tenderDetails.depth,
-        table: tenderDetails.table,
-        ratio: tenderDetails.ratio,
-        salePrice: tenderDetails.salePrice,
-        saleAmount: tenderDetails.saleAmount,
-        costPrice: tenderDetails.costPrice,
-        costAmount: tenderDetails.costAmount,
-        topsAmount: tenderDetails.topsAmount,
-        incription: tenderDetails.incription,
-      },
-    };
+    console.log(data, "datra")
 
-    const response = await createSingleTender(payload);
-    if (response.success) {
-      toast.success(response.message);
-      redirect("/tenders");
-    } else {
-      toast.error(response.message);
-    }
-    setIsPending(false);
+    // const payload = {
+    //   ...data,
+    //   lotNo: tenderDetails.lotNo,
+    //   roughName: tenderDetails.roughName,
+    //   roughPcs: tenderDetails.roughPcs,
+    //   roughCts: tenderDetails.roughCts,
+    //   roughSize: tenderDetails.roughSize,
+    //   roughPrice: tenderDetails.roughPrice,
+    //   roughTotal: tenderDetails.roughTotal,
+    //   tenderDetails: {
+    //     pcs: tenderDetails.roughPcs,
+    //     carats: tenderDetails.roughCts,
+    //     color: tenderDetails.color,
+    //     colorGrade: tenderDetails.colorGrade,
+    //     clarity: tenderDetails.clarity,
+    //     flr: tenderDetails.flr,
+    //     shape: tenderDetails.shape,
+    //     polCts: tenderDetails.polCts,
+    //     polPercent: tenderDetails.polPercent,
+    //     depth: tenderDetails.depth,
+    //     table: tenderDetails.table,
+    //     ratio: tenderDetails.ratio,
+    //     salePrice: tenderDetails.salePrice,
+    //     saleAmount: tenderDetails.saleAmount,
+    //     costPrice: tenderDetails.costPrice,
+    //     costAmount: tenderDetails.costAmount,
+    //     topsAmount: tenderDetails.topsAmount,
+    //     incription: tenderDetails.incription,
+    //   },
+    // };
+
+    // const response = await createSingleTender(payload);
+    // if (response.success) {
+    //   toast.success(response.message);
+    //   redirect("/tenders");
+    // } else {
+    //   toast.error(response.message);
+    // }
+    // setIsPending(false);
   }
 
   return (
@@ -509,11 +523,8 @@ export function CreateSingleStoneTenderForm({
         />
       </div>
 
-      <div className="grid grid-cols-1 mt-4">
+      {/* <div className="grid grid-cols-1 mt-4">
         <Card>
-          {/* <CardHeader>
-            <CardTitle>Cost Details</CardTitle>
-          </CardHeader> */}
           <CardContent>
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col gap-4">
@@ -600,7 +611,7 @@ export function CreateSingleStoneTenderForm({
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
       <div className="flex justify-end gap-2 items-center">
         <Button className="mt-4" type="button">
           <Link href={"/tenders"}>Cancel</Link>

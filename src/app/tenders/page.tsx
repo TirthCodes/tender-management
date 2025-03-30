@@ -21,12 +21,12 @@ export default async function Tenders() {
       dcRoughTotal: true,
       dcBidPrice: true,
       dcResultCost: true,
-      dcFinalCostPrice: true,
+      // dcFinalCostPrice: true,
       dcTotalAmount: true,
       dcResultPerCt: true,
-      dcFinalBidPrice: true,
+      // dcFinalBidPrice: true,
       dcResultTotal: true,
-      dcFinalTotalAmount: true,
+      // dcFinalTotalAmount: true,
     },
     orderBy: {
       dtVoucherDate: "desc",
@@ -90,12 +90,12 @@ export default async function Tenders() {
                     Result
                   </th>
 
-                  <th
+                  {/* <th
                     scope="col"
                     className="border-x px-3 py-3.5 text-left text-sm font-semibold text-gray-700"
                   >
                     Final
-                  </th>
+                  </th> */}
                   <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
                     <span className="sr-only">Edit</span>
                   </th>
@@ -147,7 +147,7 @@ export default async function Tenders() {
                         Bid:{" "}
                         {tender.dcBidPrice ? String(tender.dcBidPrice) : ""}
                       </div>
-                      <div className="mt-1 text-gray-700">
+                      <div className="text-gray-700">
                         Total:{" "}
                         {tender.dcTotalAmount
                           ? String(tender.dcTotalAmount)
@@ -155,12 +155,21 @@ export default async function Tenders() {
                       </div>
                     </td>
                     <td className="border-x  truncate whitespace-nowrap px-3 py-3 text-sm text-gray-700">
-                      <div className="grid grid-cols-2 items-center gap-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="flex flex-col">
+
                         <div className="text-gray-700">
                           Cost:{" "}
                           {tender.dcResultCost
                             ? String(tender.dcResultCost)
                             : ""}
+                        </div>
+                        <div className="text-gray-950 font-semibold">
+                          Total:{" "}
+                          {tender.dcResultTotal
+                            ? String(tender.dcResultTotal)
+                            : ""}
+                        </div>
                         </div>
                         <div className="text-gray-700">
                           Result / Ct:{" "}
@@ -168,37 +177,35 @@ export default async function Tenders() {
                             ? String(tender.dcResultPerCt)
                             : ""}
                         </div>
-                        <div className="col-span-full text-gray-950 font-semibold">
-                          Total:{" "}
-                          {tender.dcResultTotal
-                            ? String(tender.dcResultTotal)
-                            : ""}
-                        </div>
                       </div>
                     </td>
-                    <td className="border-x truncate whitespace-nowrap px-3 py-3 text-sm text-gray-700">
-                      <div className="grid grid-cols-2 items-center gap-y-2">
+                    {/* <td className="border-x truncate whitespace-nowrap px-3 py-3 text-sm text-gray-700">
+                      <div className="flex items-start justify-between">
+                        <div className="flex flex-col">
                         <div className="text-gray-700">
                           Cost:{" "}
                           {tender.dcFinalCostPrice
                             ? String(tender.dcFinalCostPrice)
                             : ""}
                         </div>
+                        <div className="text-gray-950 font-semibold">
+                          Total:{" "}
+                          {tender.dcFinalTotalAmount
+                            ? String(tender.dcFinalTotalAmount)
+                            : ""}
+                        </div>
+                        </div>
+                        
                         <div className="text-gray-700">
                           Bid:{" "}
                           {tender.dcFinalBidPrice
                             ? String(tender.dcFinalBidPrice)
                             : ""}
                         </div>
-                        <div className="col-span-full text-gray-950 font-semibold">
-                          Total:{" "}
-                          {tender.dcFinalTotalAmount
-                            ? String(tender.dcFinalTotalAmount)
-                            : ""}
-                        </div>
+                        
                       </div>
-                    </td>
-                    <td className=" truncaterelative whitespace-nowrap py-3 px-3 text-right text-sm font-medium sm:pr-0">
+                    </td> */}
+                    <td className="truncate relative whitespace-nowrap py-3 px-3 text-right text-sm font-medium sm:pr-0">
                       <a
                         href="#"
                         className="text-indigo-600 hover:text-indigo-900"

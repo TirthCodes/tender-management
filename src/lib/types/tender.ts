@@ -67,5 +67,5 @@ export interface SingleStoneTenderDetails {
   topsAmount: number;
   incription: string;
   resultTotal: number;
-  finalBidPrice: number;
+  // finalBidPrice: number;
 }

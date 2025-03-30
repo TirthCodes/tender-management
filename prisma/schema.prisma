@@ -59,13 +59,13 @@ model Tender {
 
   dcBidPrice           Decimal                @db.Decimal(10, 2)
   dcResultCost         Decimal                @db.Decimal(10, 2)
-  dcFinalCostPrice     Decimal                @db.Decimal(10, 2)
+  // dcFinalCostPrice     Decimal                @db.Decimal(10, 2)
   dcTotalAmount        Decimal                @db.Decimal(10, 2)
   dcResultPerCt        Decimal                @db.Decimal(10, 2)
-  dcFinalBidPrice      Decimal                @db.Decimal(10, 2)
+  // dcFinalBidPrice      Decimal                @db.Decimal(10, 2)
 
   dcResultTotal        Decimal                @db.Decimal(10, 2)
-  dcFinalTotalAmount   Decimal                @db.Decimal(10, 2)
+  // dcFinalTotalAmount   Decimal                @db.Decimal(10, 2)
 
   dtCreatedAt          DateTime               @default(now())
   dtUpdatedAt          DateTime               @updatedAt

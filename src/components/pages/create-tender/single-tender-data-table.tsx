@@ -17,6 +17,9 @@ import { Option } from "@/lib/types/common";
 import ClarityDialog from "@/components/dialog/clarity-dialog";
 import FlrDialog from "@/components/dialog/flr-dialog";
 import ShapeDialog from "@/components/dialog/shape-dialog";
+import { Button } from "@/components/ui/button";
+import { PlusCircle, Trash2 } from "lucide-react";
+import { singleInitialRow } from "./create-single-stone-form";
 
 const columns = [
   "Lot",
@@ -43,16 +46,17 @@ const columns = [
   "Tops Amnt",
   "Incription",
   "Result Total",
-  "Final Bid",
-  // <Button key={1} className="p-0" variant="ghost" type="button">
-  //   <PlusCircle className="h-4 w-4" />
-  // </Button>,
+  <Button key={1} className="p-0" variant="ghost" type="button">
+    <PlusCircle className="h-4 w-4" />
+  </Button>,
 ];
 
 interface SingleTenderDataTableProps {
-  data: SingleStoneTenderDetails;
+  data: SingleStoneTenderDetails[];
   handleValueChange: (
     value: SingleStoneTenderDetails,
+    index: number,
+    action?: string
   ) => void;
   // handleCostDetails: (values: CostDetails) => void;
   // costDetails: CostDetails;
@@ -75,38 +79,51 @@ export function SingleTenderDataTable({
   shapes,
 }: SingleTenderDataTableProps) {
   useEffect(() => {
-    setTotalValues({
-      pcs: data.roughPcs || 0,
-      carats: data.roughCts || 0,
-      polCts: data.polCts || 0,
-      polPercent: data.polPercent || 0,
-      salePrice: data.salePrice || 0,
-      costPrice: data.costPrice || 0,
-      topsAmount: data.topsAmount || 0,
-    });
+    const totals = data.reduce(
+      (acc, row) => ({
+        pcs: acc.pcs + (row.roughPcs || 0),
+        carats: acc.carats + (row.roughCts || 0),
+        polCts: acc.polCts + (row.polCts || 0),
+        polPercent: acc.polPercent + (row.polPercent || 0),
+        salePrice: acc.salePrice + (row.salePrice || 0),
+        costPrice: acc.costPrice + (row.costPrice || 0),
+        topsAmount: acc.topsAmount + (row.topsAmount || 0),
+      }),
+      {
+        pcs: 0,
+        carats: 0,
+        polCts: 0,
+        polPercent: 0,
+        salePrice: 0,
+        costPrice: 0,
+        topsAmount: 0,
+      }
+    );
+
+    setTotalValues(totals);
   }, [data, setTotalValues]);
 
   return (
     <>
-      <div className="rounded-md flex-1 flex flex-col min-h-0 h-[23.5svh]">
+      <div className="rounded-md flex-1 flex flex-col min-h-0 h-[46svh]">
         <div className="overflow-x-auto w-auto">
           <Table className="bg-white mb-32">
             <TableHeader className="sticky top-0 z-40 bg-white border-b">
               <TableRow>
                 {columns.map((header, index) => {
-                  // if (index === columns.length - 1) {
-                  //   return (
-                  //     <TableHead
-                  //       onClick={() =>
-                  //         handleValueChange(singleInitialRow, data.length + 1)
-                  //       }
-                  //       className="border-collapse border border-gray-300"
-                  //       key={index}
-                  //     >
-                  //       {header}
-                  //     </TableHead>
-                  //   );
-                  // }
+                  if (index === columns.length - 1) {
+                    return (
+                      <TableHead
+                        onClick={() =>
+                          handleValueChange(singleInitialRow, data.length + 1)
+                        }
+                        className="border-collapse border border-gray-300"
+                        key={index}
+                      >
+                        {header}
+                      </TableHead>
+                    );
+                  }
                   return (
                     <TableHead
                       className={`border-collapse border border-gray-300`}
@@ -119,629 +136,623 @@ export function SingleTenderDataTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data ? (
-                <TableRow>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20"
-                    name="lotNo"
-                    type="text"
-                    value={data.lotNo || ""}
-                    onChange={(e) => {
-                      handleValueChange(
-                        {
-                          ...data,
+              {data.length > 0 ? (
+                data.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20"
+                      name="lotNo"
+                      type="text"
+                      value={row.lotNo || ""}
+                      onChange={(e) => {
+                        handleValueChange({
+                          ...row,
                           lotNo: e.target.value,
-                        },
-                      );
-                    }}
-                    placeholder="FS39"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20"
-                    name="roughName"
-                    type="text"
-                    value={data.roughName || ""}
-                    onChange={(e) => {
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="FS39"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20"
+                      name="roughName"
+                      type="text"
+                      value={row.roughName || ""}
+                      onChange={(e) => {
+                        handleValueChange({
+                          ...row,
                           roughName: e.target.value,
-                        },
-                      );
-                    }}
-                    placeholder="Name"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-center"
-                    name="roughPcs"
-                    type="number"
-                    value={data.roughPcs || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="Name"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-center"
+                      name="roughPcs"
+                      type="number"
+                      value={row.roughPcs || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
+                        handleValueChange({
+                          ...row,
                           roughPcs: value,
-                          roughSize: parseFloat((value / data.roughCts).toFixed(2)),
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="roughCts"
-                    type="number"
-                    value={data.roughCts || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
+                          roughSize: parseFloat(
+                            (value / row.roughCts).toFixed(2)
+                          ),
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="roughCts"
+                      type="number"
+                      value={row.roughCts || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
 
-                      let polCts = 0
-                      let polPercent = 0
-                      let saleAmount = 0
-                      let salePrice = 0
+                        let polCts = 0;
+                        let polPercent = 0;
+                        let saleAmount = 0;
+                        let salePrice = 0;
 
-                      if(!isNaN(data.polPercent) && !isNaN(value)) {
-                        polCts = parseFloat(((data.polPercent * value) / 100).toFixed(2))
-                      }
-                      
-                      if(!isNaN(polCts) && !isNaN(value)) {
-                        polPercent = parseFloat(((polCts / value) * 100).toFixed(2))
-                      }
+                        if (!isNaN(row.polPercent) && !isNaN(value)) {
+                          polCts = parseFloat(
+                            ((row.polPercent * value) / 100).toFixed(2)
+                          );
+                        }
 
-                      if(!isNaN(polCts) && !isNaN(data.salePrice)) {
-                        saleAmount = parseFloat((data.salePrice * polCts).toFixed(2))
-                      }
+                        if (!isNaN(polCts) && !isNaN(value)) {
+                          polPercent = parseFloat(
+                            ((polCts / value) * 100).toFixed(2)
+                          );
+                        }
 
-                      if(!isNaN(saleAmount) && !isNaN(polCts)) {
-                        salePrice = parseFloat((saleAmount / polCts).toFixed(2))
-                      }
+                        if (!isNaN(polCts) && !isNaN(row.salePrice)) {
+                          saleAmount = parseFloat(
+                            (row.salePrice * polCts).toFixed(2)
+                          );
+                        }
 
-                      handleValueChange(
-                        {
-                          ...data,
+                        if (!isNaN(saleAmount) && !isNaN(polCts)) {
+                          salePrice = parseFloat(
+                            (saleAmount / polCts).toFixed(2)
+                          );
+                        }
+
+                        handleValueChange({
+                          ...row,
                           roughCts: value,
-                          roughSize: parseFloat((data.roughPcs / value).toFixed(2)),
+                          roughSize: parseFloat(
+                            (row.roughPcs / value).toFixed(2)
+                          ),
                           polCts,
                           polPercent,
                           saleAmount,
                           salePrice,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="roughSize"
-                    type="number"
-                    value={data.roughSize || ""}
-                    step={0.01}
-                    readOnly
-                    // onChange={(e) => {
-                    //   const value = e.target.value
-                    //     ? parseFloat(e.target.value)
-                    //     : 0;
-                    //   handleValueChange(
-                    //     {
-                    //       ...data,
-                    //       roughSize: value,
-                    //     },
-                    //   );
-                    // }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="roughPrice"
-                    type="number"
-                    value={data.roughPrice || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="roughSize"
+                      type="number"
+                      value={row.roughSize || ""}
+                      step={0.01}
+                      readOnly
+                      // onChange={(e) => {
+                      //   const value = e.target.value
+                      //     ? parseFloat(e.target.value)
+                      //     : 0;
+                      //   handleValueChange(
+                      //     {
+                      //       ...row,
+                      //       roughSize: value,
+                      //     },
+                      //   );
+                      // }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="roughPrice"
+                      type="number"
+                      value={row.roughPrice || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
+                        handleValueChange({
+                          ...row,
                           roughPrice: value,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="roughTotal"
-                    type="number"
-                    value={data.roughTotal || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="roughTotal"
+                      type="number"
+                      value={row.roughTotal || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
+                        handleValueChange({
+                          ...row,
                           roughTotal: value,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <AutoCompleteInput
-                    data={colors}
-                    title="Color"
-                    selectedValue={data.color}
-                    widthClass="w-24"
-                    dropdownClass="w-36"
-                    handleValueChange={(value) => {
-                      if (value) {
-                        handleValueChange(
-                          {
-                            ...data,
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <AutoCompleteInput
+                      data={colors}
+                      title="Color"
+                      selectedValue={row.color}
+                      widthClass="w-24"
+                      dropdownClass="w-36"
+                      handleValueChange={(value) => {
+                        if (value) {
+                          handleValueChange({
+                            ...row,
                             color: value,
-                          },
-                        );
-                      }
-                    }}
-                    createDialogContent={<ColorDialog />}
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="colorGrade"
-                    type="number"
-                    value={data.colorGrade || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
-                      handleValueChange(
-                        {
-                          ...data,
+                          }, index);
+                        }
+                      }}
+                      createDialogContent={<ColorDialog />}
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="colorGrade"
+                      type="number"
+                      value={row.colorGrade || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
+                        handleValueChange({
+                          ...row,
                           colorGrade: value,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <AutoCompleteInput
-                    data={clarities}
-                    title="Clarity"
-                    selectedValue={data.clarity}
-                    widthClass="w-24"
-                    dropdownClass="w-32"
-                    handleValueChange={(value) => {
-                      if (value) {
-                        handleValueChange(
-                          {
-                            ...data,
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <AutoCompleteInput
+                      data={clarities}
+                      title="Clarity"
+                      selectedValue={row.clarity}
+                      widthClass="w-24"
+                      dropdownClass="w-32"
+                      handleValueChange={(value) => {
+                        if (value) {
+                          handleValueChange({
+                            ...row,
                             clarity: value,
-                          },
-                        );
-                      }
-                    }}
-                    createDialogContent={<ClarityDialog />}
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <AutoCompleteInput
-                    data={fluorescences}
-                    title="FLR"
-                    selectedValue={data.flr}
-                    widthClass="w-24"
-                    dropdownClass="w-32"
-                    handleValueChange={(value) => {
-                      if (value) {
-                        handleValueChange(
-                          {
-                            ...data,
+                          }, index);
+                        }
+                      }}
+                      createDialogContent={<ClarityDialog />}
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <AutoCompleteInput
+                      data={fluorescences}
+                      title="FLR"
+                      selectedValue={row.flr}
+                      widthClass="w-24"
+                      dropdownClass="w-32"
+                      handleValueChange={(value) => {
+                        if (value) {
+                          handleValueChange({
+                            ...row,
                             flr: value,
-                          },
-                        );
-                      }
-                    }}
-                    createDialogContent={<FlrDialog />}
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <AutoCompleteInput
-                    data={shapes}
-                    title="Shape"
-                    selectedValue={data.shape}
-                    widthClass="w-24"
-                    dropdownClass="w-32"
-                    handleValueChange={(value) => {
-                      if (value) {
-                        handleValueChange(
-                          {
-                            ...data,
+                          }, index);
+                        }
+                      }}
+                      createDialogContent={<FlrDialog />}
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <AutoCompleteInput
+                      data={shapes}
+                      title="Shape"
+                      selectedValue={row.shape}
+                      widthClass="w-24"
+                      dropdownClass="w-32"
+                      handleValueChange={(value) => {
+                        if (value) {
+                          handleValueChange({
+                            ...row,
                             shape: value,
-                          },
-                        );
-                      }
-                    }}
-                    createDialogContent={<ShapeDialog />}
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="polCts"
-                    type="number"
-                    value={data.polCts || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
+                          }, index);
+                        }
+                      }}
+                      createDialogContent={<ShapeDialog />}
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="polCts"
+                      type="number"
+                      value={row.polCts || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
 
-                      let polPercent = 0
-                      let saleAmount = 0
-                      let salePrice = 0
-  
-                      if(!isNaN(value) && !isNaN(data.roughCts)) {
-                        polPercent = parseFloat(((value / data.roughCts) * 100).toFixed(2))
-                      }
+                        let polPercent = 0;
+                        let saleAmount = 0;
+                        let salePrice = 0;
 
-                      if(!isNaN(value) && !isNaN(data.salePrice)) {
-                        saleAmount = parseFloat((data.salePrice * value).toFixed(2))
-                      }
+                        if (!isNaN(value) && !isNaN(row.roughCts)) {
+                          polPercent = parseFloat(
+                            ((value / row.roughCts) * 100).toFixed(2)
+                          );
+                        }
 
-                      if(!isNaN(saleAmount) && !isNaN(value)) {
-                        salePrice = parseFloat((saleAmount / value).toFixed(2))
-                      }
+                        if (!isNaN(value) && !isNaN(row.salePrice)) {
+                          saleAmount = parseFloat(
+                            (row.salePrice * value).toFixed(2)
+                          );
+                        }
 
-                      handleValueChange(
-                        {
-                          ...data,
+                        if (!isNaN(saleAmount) && !isNaN(value)) {
+                          salePrice = parseFloat(
+                            (saleAmount / value).toFixed(2)
+                          );
+                        }
+
+                        handleValueChange({
+                          ...row,
                           polCts: value,
                           polPercent,
                           saleAmount,
                           salePrice,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="polPercent"
-                    type="number"
-                    value={data.polPercent || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="polPercent"
+                      type="number"
+                      value={row.polPercent || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
 
-                      let polCts = 0
-                      let saleAmount = 0
-                      let salePrice = 0
-  
-                      if(!isNaN(value) && !isNaN(data.roughCts)) {
-                        polCts = parseFloat(((value * data.roughCts) / 100).toFixed(2))
-                      }
+                        let polCts = 0;
+                        let saleAmount = 0;
+                        let salePrice = 0;
 
-                      if(!isNaN(polCts) && !isNaN(data.salePrice)) {
-                        saleAmount = parseFloat((data.salePrice * polCts).toFixed(2))
-                      }
+                        if (!isNaN(value) && !isNaN(row.roughCts)) {
+                          polCts = parseFloat(
+                            ((value * row.roughCts) / 100).toFixed(2)
+                          );
+                        }
 
-                      if(!isNaN(saleAmount) && !isNaN(polCts)) {
-                        salePrice = parseFloat((saleAmount / polCts).toFixed(2))
-                      }
+                        if (!isNaN(polCts) && !isNaN(row.salePrice)) {
+                          saleAmount = parseFloat(
+                            (row.salePrice * polCts).toFixed(2)
+                          );
+                        }
 
-                      handleValueChange(
-                        {
-                          ...data,
+                        if (!isNaN(saleAmount) && !isNaN(polCts)) {
+                          salePrice = parseFloat(
+                            (saleAmount / polCts).toFixed(2)
+                          );
+                        }
+
+                        handleValueChange({
+                          ...row,
                           polPercent: value,
                           polCts,
                           saleAmount,
                           salePrice,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="depth"
-                    type="number"
-                    value={data.depth || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="depth"
+                      type="number"
+                      value={row.depth || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
+                        handleValueChange({
+                          ...row,
                           depth: value,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="table"
-                    type="number"
-                    value={data.table || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="table"
+                      type="number"
+                      value={row.table || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
+                        handleValueChange({
+                          ...row,
                           table: value,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="ratio"
-                    type="number"
-                    value={data.ratio || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="ratio"
+                      type="number"
+                      value={row.ratio || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
+                        handleValueChange({
+                          ...row,
                           ratio: value,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="salePrice"
-                    type="number"
-                    value={data.salePrice || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="salePrice"
+                      type="number"
+                      value={row.salePrice || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
 
-                      // let polPercent = 0
-                      // let polCts = 0
-                      let saleAmount = 0
-  
-                      // if(!isNaN(data.polPercent) && !isNaN(data.roughCts)) {
-                      //   polCts = parseFloat(((data.polPercent * data.roughCts) / 100).toFixed(2))
-                      // }
+                        // let polPercent = 0
+                        // let polCts = 0
+                        let saleAmount = 0;
 
-                      // if(!isNaN(data.roughCts) && isNaN(polCts)) {
-                      //   polPercent = parseFloat(((polCts / data.roughCts) * 100).toFixed(2))
-                      // }
+                        // if(!isNaN(row.polPercent) && !isNaN(row.roughCts)) {
+                        //   polCts = parseFloat(((row.polPercent * row.roughCts) / 100).toFixed(2))
+                        // }
 
-                      if(!isNaN(data.polCts) && !isNaN(value)) {
-                        saleAmount = parseFloat((value * data.polCts).toFixed(2))
-                      }
+                        // if(!isNaN(row.roughCts) && isNaN(polCts)) {
+                        //   polPercent = parseFloat(((polCts / row.roughCts) * 100).toFixed(2))
+                        // }
 
-                      handleValueChange(
-                        {
-                          ...data,
+                        if (!isNaN(row.polCts) && !isNaN(value)) {
+                          saleAmount = parseFloat(
+                            (value * row.polCts).toFixed(2)
+                          );
+                        }
+
+                        handleValueChange({
+                          ...row,
                           salePrice: value,
                           // polCts,
                           // polPercent,
                           saleAmount,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="saleAmount"
-                    type="number"
-                    value={data.saleAmount || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="saleAmount"
+                      type="number"
+                      value={row.saleAmount || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
 
-                      // let polPercent = 0
-                      // let polCts = 0
-                      let salePrice = 0
-    
-                      // if(!isNaN(data.polPercent) && !isNaN(data.roughCts)) {
-                      //   polCts = parseFloat(((data.polPercent * data.roughCts) / 100).toFixed(2))
-                      // }
-  
-                      // if(!isNaN(data.roughCts) && isNaN(polCts)) {
-                      //   polPercent = parseFloat(((polCts / data.roughCts) * 100).toFixed(2))
-                      // }
-  
-                      if(!isNaN(data.polCts) && !isNaN(value)) {
-                        salePrice = parseFloat((value / data.polCts).toFixed(2))
-                      }
-  
-                      handleValueChange(
-                        {
-                          ...data,
+                        // let polPercent = 0
+                        // let polCts = 0
+                        let salePrice = 0;
+
+                        // if(!isNaN(row.polPercent) && !isNaN(row.roughCts)) {
+                        //   polCts = parseFloat(((row.polPercent * row.roughCts) / 100).toFixed(2))
+                        // }
+
+                        // if(!isNaN(row.roughCts) && isNaN(polCts)) {
+                        //   polPercent = parseFloat(((polCts / row.roughCts) * 100).toFixed(2))
+                        // }
+
+                        if (!isNaN(row.polCts) && !isNaN(value)) {
+                          salePrice = parseFloat(
+                            (value / row.polCts).toFixed(2)
+                          );
+                        }
+
+                        handleValueChange({
+                          ...row,
                           saleAmount: value,
                           // polCts,
                           // polPercent,
                           salePrice,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="costPrice"
-                    type="number"
-                    value={data.costPrice || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="costPrice"
+                      type="number"
+                      value={row.costPrice || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
+                        handleValueChange({
+                          ...row,
                           costPrice: value,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="costAmount"
-                    type="number"
-                    value={data.costAmount || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="costAmount"
+                      type="number"
+                      value={row.costAmount || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
+                        handleValueChange({
+                          ...row,
                           costAmount: value,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="topsAmount"
-                    type="number"
-                    value={data.topsAmount || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="topsAmount"
+                      type="number"
+                      value={row.topsAmount || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
+                        handleValueChange({
+                          ...row,
                           topsAmount: value,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20"
-                    name="incription"
-                    type="text"
-                    value={data.incription || ""}
-                    onChange={(e) => {
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20"
+                      name="incription"
+                      type="text"
+                      value={row.incription || ""}
+                      onChange={(e) => {
+                        handleValueChange({
+                          ...row,
                           incription: e.target.value,
-                        },
-                      );
-                    }}
-                    placeholder="RD-2.35"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="resultTotal"
-                    type="number"
-                    value={data.resultTotal || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="RD-2.35"
+                    />
+                  </TableCell>
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="resultTotal"
+                      type="number"
+                      value={row.resultTotal || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
+                        handleValueChange({
+                          ...row,
                           resultTotal: value,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-                <TableCell className="border-collapse border border-gray-300">
-                  <Input
-                    className="w-20 text-right"
-                    name="finalBidPrice"
-                    type="number"
-                    value={data.finalBidPrice || ""}
-                    step={0.01}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        ? parseFloat(e.target.value)
-                        : 0;
-                      handleValueChange(
-                        {
-                          ...data,
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell>
+                  {/* <TableCell className="border-collapse border border-gray-300">
+                    <Input
+                      className="w-20 text-right"
+                      name="finalBidPrice"
+                      type="number"
+                      value={row.finalBidPrice || ""}
+                      step={0.01}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          ? parseFloat(e.target.value)
+                          : 0;
+                        handleValueChange({
+                          ...row,
                           finalBidPrice: value,
-                        },
-                      );
-                    }}
-                    placeholder="0"
-                  />
-                </TableCell>
-              </TableRow>
-                
-              ) : (
+                        }, index);
+                      }}
+                      placeholder="0"
+                    />
+                  </TableCell> */}
+                  <TableCell className="border-collapse border border-gray-300">
+                    <Button
+                      variant="ghost"
+                      type="button"
+                      className="p-0"
+                      onClick={() => {
+                        if(data.length !== 1) {
+                          handleValueChange(row, index, "delete")
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))) : (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
