@@ -22,6 +22,12 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
     // TODO: delete tender details when it is implemented
 
+    // await prisma.tenderDetails.deleteMany({
+    //   where: {
+    //     tenderId: id,
+    //   },
+    // });
+
     return new Response(
       JSON.stringify({
         message: "Tender deleted successfully",

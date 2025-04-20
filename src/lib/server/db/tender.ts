@@ -20,8 +20,14 @@ export const getTendersDb = async () => {
     prisma.tender.count(),
   ]);
 
+  const tendersData = tenders.map(({ dcNetPercentage, dcLabour, ...rest }) => ({  
+    ...rest,
+    dcNetPercentage: dcNetPercentage.toNumber(),
+    dcLabour: dcLabour.toNumber(),
+  }));
+
   return {
-    data: tenders,
+    data: tendersData,
     success: true,
     message: "Success",
     nextPage: totalCount > 10 ? 2 : null,

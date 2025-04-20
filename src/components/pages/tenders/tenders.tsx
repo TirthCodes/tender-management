@@ -41,8 +41,8 @@ export function TendersPage({
       <FormDialog
         open={dialogOpen}
         setOpen={setDialogOpen}
-        action={"Add"}
-        title={"title"}
+        action={editData ? "Edit" : "Add"}
+        title={editData ? editData.stTenderName : "Tender"}
       >
         <></> {/* form */}
       </FormDialog>
@@ -50,6 +50,7 @@ export function TendersPage({
         columns={columns}
         data={tendersResponse?.data || []}
         isDialog={true}
+        setEditDialogOpen={setDialogOpen}
         setEditData={setEditData}
         queryKey={queryKey}
       />
