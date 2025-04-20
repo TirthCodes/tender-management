@@ -10,7 +10,7 @@ export async function createSingleTender(data: unknown) {
   return response;
 }
 
-export async function getTenders() {
-  const response = await fetchData("/tender");
+export async function getTenders(page: number) {
+  const response = await fetchData(`/tender?page=${page}`);
   return response;
 }

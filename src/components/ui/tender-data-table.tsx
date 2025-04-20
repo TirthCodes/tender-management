@@ -5,7 +5,6 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -18,13 +17,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
-// import { useMutation } from "@tanstack/react-query";
-// import { deleteFn } from "@/services/delete";
-// import useEffectAfterMount from "@/hooks/useEffectAfterMount";
-// import toast from "react-toastify";
-// import { invalidateQuery } from "@/lib/invalidate";
+import { useMutation } from "@tanstack/react-query";
+import { deleteFn } from "@/services/delete";
+import { toast } from "react-toastify";
+import { invalidateQuery } from "@/lib/invalidate";
+import useEffectAfterMount from "@/hooks/useEffectAfterMount";
 
 interface DataTableProps<TData extends { id?: number }> {
   columns: ColumnDef<TData, unknown>[];
@@ -44,46 +43,45 @@ export function TenderDataTable<TData extends { id?: number }>({
   setEditData,
   isDialog,
   editPath,
-  // deleteEndpoint,
-  // queryKey,
+  deleteEndpoint,
+  queryKey,
 }: DataTableProps<TData>) {
-  // const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [deletingId, setDeletingId] = React.useState<number | null>(null);
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const router = useRouter();
 
-  // const {
-  //   mutate: deleteData,
-  //   isPending,
-  //   data: deleteResponse,
-  // } = useMutation({
-  //   mutationFn: (id: string) => deleteFn(`${deleteEndpoint}/${id}`),
-  // });
+  const {
+    mutate: deleteData,
+    isPending,
+    data: deleteResponse,
+  } = useMutation({
+    mutationFn: (id: number) => deleteFn(`${deleteEndpoint}/${id}`),
+  });
 
-  // useEffectAfterMount(() => {
-  //   if (deleteResponse) {
-  //     if (deleteResponse?.success) {
-  //       toast.success(deleteResponse.message);
-  //       invalidateQuery(queryKey);
-  //       setDeletingId(null);
-  //     } else {
-  //       toast.error(deleteResponse.error || deleteResponse.message);
-  //       setDeletingId(null);
-  //     }
-  //   }
-  // }, [deleteResponse]);
+  useEffectAfterMount(() => {
+    if (deleteResponse) {
+      if (deleteResponse?.success) {
+        toast.success(deleteResponse.message);
+        invalidateQuery(queryKey);
+        setDeletingId(null);
+      } else {
+        toast.error(deleteResponse.error || deleteResponse.message);
+        setDeletingId(null);
+      }
+    }
+  }, [deleteResponse]);
 
-  // const handleDelete = async (id?: string) => {
-  //   if (deleteEndpoint && id) {
-  //     setDeletingId(id);
-  //     // deleteData(id);
-  //   }
-  // };
+  const handleDelete = async (id?: number) => {
+    if (deleteEndpoint && id) {
+      setDeletingId(id);
+      deleteData(id);
+    }
+  };
 
   return (
     <div className="w-full pt-4">
@@ -91,7 +89,10 @@ export function TenderDataTable<TData extends { id?: number }>({
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="sticky ring-black top-0 z-10 border-b-2 bg-neutral-100 shadow-sm hover:bg-neutral-100">
+              <TableRow
+                key={headerGroup.id}
+                className="sticky ring-black top-0 z-10 border-b-2 bg-neutral-100 shadow-sm hover:bg-neutral-100"
+              >
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
@@ -133,14 +134,14 @@ export function TenderDataTable<TData extends { id?: number }>({
                           >
                             <Pencil /> Edit
                           </Button>
-                          {/* <Button
+                          <Button
                             onClick={() => handleDelete(row.original?.id)}
                             disabled={
                               isPending && deletingId === row.original?.id
                             }
                           >
                             <Trash /> Delete
-                          </Button> */}
+                          </Button>
                         </div>
                       ) : (
                         flexRender(
@@ -164,26 +165,6 @@ export function TenderDataTable<TData extends { id?: number }>({
             )}
           </TableBody>
         </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
       </div>
     </div>
   );

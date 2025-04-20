@@ -4,6 +4,7 @@ import { columns, TenderColumns } from "@/app/(protected)/tenders/columns";
 import { FormDialog } from "@/components/common/form-dialog";
 import { PageHeader } from "@/components/common/page-header";
 import { PageWrapper } from "@/components/common/page-wrapper";
+import { Pagination } from "@/components/common/pagination";
 import { TenderDataTable } from "@/components/ui/tender-data-table";
 import { getTenders } from "@/services/tender";
 import { useQuery } from "@tanstack/react-query";
@@ -18,12 +19,13 @@ export function TendersPage({
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editData, setEditData] = useState<TenderColumns | null>(null);
+  const [page, setPage] = useState(1);
 
   const queryKey = "tenders";
 
   const { data: tendersResponse } = useQuery({
-    queryKey: [queryKey],
-    queryFn: getTenders,
+    queryKey: [queryKey, page],
+    queryFn: () => getTenders(page),
     initialData: {
       data: tenders,
       success: true,
@@ -50,6 +52,11 @@ export function TendersPage({
         isDialog={true}
         setEditData={setEditData}
         queryKey={queryKey}
+      />
+      <Pagination 
+        setPage={setPage}
+        nextPage={tendersResponse?.nextPage}
+        page={page}
       />
     </PageWrapper>
   );

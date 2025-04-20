@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { getTendersDb } from "@/lib/server/db/tender";
 import { getCurrentSession } from "@/lib/server/session";
 // import { TenderDetails } from "@/lib/types/tender";
 
@@ -234,7 +233,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const { session, user } = await getCurrentSession();
 
   if (!session || !user) {
@@ -247,9 +246,45 @@ export async function GET() {
     );
   }
 
+  const url = new URL(req.url);
+  const page = url.searchParams.get("page");
+
+  const limit = 10;
+  const pageNumber = page ? parseInt(page) : 1;
+  const offset = (pageNumber - 1) * limit;
+
   try {
-    const tenders = await getTendersDb();
-    return Response.json(tenders, { status: 200 });
+    const [tenders, totalCount] = await Promise.all([
+      prisma.tender.findMany({
+        select: {
+          id: true,
+          dtVoucherDate: true,
+          stTenderName: true,
+          dcLabour: true,
+          dcNetPercentage: true,
+          stPersonName: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        skip: offset,
+        take: limit,
+      }),
+      prisma.tender.count(),
+    ]);
+
+    const hasNextPage = limit * pageNumber < totalCount;
+
+    return Response.json(
+      {
+        data: tenders,
+        success: true,
+        message: "Success",
+        nextPage: hasNextPage ? pageNumber + 1 : null,
+        totalCount,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     return Response.json(
       {

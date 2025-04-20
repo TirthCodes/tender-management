@@ -15,6 +15,7 @@ export const getTendersDb = async () => {
       orderBy: {
         createdAt: 'desc',
       },
+      take: 10,
     }),
     prisma.tender.count(),
   ]);

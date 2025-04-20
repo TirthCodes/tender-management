@@ -32,3 +32,10 @@ export const postData = async (endpoint: string, data?: unknown) => {
     throw error;
   }
 };
+
+export const fetchDelete = async (url: string) => {
+  const response = await fetch(url, {
+    method: "DELETE"
+  })
+  return response.json()
+};
