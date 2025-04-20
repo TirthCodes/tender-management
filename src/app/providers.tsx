@@ -1,8 +1,5 @@
 "use client";
 
-import { PrimeReactProvider } from "primereact/api";
-import Tailwind from "primereact/passthrough/tailwind";
-
 import {
   isServer,
   QueryClient,
@@ -34,8 +31,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
   return (
-    <PrimeReactProvider value={{ unstyled: true, pt: Tailwind }}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </PrimeReactProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 }
