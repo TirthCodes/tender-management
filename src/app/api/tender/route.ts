@@ -159,7 +159,7 @@ import { getCurrentSession } from "@/lib/server/session";
 // }
 
 export type TenderPayload = {
-  id: number;
+  id?: number;
   voucherDate: Date | string;
   tenderName: string;
   personName: string;
