@@ -1,6 +1,6 @@
 import React from 'react'
 import DialogWrapper from './dialog-wrapper'
-import { FluorescenceForm } from '../fluorescence-form'
+import { FluorescenceForm } from '../forms/fluorescence-form'
 
 export default function FlrDialog() {
   return (

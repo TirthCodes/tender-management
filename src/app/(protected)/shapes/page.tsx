@@ -9,7 +9,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ShapeForm } from "@/components/shape-form";
+import { ShapeForm } from "@/components/forms/shape-form";
+import { PlusCircle } from "lucide-react";
 
 export default async function ShapesPage() {
   const shapes = await prisma.shape.findMany();
@@ -20,14 +21,11 @@ export default async function ShapesPage() {
         <h1 className="text-2xl font-bold">Shapes</h1>
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="font-semibold">+ Create</Button>
+            <Button className="font-semibold"><PlusCircle /> Create</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add New Shape</DialogTitle>
-              {/* <DialogDescription>
-                Create a new color for the application.
-              </DialogDescription> */}
             </DialogHeader>
             <ShapeForm />
           </DialogContent>

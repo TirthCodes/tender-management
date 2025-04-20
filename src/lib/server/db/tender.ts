@@ -1,0 +1,29 @@
+import { prisma } from "@/lib/prisma";
+import "server-only";
+
+export const getTendersDb = async () => {
+  const [tenders, totalCount] = await Promise.all([
+    prisma.tender.findMany({
+      select: {
+        id: true,
+        dtVoucherDate: true,
+        stTenderName: true,
+        dcLabour: true,
+        dcNetPercentage: true,
+        stPersonName: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    }),
+    prisma.tender.count(),
+  ]);
+
+  return {
+    data: tenders,
+    success: true,
+    message: "Success",
+    nextPage: totalCount > 10 ? 2 : null,
+    totalCount,
+  };
+};

@@ -2,10 +2,10 @@
 
 import { logoutAction } from "@/app/(auth)/auth/actions";
 import { useActionState } from "react";
-import { Button } from "./ui/button";
-import useEffectAfterMount from "@/app/hooks/useEffectAfterMount";
+import { Button } from "./button";
 import { toast } from "react-toastify";
 import { redirect } from "next/navigation";
+import useEffectAfterMount from "@/hooks/useEffectAfterMount";
 
 const initialState = {
   success: false,

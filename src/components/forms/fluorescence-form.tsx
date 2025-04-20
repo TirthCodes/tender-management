@@ -3,49 +3,53 @@
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createColor, updateColor } from "@/app/tenders/colors/actions";
-import { Color } from "@/app/tenders/colors/columns";
+import {
+  createFluorescence,
+  updateFluorescence,
+} from "@/app/(protected)/fluorescence/actions";
+import { Fluorescence } from "@/app/(protected)/fluorescence/columns";
+import React, { useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { getQueryClient } from "@/app/providers";
-import { useState } from "react";
 
-export function ColorForm({
+export function FluorescenceForm({
   initialData,
   closeDialog,
 }: {
-  initialData?: Color;
+  initialData?: Fluorescence;
   closeDialog?: () => void;
 }) {
-  
+
   const [isPending, setIsPending] = useState(false);
   
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     e.stopPropagation();
-    setIsPending(true);
 
+    setIsPending(true);
     try {
       const formData = new FormData(e.currentTarget);
       const queryClient = getQueryClient();
 
       if (initialData) {
-        const response = await updateColor(initialData.id, formData);
+        const response = await updateFluorescence(initialData.id, formData);
         if (response.success) {
           toast.success(response.message);
-          queryClient.invalidateQueries({ queryKey: ["color-options"] });
+          queryClient.invalidateQueries({ queryKey: ["fluorescence-options"] });
           closeDialog?.();
         } else {
           toast.error(response.message);
         }
       } else {
-        const response = await createColor(formData);
+        const response = await createFluorescence(formData);
         if (response.success) {
           toast.success(response.message);
-          queryClient.invalidateQueries({ queryKey: ["color-options"] });
-          if(e.currentTarget) {
-            e.currentTarget.reset()
+          queryClient.invalidateQueries({ queryKey: ["fluorescence-options"] });
+          if(formRef.current) {
+            formRef.current.reset()
           }
         } else {
           toast.error(response.message);
@@ -53,7 +57,6 @@ export function ColorForm({
       }
       router.refresh();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Error submitting form");
       console.error("Form submission failed:", error);
     } finally {
       setIsPending(false);
@@ -61,7 +64,7 @@ export function ColorForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 max-w-md">
       <div className="space-y-1">
         <label className="text-sm font-medium">Name</label>
         <Input

@@ -1,9 +1,6 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-
-import { Button } from "@/components/ui/button";
-import { deleteColor } from "./actions";
 import {
   Dialog,
   DialogContent,
@@ -11,17 +8,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ColorForm } from "@/components/color-form";
+import { Button } from "@/components/ui/button";
+import { deleteShape } from "./actions";
 import { useState } from "react";
+import { ShapeForm } from "@/components/forms/shape-form";
 
-export type Color = {
+export type Shape = {
   id: number;
   stName: string;
   stShortName: string;
   inSerial: number;
 };
 
-export const columns: ColumnDef<Color>[] = [
+export const columns: ColumnDef<Shape>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -42,11 +41,11 @@ export const columns: ColumnDef<Color>[] = [
     id: "actions",
     cell: ({ row }) => (
       <div className="flex gap-2">
-        <ColorDialogForm initialData={row.original} />
+        <ShapeDialogForm initialData={row.original} />
         <Button
           variant="destructive"
           onClick={async () => {
-            await deleteColor(row.original.id);
+            await deleteShape(row.original.id);
             window.location.reload();
           }}
         >
@@ -57,8 +56,9 @@ export const columns: ColumnDef<Color>[] = [
   },
 ];
 
-export function ColorDialogForm({ initialData }: { initialData?: Color }) {
+function ShapeDialogForm({ initialData }: { initialData?: Shape }) {
   const [open, setOpen] = useState(false);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -69,13 +69,13 @@ export function ColorDialogForm({ initialData }: { initialData?: Color }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {initialData ? "Edit Color" : "Create New Color"}
+            {initialData ? "Edit Shape" : "Create New Shape"}
           </DialogTitle>
           {/* <DialogDescription>
             Create a new color for the application.
           </DialogDescription> */}
         </DialogHeader>
-        <ColorForm initialData={initialData} closeDialog={() => setOpen(false)} />
+        <ShapeForm initialData={initialData} closeDialog={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );

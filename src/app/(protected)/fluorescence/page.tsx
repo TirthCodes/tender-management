@@ -9,41 +9,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ColorForm } from "@/components/color-form";
+import { FluorescenceForm } from "@/components/forms/fluorescence-form";
 
-export default async function ColorsPage() {
-  const colors = await prisma.color.findMany({
-    select: {
-      id: true,
-      stShortName: true,
-      stName: true,
-      inSerial: true,
-    },
-    orderBy: {
-      inSerial: "asc",
-    }
-  });
+export default async function FluorescencePage() {
+  const fluorescence = await prisma.fluorescence.findMany();
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Colors</h1>
+        <h1 className="text-2xl font-bold">Fluorescence</h1>
         <Dialog>
           <DialogTrigger asChild>
             <Button className="font-semibold">+ Create</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Color</DialogTitle>
+              <DialogTitle>Add New Fluorenscence</DialogTitle>
               {/* <DialogDescription>
                 Create a new color for the application.
               </DialogDescription> */}
             </DialogHeader>
-            <ColorForm />
+            <FluorescenceForm />
           </DialogContent>
         </Dialog>
       </div>
-      <DataTable columns={columns} data={colors} />
+      <DataTable columns={columns} data={fluorescence} />
     </div>
   );
 }

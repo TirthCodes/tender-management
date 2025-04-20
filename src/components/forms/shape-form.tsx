@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createShape, updateShape } from "@/app/tenders/shapes/actions";
-import { Shape } from "@/app/tenders/shapes/columns";
+import { createShape, updateShape } from "@/app/(protected)/shapes/actions";
+import { Shape } from "@/app/(protected)/shapes/columns";
 import { useRef, useState } from "react";
 import { getQueryClient } from "@/app/providers";
 import { toast } from "react-toastify";

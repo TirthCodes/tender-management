@@ -3,17 +3,17 @@
 import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { LogoutButton } from "./logout-button";
-import { Button } from "./ui/button";
 import { User } from "@prisma/client";
 import Link from "next/link";
+import { Button } from "./button";
+import { LogoutButton } from "./logout-button";
 
 const navigation = [
   { name: "Tenders", href: "/tenders" },
-  { name: "Colors", href: "/tenders/colors" },
-  { name: "Shapes", href: "/tenders/shapes" },
-  { name: "Clarity", href: "/tenders/clarity" },
-  { name: "Flourescence", href: "/tenders/fluorescence" },
+  { name: "Colors", href: "/colors" },
+  { name: "Shapes", href: "/shapes" },
+  { name: "Clarity", href: "/clarity" },
+  { name: "Flourescence", href: "/fluorescence" },
   // { name: "Main Lot", href: "/main-lot" },
 ];
 
@@ -27,7 +27,7 @@ export default function Header({ user }: { user: User | null }) {
         className="flex items-center justify-between p-4 lg:px-6"
       >
         <div className="flex items-center gap-x-12">
-          <Link href="/tenders" className="-m-1.5 p-1.5">
+          <Link href="/tenders" className="-m-1.5">
             <span className="sr-only">Your Company</span>
             <span className="font-semibold text-xl">Tender</span>
           </Link>
@@ -69,7 +69,7 @@ export default function Header({ user }: { user: User | null }) {
         <div className="fixed inset-0 z-10" />
         <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center justify-between">
-            <Link href="/tenders" className="-m-1.5 p-1.5">
+            <Link href="/tenders" className="-m-1.5">
               <span className="sr-only">Your Company</span>
               <span className="font-semibold text-xl">Tender</span>
             </Link>

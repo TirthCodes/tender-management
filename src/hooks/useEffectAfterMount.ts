@@ -10,5 +10,4 @@ export default function useEffectAfterMount(callback: () => void, dependencies: 
     }
     callback();
   }, dependencies);
-
 }

@@ -45,6 +45,10 @@ const columns = [
   "Cost Amnt",
   "Tops Amnt",
   "Incription",
+  "Bid Price",
+  "Total Amnt",
+  "Result Cost",
+  "Result/Ct",
   "Result Total",
   <Button key={1} className="p-0" variant="ghost" type="button">
     <PlusCircle className="h-4 w-4" />

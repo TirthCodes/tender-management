@@ -1,4 +1,4 @@
-import UserForm from "@/components/user-form";
+import UserForm from "@/components/forms/user-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +13,7 @@ import { getCurrentSession } from "@/lib/server/session";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
-import { LogoutButton } from "@/components/logout-button";
+import { LogoutButton } from "@/components/ui/logout-button";
 import Link from "next/link";
 
 export default async function Admin() {

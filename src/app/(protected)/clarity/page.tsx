@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { prisma } from "@/lib/prisma";
-import { ClarityForm } from "@/components/clarity-form";
+import { ClarityForm } from "@/components/forms/clarity-form";
 
 export default async function ClarityPage() {
   const clarity = await prisma.clarity.findMany();

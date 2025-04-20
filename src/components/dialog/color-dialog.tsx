@@ -1,6 +1,6 @@
 import React from 'react'
 import DialogWrapper from './dialog-wrapper'
-import { ColorForm } from '../color-form'
+import { ColorForm } from '../forms/color-form'
 
 export default function ColorDialog() {
   return (

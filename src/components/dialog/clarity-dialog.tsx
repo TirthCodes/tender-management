@@ -1,6 +1,6 @@
 import React from 'react'
 import DialogWrapper from './dialog-wrapper'
-import { ClarityForm } from '../clarity-form'
+import { ClarityForm } from '../forms/clarity-form'
 
 export default function ClarityDialog() {
   return (

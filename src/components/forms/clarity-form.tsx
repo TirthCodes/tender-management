@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createClarity, updateClarity } from "@/app/tenders/clarity/actions";
-import { Clarity } from "@/app/tenders/clarity/columns";
+import { createClarity, updateClarity } from "@/app/(protected)/clarity/actions";
+import { Clarity } from "@/app/(protected)/clarity/columns";
 import { toast } from "react-toastify";
 import { getQueryClient } from "@/app/providers";
 import { useState } from "react";

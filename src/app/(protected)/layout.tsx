@@ -1,4 +1,5 @@
-import Header from "@/components/header";
+
+import Header from "@/components/ui/header";
 import { getCurrentSession } from "@/lib/server/session";
 
 export default async function Layout({

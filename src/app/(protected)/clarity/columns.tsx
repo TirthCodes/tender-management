@@ -1,6 +1,10 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+
+import { Button } from "@/components/ui/button";
+import { deleteClarity } from "./actions";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,19 +12,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { deleteShape } from "./actions";
-import { useState } from "react";
-import { ShapeForm } from "@/components/shape-form";
+import { ClarityForm } from "@/components/forms/clarity-form";
 
-export type Shape = {
+export type Clarity = {
   id: number;
   stName: string;
   stShortName: string;
   inSerial: number;
 };
 
-export const columns: ColumnDef<Shape>[] = [
+export const columns: ColumnDef<Clarity>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -41,11 +42,11 @@ export const columns: ColumnDef<Shape>[] = [
     id: "actions",
     cell: ({ row }) => (
       <div className="flex gap-2">
-        <ShapeDialogForm initialData={row.original} />
+        <ClarityDialogForm initialData={row.original} />
         <Button
           variant="destructive"
           onClick={async () => {
-            await deleteShape(row.original.id);
+            await deleteClarity(row.original.id);
             window.location.reload();
           }}
         >
@@ -56,7 +57,7 @@ export const columns: ColumnDef<Shape>[] = [
   },
 ];
 
-function ShapeDialogForm({ initialData }: { initialData?: Shape }) {
+function ClarityDialogForm({ initialData }: { initialData?: Clarity }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -69,13 +70,16 @@ function ShapeDialogForm({ initialData }: { initialData?: Shape }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {initialData ? "Edit Shape" : "Create New Shape"}
+            {initialData ? "Edit Clarity" : "Create New Clarity"}
           </DialogTitle>
           {/* <DialogDescription>
             Create a new color for the application.
           </DialogDescription> */}
         </DialogHeader>
-        <ShapeForm initialData={initialData} closeDialog={() => setOpen(false)} />
+        <ClarityForm
+          initialData={initialData}
+          closeDialog={() => setOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   );

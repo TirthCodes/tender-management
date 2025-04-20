@@ -3,8 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-import { deleteClarity } from "./actions";
-import { useState } from "react";
+import { deleteFluorescence } from "./actions";
 import {
   Dialog,
   DialogContent,
@@ -12,16 +11,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ClarityForm } from "@/components/clarity-form";
+import { useState } from "react";
+import { FluorescenceForm } from "@/components/forms/fluorescence-form";
 
-export type Clarity = {
+export type Fluorescence = {
   id: number;
   stName: string;
   stShortName: string;
   inSerial: number;
 };
 
-export const columns: ColumnDef<Clarity>[] = [
+export const columns: ColumnDef<Fluorescence>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -42,11 +42,11 @@ export const columns: ColumnDef<Clarity>[] = [
     id: "actions",
     cell: ({ row }) => (
       <div className="flex gap-2">
-        <ClarityDialogForm initialData={row.original} />
+        <FluorescenceDialogForm initialData={row.original} />
         <Button
           variant="destructive"
           onClick={async () => {
-            await deleteClarity(row.original.id);
+            await deleteFluorescence(row.original.id);
             window.location.reload();
           }}
         >
@@ -57,7 +57,11 @@ export const columns: ColumnDef<Clarity>[] = [
   },
 ];
 
-function ClarityDialogForm({ initialData }: { initialData?: Clarity }) {
+function FluorescenceDialogForm({
+  initialData,
+}: {
+  initialData?: Fluorescence;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -70,13 +74,13 @@ function ClarityDialogForm({ initialData }: { initialData?: Clarity }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {initialData ? "Edit Clarity" : "Create New Clarity"}
+            {initialData ? "Edit Fluorescence" : "Create New Fluorescence"}
           </DialogTitle>
           {/* <DialogDescription>
             Create a new color for the application.
           </DialogDescription> */}
         </DialogHeader>
-        <ClarityForm
+        <FluorescenceForm
           initialData={initialData}
           closeDialog={() => setOpen(false)}
         />

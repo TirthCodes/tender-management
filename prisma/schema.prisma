@@ -35,44 +35,57 @@ model Session {
   user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+//single stone, rough lot, multi lot, mix lot
+
 model Tender {
   id                   Int                    @id @default(autoincrement())
-  
   dtVoucherDate        DateTime     
   stTenderName         String
-  stTenderType         String                 // single stone, rough lot, multi lot, mix lot
-  dcNetPercentage     Decimal                 @db.Decimal(10, 2)  
-  stRemark             String?                @db.Text
-  
   stPersonName         String
+  dcNetPercentage      Decimal                @db.Decimal(10, 2)   
   dcLabour             Decimal                @db.Decimal(10, 2)
-  stStatus             String?                // win, loss, 
-
-
-  stLotNo              String
-  stRoughName          String
-  inTotalRoughPcs      Int 
-  dcTotalRoughCts      Decimal?               @db.Decimal(10, 2)
-  dcRoughSize          Decimal?               @db.Decimal(10, 2)
-  dcRoughPrice         Decimal?               @db.Decimal(10, 2)
-  dcRoughTotal         Decimal?               @db.Decimal(10, 2)
-
-  dcBidPrice           Decimal                @db.Decimal(10, 2)
-  dcResultCost         Decimal                @db.Decimal(10, 2)
-  // dcFinalCostPrice     Decimal                @db.Decimal(10, 2)
-  dcTotalAmount        Decimal                @db.Decimal(10, 2)
-  dcResultPerCt        Decimal                @db.Decimal(10, 2)
-  // dcFinalBidPrice      Decimal                @db.Decimal(10, 2)
-
-  dcResultTotal        Decimal                @db.Decimal(10, 2)
-  // dcFinalTotalAmount   Decimal                @db.Decimal(10, 2)
-
-  dtCreatedAt          DateTime               @default(now())
-  dtUpdatedAt          DateTime               @updatedAt
   tenderDetails        TenderDetails[]
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
 }
 
-//! change stColorGrade to inColorGrade
+// model Tender {
+//   id                   Int                    @id @default(autoincrement())
+  
+//   dtVoucherDate        DateTime     
+//   stTenderName         String
+//   stTenderType         String                 // single stone, rough lot, multi lot, mix lot
+//   dcNetPercentage     Decimal                 @db.Decimal(10, 2)  
+//   stRemark             String?                @db.Text
+  
+//   stPersonName         String
+//   dcLabour             Decimal                @db.Decimal(10, 2)
+//   stStatus             String?                // win, loss, 
+
+
+//   stLotNo              String
+//   stRoughName          String
+//   inTotalRoughPcs      Int 
+//   dcTotalRoughCts      Decimal?               @db.Decimal(10, 2)
+//   dcRoughSize          Decimal?               @db.Decimal(10, 2)
+//   dcRoughPrice         Decimal?               @db.Decimal(10, 2)
+//   dcRoughTotal         Decimal?               @db.Decimal(10, 2)
+
+//   dcBidPrice           Decimal                @db.Decimal(10, 2)
+//   dcResultCost         Decimal                @db.Decimal(10, 2)
+//   // dcFinalCostPrice     Decimal                @db.Decimal(10, 2)
+//   dcTotalAmount        Decimal                @db.Decimal(10, 2)
+//   dcResultPerCt        Decimal                @db.Decimal(10, 2)
+//   // dcFinalBidPrice      Decimal                @db.Decimal(10, 2)
+
+//   dcResultTotal        Decimal                @db.Decimal(10, 2)
+//   // dcFinalTotalAmount   Decimal                @db.Decimal(10, 2)
+
+//   dtCreatedAt          DateTime               @default(now())
+//   dtUpdatedAt          DateTime               @updatedAt
+//   tenderDetails        TenderDetails[]
+// }
+
 model TenderDetails {
   id                Int             @id @default(autoincrement())
   
@@ -91,7 +104,7 @@ model TenderDetails {
   shapeId           Int          
   shape             Shape           @relation(fields: [shapeId], references: [id], onDelete: Cascade)
   
-  stColorGrade      Int
+  inColorGrade      Int
   
   dcPolCts          Decimal         @db.Decimal(10, 2)
   dcPolPer          Decimal         @db.Decimal(10, 2)
@@ -109,6 +122,13 @@ model TenderDetails {
   dcTopsAmount      Decimal?        @db.Decimal(10, 2)
 
   stIncription      String?         @db.Text
+
+  dcBidPrice           Decimal?                @db.Decimal(10, 2)
+  dcTotalAmount        Decimal?                @db.Decimal(10, 2) //Bid Amount
+
+  dcResultCost         Decimal?                @db.Decimal(10, 2)
+  dcResultPerCt        Decimal?                @db.Decimal(10, 2)
+  dcResultTotal        Decimal?                @db.Decimal(10, 2)
 
   dtCreatedAt       DateTime        @default(now())
   dtUpdatedAt       DateTime        @updatedAt
