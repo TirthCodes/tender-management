@@ -1,5 +1,5 @@
 import React from 'react'
-import { TendersPage } from '@/components/pages/tenders/tenders';
+import { TendersPage } from '@/components/pages/tenders';
 import { getTendersDb } from '@/lib/server/db/tender';
 
 export default async function Page() {
