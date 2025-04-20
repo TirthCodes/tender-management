@@ -160,11 +160,11 @@ import { getCurrentSession } from "@/lib/server/session";
 
 export type TenderPayload = {
   id?: number;
-  voucherDate: Date | string;
-  tenderName: string;
-  personName: string;
-  netPercent: number;
-  labour: number;
+  dtVoucherDate: Date | string;
+  stTenderName: string;
+  stPersonName: string;
+  dcNetPercentage: number;
+  dcLabour: number;
 };
 
 export async function POST(req: Request) {
@@ -183,36 +183,36 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as TenderPayload;
 
-    const { id, voucherDate, tenderName, personName, netPercent, labour } =
+    const { id, dtVoucherDate, stTenderName, stPersonName, dcNetPercentage, dcLabour } =
       body;
 
     if (id) {
       await prisma.tender.update({
         where: {
-          id: id,
+          id: Number(id),
         },
         data: {
-          dtVoucherDate: new Date(voucherDate),
-          stTenderName: tenderName,
-          stPersonName: personName,
-          dcNetPercentage: netPercent,
-          dcLabour: labour,
+          dtVoucherDate: new Date(dtVoucherDate),
+          stTenderName: stTenderName,
+          stPersonName: stPersonName,
+          dcNetPercentage: Number(dcNetPercentage),
+          dcLabour: dcLabour,
+        },
+      });
+    }else{
+      await prisma.tender.create({
+        data: {
+          dtVoucherDate: new Date(dtVoucherDate),
+          stTenderName: stTenderName,
+          stPersonName: stPersonName,
+          dcNetPercentage: Number(dcNetPercentage),
+          dcLabour: Number(dcLabour),
+        },
+        select: {
+          id: true,
         },
       });
     }
-
-    await prisma.tender.create({
-      data: {
-        dtVoucherDate: new Date(voucherDate),
-        stTenderName: tenderName,
-        stPersonName: personName,
-        dcNetPercentage: netPercent,
-        dcLabour: labour,
-      },
-      select: {
-        id: true,
-      },
-    });
 
     return Response.json(
       {

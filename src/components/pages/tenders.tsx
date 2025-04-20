@@ -9,6 +9,7 @@ import { TenderDataTable } from "@/components/ui/tender-data-table";
 import { getTenders } from "@/services/tender";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
+import { TenderForm } from "../forms/tender-form";
 
 export function TendersPage({
   tenders,
@@ -35,24 +36,30 @@ export function TendersPage({
     },
   });
 
+  const handleModal =()=>{
+    setDialogOpen(!dialogOpen)
+    setEditData(null)
+  }
+
   return (
     <PageWrapper>
-      <PageHeader title="Tenders" setDialogOpen={setDialogOpen} />
+      <PageHeader title="Tenders" handleModal={handleModal}/>
       <FormDialog
         open={dialogOpen}
         setOpen={setDialogOpen}
         action={editData ? "Edit" : "Add"}
         title={editData ? editData.stTenderName : "Tender"}
       >
-        <></> {/* form */}
+       <TenderForm editData={editData}/>
       </FormDialog>
-      <TenderDataTable
+      <TenderDataTable 
         columns={columns}
         data={tendersResponse?.data || []}
         isDialog={true}
         setEditDialogOpen={setDialogOpen}
         setEditData={setEditData}
         queryKey={queryKey}
+        deleteEndpoint="/api/tender"
       />
       <Pagination 
         setPage={setPage}

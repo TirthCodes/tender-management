@@ -16,7 +16,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   try {
     await prisma.tender.delete({
       where: {
-        id: id,
+        id: Number(id),
       },
     });
 

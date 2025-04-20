@@ -37,7 +37,7 @@ export const columns: ColumnDef<TenderColumns>[] = [
       const voucherDate = row.getValue("dtVoucherDate") as Date;
       return (
         <div className="flex items-center gap-2">
-          {voucherDate.toDateString()}
+          {new Date(voucherDate).toDateString()}
         </div>
       );
     },
