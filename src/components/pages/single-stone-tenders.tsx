@@ -1,63 +1,51 @@
-"use client"
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'next/navigation';
-import React, { useState } from 'react'
-import { PageWrapper } from '../common/page-wrapper';
-import { PageHeader } from '../common/page-header';
-import { FormDialog } from '../common/form-dialog';
-import { TenderDataTable } from '../ui/tender-data-table';
-import { Pagination } from '../common/pagination';
+import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
+import React, { useState } from "react";
+import { PageWrapper } from "../common/page-wrapper";
+import { PageHeader } from "../common/page-header";
+import { TenderDataTable } from "../ui/tender-data-table";
+import { Pagination } from "../common/pagination";
+import { getSingleStoneTender } from "@/services/single-stone";
 
 export function SingleStoneTendersPage() {
-
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editData, setEditData] = useState<null>(null);
   const [page, setPage] = useState(1);
 
   const searchParams = useSearchParams();
-  const id = searchParams.get('id');
-  
+  const id = searchParams.get("id");
+
+  const intId = parseInt(id as string);
+
   const queryKey = "single-stone-tenders";
 
   const { data: singleStoneResponse } = useQuery({
     queryKey: [queryKey, id, page],
-    // queryFn: () => getTenders(page),
+    queryFn: () => getSingleStoneTender(intId, page),
     initialData: {
-      // data: tenders,
+      data: [],
       success: true,
       message: "Success",
       nextPage: 2,
       totalCount: 20,
     },
+    enabled: !!intId,
   });
-
-  console.log(singleStoneResponse, "singleStoneResponse");
 
   return (
     <PageWrapper>
-      <PageHeader title="Single Stone Tenders" setDialogOpen={setDialogOpen} />
-      <FormDialog
-        open={dialogOpen}
-        setOpen={setDialogOpen}
-        action={editData ? "Edit" : "Add"}
-        title={"Single Stone Tender"}
-      >
-        <></> {/* form */}
-      </FormDialog>
+      <PageHeader
+        title="Single Stone Tenders"
+        editPath={`/tenders/single-stone/create?tenderId=${intId}`}
+      />
       <TenderDataTable
+        data={singleStoneResponse?.data || []}
         columns={[]}
-        data={[]}
-        isDialog={true}
-        setEditDialogOpen={setDialogOpen}
-        setEditData={setEditData}
+        isDialog={false}
         queryKey={queryKey}
+        deleteEndpoint="/tender/single-stone"
       />
-      <Pagination 
-        setPage={setPage}
-        nextPage={2}
-        page={page}
-      />
+      <Pagination setPage={setPage} nextPage={2} page={page} />
     </PageWrapper>
-  )
+  );
 }

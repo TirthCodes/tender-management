@@ -10,7 +10,7 @@ export type TenderColumns = {
   stPersonName: string;
   dcNetPercentage: number;
   dcLabour: number;
-  dtVoucherDate: Date | string;
+  dtVoucherDate: Date;
 };
 
 export const columns: ColumnDef<TenderColumns>[] = [

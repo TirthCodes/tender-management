@@ -59,6 +59,10 @@ export const singleInitialRow: SingleStoneTenderDetails = {
   costAmount: 0,
   topsAmount: 0,
   incription: "",
+  bidPrice: 0,
+  totalAmount: 0,
+  resultCost: 0,
+  resultPerCarat: 0,
   resultTotal: 0,
   // finalBidPrice: 0,
 };
@@ -68,6 +72,13 @@ interface CreateTenderFormProps {
   clarityOptions: Option[];
   fluorescenceOptions: Option[];
   shapeOptions: Option[];
+  tenderData: {
+    dtVoucherDate: Date;
+    stTenderName: string;
+    stPersonName: string;
+    dcNetPercentage: number;
+    dcLabour: number;
+  };
 }
 
 const createTenderSchema = z.object({
@@ -75,8 +86,14 @@ const createTenderSchema = z.object({
   tenderType: z.string(),
   tenderName: z.string().trim().min(2, { message: "Tender name is required!" }),
   personName: z.string().trim().min(2, { message: "Person name is required!" }),
-  netPercent: z.string().trim().min(2, { message: "Note % is required!" }),
-  labour: z.string().trim().min(1, { message: "Labour is required!" }),
+  netPercent: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, "Net Percentage is required")
+  ),
+  labour: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, { message: "Labour is required!" })
+  ),
   remark: z.string().trim().optional(),
   // lotNo: z.string().trim().min(1, { message: "Lot no.is required!" }),
   // roughName: z.string().trim().min(2, { message: "Rough name is required!" }),
@@ -101,6 +118,7 @@ export function CreateSingleStoneTenderForm({
   clarityOptions,
   fluorescenceOptions,
   shapeOptions,
+  tenderData,
 }: CreateTenderFormProps) {
   const { data: colorsOptions } = useQuery({
     queryKey: ["color-options"],
@@ -145,13 +163,21 @@ export function CreateSingleStoneTenderForm({
   const {
     register,
     handleSubmit,
-    // watch,
+    watch,
     // reset,
     formState: { errors },
     setValue,
     setError,
   } = useForm<CreateTenderFormValues>({
     mode: "onBlur",
+    defaultValues: {
+      voucherDate: tenderData.dtVoucherDate.toLocaleDateString(),
+      tenderName: tenderData.stTenderName,
+      personName: tenderData.stPersonName,
+      netPercent: tenderData.dcNetPercentage,
+      labour: tenderData.dcLabour,
+      remark: "",
+    },
     resolver: zodResolver(createTenderSchema),
   });
 
@@ -159,9 +185,9 @@ export function CreateSingleStoneTenderForm({
 
   const [isPending, setIsPending] = useState(false);
 
-  const [tenderDetails, setTenderDetails] =
-    useState<SingleStoneTenderDetails[]>([singleInitialRow]);
-    console.log(tenderDetails,"details")
+  const [tenderDetails, setTenderDetails] = useState<
+    SingleStoneTenderDetails[]
+  >([singleInitialRow]);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [date, setDate] = useState<Date>();
   const [totalValues, setTotalValues] = useState<TotalValues>({
@@ -182,14 +208,13 @@ export function CreateSingleStoneTenderForm({
           message: undefined,
         });
       }
+    } else if (tenderData.dtVoucherDate) {
+      setDate(tenderData.dtVoucherDate)
     }
-  }, [date, setValue, errors, setError]);
+  }, [date, setValue, errors, setError, tenderData]);
 
-  // const netPercent = watch("netPercent");
-  // const resultTotal = watch("resultTotal");
-  // const roughCts = totalValues?.carats;
-  // const labour = watch("labour");
-  // const bidPrice = watch("bidPrice");
+  const netPercent = watch("netPercent");
+  const labour = watch("labour");
 
   // useEffect(() => {
   //   if (netPercent && labour) {
@@ -259,16 +284,16 @@ export function CreateSingleStoneTenderForm({
 
   //         console.log(finalCostPrice, "finalCostPrice")
 
-          // if (!isNaN(finalCostPrice)) {
-          //   setValue("finalCostPrice", finalCostPrice);
-          // }
+  // if (!isNaN(finalCostPrice)) {
+  //   setValue("finalCostPrice", finalCostPrice);
+  // }
 
-          // const finalTotalAmount = parseFloat(
-          //   (finalBidPriceValue * totalValues.carats).toFixed(2)
-          // );
-          // if (!isNaN(finalTotalAmount)) {
-          //   setValue("finalTotalAmount", finalTotalAmount);
-          // }
+  // const finalTotalAmount = parseFloat(
+  //   (finalBidPriceValue * totalValues.carats).toFixed(2)
+  // );
+  // if (!isNaN(finalTotalAmount)) {
+  //   setValue("finalTotalAmount", finalTotalAmount);
+  // }
   //       }
   //     }
   //   }
@@ -288,7 +313,7 @@ export function CreateSingleStoneTenderForm({
   // useEffect(() => {
   //   if(finalBidPriceDetails) {
   //     setValue("finalBidPrice", String(tenderDetails?.finalBidPrice));
-  //   } 
+  //   }
   //   if(resultTotalDetails) {
   //     setValue("resultTotal", String(tenderDetails?.resultTotal));
   //   }
@@ -328,7 +353,7 @@ export function CreateSingleStoneTenderForm({
   async function onSubmit(data: CreateTenderFormValues) {
     setIsPending(true);
 
-    console.log(data, "datra")
+    console.log(data, "datra");
 
     // const payload = {
     //   ...data,
@@ -370,13 +395,13 @@ export function CreateSingleStoneTenderForm({
     // }
     // setIsPending(false);
   }
-
+  // ( ( ( ( ( ( ( ( Res. Per Carat * 6 % ) + Res. Per Carat ) + 50 ) * Rou. Wt. ) / Pol. Wt.) + 180 ) / 97 % ) - Top Amount )
   return (
     <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
       <div className="grid w-full grid-cols-2 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle>Tender Details</CardTitle>
+            <CardTitle>Single Stone Tender</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
@@ -520,6 +545,8 @@ export function CreateSingleStoneTenderForm({
           clarities={claritiesOptions?.data}
           fluorescences={fluorescencesOptions?.data}
           shapes={shapesOptions?.data}
+          labourValue={labour}
+          netPercernt={netPercent}
         />
       </div>
 

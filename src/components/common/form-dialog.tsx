@@ -37,24 +37,11 @@ export function FormDialog({
         <DialogDescription className="sr-only">
           Form dialog for {action} {title}
         </DialogDescription>
-        <DialogHeader className="text-lg text-neutral-900 flex items-start">
+        <DialogHeader className="text-lg font-semibold text-neutral-900 flex items-start">
           {action} {title}
         </DialogHeader>
         {children}
       </DialogContent>
     </Dialog>
-    // <Dialog>
-    //   <DialogTrigger asChild>
-    //     <Button className="font-semibold">
-    //       <PlusCircle /> Create
-    //     </Button>
-    //   </DialogTrigger>
-    //   <DialogContent>
-    //     <DialogHeader>
-    //       <DialogTitle>Add New {title}</DialogTitle>
-    //     </DialogHeader>
-    //     {children}
-    //   </DialogContent>
-    // </Dialog>
   );
 }

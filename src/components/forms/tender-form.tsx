@@ -3,20 +3,27 @@
 import { createTender } from "@/services/tender";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
 import { toast } from "react-toastify";
 import { TenderColumns } from "@/app/(protected)/tenders/columns";
+import { FormButtons } from "../common/form-buttons";
+import { invalidateQuery } from "@/lib/invalidate";
 
 const tenderFormSchema = z.object({
   dtVoucherDate: z.date().or(z.string()),
   stTenderName: z.string().min(1, "Tender name is required"),
   stPersonName: z.string().min(1, "Person name is required"),
-  dcNetPercentage: z.number(), //TODO: getting error for number error in input
-  dcLabour: z.number(), //TODO: getting error for number error in input
+  dcNetPercentage: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, "Net Percentage is required")
+  ),
+  dcLabour: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, "Labour is required")
+  ),
 });
 
 type TenderFormSchema = z.infer<typeof tenderFormSchema> & {
@@ -25,23 +32,25 @@ type TenderFormSchema = z.infer<typeof tenderFormSchema> & {
 
 export function TenderForm({
   editData,
+  setDialogOpen,
 }: {
   editData: TenderColumns | null;
+  setDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  console.log(JSON.stringify(editData));
   const {
     handleSubmit,
     register,
     formState: { errors },
     reset,
-    setValue,
   } = useForm({
     resolver: zodResolver(tenderFormSchema),
     defaultValues: editData
       ? {
-        ...editData,
-        dtVoucherDate: new Date(editData.dtVoucherDate).toISOString().split('T')[0]
-      }
+          ...editData,
+          dtVoucherDate: new Date(editData.dtVoucherDate)
+            .toISOString()
+            .split("T")[0],
+        }
       : {
           dtVoucherDate: new Date(),
           stTenderName: "",
@@ -51,23 +60,31 @@ export function TenderForm({
         },
   });
 
-  const createMutation = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: createTender,
-    onSuccess: () => {
-      toast.success("Tender created successfully");
-      reset();
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success(data.message);
+        invalidateQuery("tenders");
+        reset();
+        if (editData && setDialogOpen) {
+          setDialogOpen(false);
+        }
+      } else {
+        toast.error(data.message);
+      }
     },
     onError: (error) => {
-      toast.error("Error creating tender");
+      toast.error(error.message);
     },
   });
 
   const onSubmit = async (data: TenderFormSchema) => {
     try {
       if (editData?.id) {
-        createMutation.mutate({ ...data, id: editData.id });
+        mutate({ ...data, id: editData.id });
       } else {
-        createMutation.mutate(data);
+        mutate(data);
       }
     } catch (error) {
       console.error(
@@ -77,60 +94,67 @@ export function TenderForm({
     }
   };
 
-  const isPending = createMutation.isPending;
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md">
-      <div className="space-y-1">
-        <label className="text-sm font-medium">Voucher Date</label>
-        <Input type="date" {...register("dtVoucherDate")} required />
-        {errors.dtVoucherDate && (
-          <p className="text-sm text-red-500">{errors.dtVoucherDate.message}</p>
-        )}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1">
+          <label className="text-sm font-medium">Voucher Date</label>
+          <Input type="date" {...register("dtVoucherDate")} required />
+          {errors.dtVoucherDate && (
+            <p className="text-sm text-red-500">
+              {errors.dtVoucherDate.message}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-sm font-medium">Tender Name</label>
+          <Input {...register("stTenderName")} required />
+          {errors.stTenderName && (
+            <p className="text-sm text-red-500">
+              {errors.stTenderName.message}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-sm font-medium">Person Name</label>
+          <Input {...register("stPersonName")} required />
+          {errors.stPersonName && (
+            <p className="text-sm text-red-500">
+              {errors.stPersonName.message}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-sm font-medium">Net Percentage</label>
+          <Input
+            type="number"
+            step="0.01"
+            {...register("dcNetPercentage")}
+            required
+          />
+          {errors.dcNetPercentage && (
+            <p className="text-sm text-red-500">
+              {errors.dcNetPercentage.message}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-sm font-medium">Labour</label>
+          <Input type="number" step="0.01" {...register("dcLabour")} required />
+          {errors.dcLabour && (
+            <p className="text-sm text-red-500">{errors.dcLabour.message}</p>
+          )}
+        </div>
       </div>
 
-      <div className="space-y-1">
-        <label className="text-sm font-medium">Tender Name</label>
-        <Input {...register("stTenderName")} required />
-        {errors.stTenderName && (
-          <p className="text-sm text-red-500">{errors.stTenderName.message}</p>
-        )}
-      </div>
-
-      <div className="space-y-1">
-        <label className="text-sm font-medium">Person Name</label>
-        <Input {...register("stPersonName")} required />
-        {errors.stPersonName && (
-          <p className="text-sm text-red-500">{errors.stPersonName.message}</p>
-        )}
-      </div>
-
-      <div className="space-y-1">
-        <label className="text-sm font-medium">Net Percentage</label>
-        <Input
-          type="number"
-          step="0.01"
-          {...register("dcNetPercentage")}
-          required
-        />
-        {errors.dcNetPercentage && (
-          <p className="text-sm text-red-500">
-            {errors.dcNetPercentage.message}
-          </p>
-        )}
-      </div>
-
-      <div className="space-y-1">
-        <label className="text-sm font-medium">Labour</label>
-        <Input type="number" step="0.01" {...register("dcLabour")} required />
-        {errors.dcLabour && (
-          <p className="text-sm text-red-500">{errors.dcLabour.message}</p>
-        )}
-      </div>
-
-      <Button disabled={isPending} type="submit">
-        {editData?.id ? "Update Tender" : "Create Tender"}
-      </Button>
+      <FormButtons
+        isPending={isPending}
+        submitText={editData?.id ? "Update Tender" : "Create Tender"}
+      />
     </form>
   );
 }

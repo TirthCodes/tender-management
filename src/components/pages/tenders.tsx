@@ -36,23 +36,22 @@ export function TendersPage({
     },
   });
 
-  const handleModal =()=>{
-    setDialogOpen(!dialogOpen)
-    setEditData(null)
-  }
-
   return (
     <PageWrapper>
-      <PageHeader title="Tenders" handleModal={handleModal}/>
+      <PageHeader
+        title="Tenders"
+        setDialogOpen={setDialogOpen}
+        setEditData={setEditData}
+      />
       <FormDialog
         open={dialogOpen}
         setOpen={setDialogOpen}
         action={editData ? "Edit" : "Add"}
         title={editData ? editData.stTenderName : "Tender"}
       >
-       <TenderForm editData={editData}/>
+        <TenderForm editData={editData} setDialogOpen={setDialogOpen} />
       </FormDialog>
-      <TenderDataTable 
+      <TenderDataTable
         columns={columns}
         data={tendersResponse?.data || []}
         isDialog={true}
@@ -61,7 +60,7 @@ export function TendersPage({
         queryKey={queryKey}
         deleteEndpoint="/api/tender"
       />
-      <Pagination 
+      <Pagination
         setPage={setPage}
         nextPage={tendersResponse?.nextPage}
         page={page}
