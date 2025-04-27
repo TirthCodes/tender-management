@@ -54,6 +54,8 @@ export const columns: ColumnDef<TenderColumns>[] = [
             let url = `/tenders/tender-details/create?tenderId=${id}`;
             if(tenderType.value === "single-stone") {
               url = `/tenders/single-stone/create?tenderId=${id}`;
+            } else if(tenderType.value === "multi-lot") {
+              url = `/tenders/multi-lot?tenderId=${id}`;
             }
 
             return (
@@ -79,6 +81,6 @@ export const columns: ColumnDef<TenderColumns>[] = [
 const tenderTypes = [
   { value: "single-stone", label: "Single Stone" },
   { value: "rough-lot", label: "Rough Lot" },
-  { value: "multi-lot", label: "Multi Lot" },
   { value: "mix-lot", label: "Mix Lot" },
+  { value: "multi-lot", label: "Multi Lot" },
 ];
