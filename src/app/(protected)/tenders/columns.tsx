@@ -50,10 +50,16 @@ export const columns: ColumnDef<TenderColumns>[] = [
       return (
         <div className="flex items-center gap-2">
           {tenderTypes.map((tenderType) => {
+
+            let url = `/tenders/tender-details/create?tenderId=${id}`;
+            if(tenderType.value === "single-stone") {
+              url = `/tenders/single-stone/create?tenderId=${id}`;
+            }
+
             return (
               <Link
                 className={buttonVariants({ variant: "outline" })}
-                href={`/tenders/${tenderType.value}/create?tenderId=${id}`}
+                href={url}
                 key={tenderType.value}
               >
                 {tenderType.label}
