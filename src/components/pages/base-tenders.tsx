@@ -6,12 +6,12 @@ import { PageHeader } from "@/components/common/page-header";
 import { PageWrapper } from "@/components/common/page-wrapper";
 import { Pagination } from "@/components/common/pagination";
 import { TenderDataTable } from "@/components/ui/tender-data-table";
-import { getTenders } from "@/services/tender";
+import { getBaseTenders } from "@/services/base-tender";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { TenderForm } from "../forms/tender-form";
+import { BaseTenderForm } from "../forms/base-tender-form";
 
-export function TendersPage({
+export function BaseTendersPage({
   tenders,
   totalCount,
 }: {
@@ -26,7 +26,7 @@ export function TendersPage({
 
   const { data: tendersResponse } = useQuery({
     queryKey: [queryKey, page],
-    queryFn: () => getTenders(page),
+    queryFn: () => getBaseTenders(page),
     initialData: {
       data: tenders,
       success: true,
@@ -36,20 +36,25 @@ export function TendersPage({
     },
   });
 
+  const handleDialog = () => {
+    setEditData?.(null);
+    setDialogOpen?.(true);
+  };
+
   return (
     <PageWrapper>
       <PageHeader
-        title="Tenders"
-        setDialogOpen={setDialogOpen}
-        setEditData={setEditData}
+        title="Base Tenders"
+        handleDialog={handleDialog}
       />
       <FormDialog
         open={dialogOpen}
         setOpen={setDialogOpen}
         action={editData ? "Edit" : "Add"}
         title={editData ? editData.stTenderName : "Tender"}
+        widthClass="md:max-w-[30dvw] md:w-[30dvw]"
       >
-        <TenderForm editData={editData} setDialogOpen={setDialogOpen} />
+        <BaseTenderForm editData={editData} setDialogOpen={setDialogOpen} />
       </FormDialog>
       <TenderDataTable
         columns={columns}

@@ -2,18 +2,15 @@ import React from "react";
 import { Button } from "../ui/button";
 import { PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { TenderColumns } from "@/app/(protected)/tenders/columns";
 
 export function PageHeader({
   title,
-  setDialogOpen,
+  handleDialog,
   editPath,
-  setEditData
 }: {
   title: string;
-  setDialogOpen?: (value: boolean) => void;
+  handleDialog?: () => void;
   editPath?: string;
-  setEditData?: (value: TenderColumns | null) => void;
 }) {
 
   const router = useRouter();
@@ -22,8 +19,7 @@ export function PageHeader({
     if(editPath) {
       router.push(editPath);
     } else {
-      setEditData?.(null);
-      setDialogOpen?.(true);
+      handleDialog?.();
     }
   }
 

@@ -32,10 +32,14 @@ export function MixLotTendersPage() {
   });
 
   console.log(mixLotResponse, "mixLotResponse");
+  const handleDialog = () => {
+    setEditData?.(null);
+    setDialogOpen?.(true);
+  };
 
   return (
     <PageWrapper>
-      <PageHeader title="Mix Lot Tenders" setDialogOpen={setDialogOpen} />
+      <PageHeader title="Mix Lot Tenders" handleDialog={handleDialog} />
       <FormDialog
         open={dialogOpen}
         setOpen={setDialogOpen}

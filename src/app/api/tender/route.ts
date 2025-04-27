@@ -187,7 +187,7 @@ export async function POST(req: Request) {
       body;
 
     if (id) {
-      await prisma.tender.update({
+      await prisma.baseTender.update({
         where: {
           id: Number(id),
         },
@@ -200,7 +200,7 @@ export async function POST(req: Request) {
         },
       });
     }else{
-      await prisma.tender.create({
+      await prisma.baseTender.create({
         data: {
           dtVoucherDate: new Date(dtVoucherDate),
           stTenderName: stTenderName,
@@ -255,7 +255,7 @@ export async function GET(req: Request) {
 
   try {
     const [tenders, totalCount] = await Promise.all([
-      prisma.tender.findMany({
+      prisma.baseTender.findMany({
         select: {
           id: true,
           dtVoucherDate: true,
@@ -270,7 +270,7 @@ export async function GET(req: Request) {
         skip: offset,
         take: limit,
       }),
-      prisma.tender.count(),
+      prisma.baseTender.count(),
     ]);
 
     const hasNextPage = limit * pageNumber < totalCount;

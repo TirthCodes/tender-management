@@ -1,6 +1,5 @@
 "use client";
 
-import { createTender } from "@/services/tender";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import React from "react";
@@ -11,6 +10,7 @@ import { toast } from "react-toastify";
 import { TenderColumns } from "@/app/(protected)/tenders/columns";
 import { FormButtons } from "../common/form-buttons";
 import { invalidateQuery } from "@/lib/invalidate";
+import { createBaseTender } from "@/services/base-tender";
 
 const tenderFormSchema = z.object({
   dtVoucherDate: z.date().or(z.string()),
@@ -30,7 +30,7 @@ type TenderFormSchema = z.infer<typeof tenderFormSchema> & {
   id?: number;
 };
 
-export function TenderForm({
+export function BaseTenderForm({
   editData,
   setDialogOpen,
 }: {
@@ -61,7 +61,7 @@ export function TenderForm({
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: createTender,
+    mutationFn: createBaseTender,
     onSuccess: (data) => {
       if (data.success) {
         toast.success(data.message);
@@ -97,7 +97,7 @@ export function TenderForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1">
+        <div className="space-y-1 col-span-2">
           <label className="text-sm font-medium">Voucher Date</label>
           <Input type="date" {...register("dtVoucherDate")} required />
           {errors.dtVoucherDate && (
@@ -107,7 +107,7 @@ export function TenderForm({
           )}
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 col-span-2">
           <label className="text-sm font-medium">Tender Name</label>
           <Input {...register("stTenderName")} required />
           {errors.stTenderName && (
@@ -117,7 +117,7 @@ export function TenderForm({
           )}
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-1 col-span-2">
           <label className="text-sm font-medium">Person Name</label>
           <Input {...register("stPersonName")} required />
           {errors.stPersonName && (

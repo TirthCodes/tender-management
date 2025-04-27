@@ -1,20 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { getCurrentSession } from "@/lib/server/session";
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: number }> }) { 
   const { id } = await params;
-
-  const { session, user } = await getCurrentSession();
-
-  if (!session || !user) {
-    return Response.json(
-      {
-        success: false,
-        message: "Unauthorized",
-      },
-      { status: 401 }
-    );
-  }
 
   if (!id) {
     return new Response(

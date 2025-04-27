@@ -15,6 +15,18 @@ export type TenderColumns = {
 
 export const columns: ColumnDef<TenderColumns>[] = [
   {
+    accessorKey: "dtVoucherDate",
+    header: "Voucher Date",
+    cell: ({ row }) => {
+      const voucherDate = row.getValue("dtVoucherDate") as Date;
+      return (
+        <div className="flex items-center gap-2">
+          {new Date(voucherDate).toDateString()}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "stTenderName",
     header: "Name",
   },
@@ -31,18 +43,6 @@ export const columns: ColumnDef<TenderColumns>[] = [
     header: "Labour",
   },
   {
-    accessorKey: "dtVoucherDate",
-    header: "Voucher Date",
-    cell: ({ row }) => {
-      const voucherDate = row.getValue("dtVoucherDate") as Date;
-      return (
-        <div className="flex items-center gap-2">
-          {new Date(voucherDate).toDateString()}
-        </div>
-      );
-    },
-  },
-  {
     id: "tenderTypes",
     header: "Tender Types",
     cell: ({ row }) => {
@@ -53,7 +53,7 @@ export const columns: ColumnDef<TenderColumns>[] = [
             return (
               <Link
                 className={buttonVariants({ variant: "outline" })}
-                href={`/tenders/${tenderType.value}?id=${id}`}
+                href={`/tenders/${tenderType.value}/create?tenderId=${id}`}
                 key={tenderType.value}
               >
                 {tenderType.label}

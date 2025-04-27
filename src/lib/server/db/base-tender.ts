@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import "server-only";
 
-export const getTendersDb = async () => {
+export const getBaseTendersDb = async () => {
   const [tenders, totalCount] = await Promise.all([
-    prisma.tender.findMany({
+    prisma.baseTender.findMany({
       select: {
         id: true,
         dtVoucherDate: true,
@@ -17,7 +17,7 @@ export const getTendersDb = async () => {
       },
       take: 10,
     }),
-    prisma.tender.count(),
+    prisma.baseTender.count(),
   ]);
 
   const tendersData = tenders.map(({ dcNetPercentage, dcLabour, ...rest }) => ({  

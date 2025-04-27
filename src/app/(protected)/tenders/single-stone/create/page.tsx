@@ -51,7 +51,7 @@ export default async function CreateTenderPage({ searchParams }: { searchParams:
         inSerial: "asc",
       },
     }),
-    prisma.tender.findUnique({
+    prisma.baseTender.findUnique({
       select: {
         dtVoucherDate: true,
         stTenderName: true,

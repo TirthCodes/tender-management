@@ -33,9 +33,14 @@ export function RoughLotTendersPage() {
 
   console.log(roughLotResponse, "roughLotResponse");
 
+  const handleDialog = () => {
+    setEditData?.(null);
+    setDialogOpen?.(true);
+  };
+
   return (
     <PageWrapper>
-      <PageHeader title="Rough Lot Tenders" setDialogOpen={setDialogOpen} />
+      <PageHeader title="Rough Lot Tenders" handleDialog={handleDialog} />
       <FormDialog
         open={dialogOpen}
         setOpen={setDialogOpen}

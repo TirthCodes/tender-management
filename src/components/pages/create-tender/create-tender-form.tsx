@@ -35,9 +35,9 @@ import {
 import { z } from "zod";
 import { Option } from "@/lib/types/common";
 import { TenderDetails, TotalValues } from "@/lib/types/tender";
-import { createTender } from "@/services/tender";
-import { toast } from "react-toastify";
-import { redirect } from "next/navigation";
+// import { createTender } from "@/services/tender";
+// import { toast } from "react-toastify";
+// import { redirect } from "next/navigation";
 import Link from "next/link";
 import { TenderDetailsDataTable } from "./tender-details-data-table";
 
@@ -415,13 +415,13 @@ export function CreateTenderForm({
 
     console.log(payload, "payload");
 
-    const response = await createTender(payload);
-    if (response.success) {
-      toast.success(response.message);
-      redirect("/tenders");
-    } else {
-      toast.error(response.message);
-    }
+    // const response = await createTender(payload);
+    // if (response.success) {
+    //   toast.success(response.message);
+    //   redirect("/tenders");
+    // } else {
+    //   toast.error(response.message);
+    // }
     setIsPending(false);
   }
 

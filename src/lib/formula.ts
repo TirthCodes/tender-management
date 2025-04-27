@@ -83,15 +83,10 @@ export const calculateResultCost = (
   roughCts: number,
   topsAmount: number
 ) => {
-  // ( ( ( ( ( ( ( ( Res. Per Carat * 6 % ) + Res. Per Carat ) + 50 ) * Rou. Wt. ) / Pol. Wt.) + 180 ) / 97 % ) - Top Amount )
   if (resultPerCarat) {
     const resultCost = parseFloat(
       (
-        (((resultPerCarat * 0.06 + resultPerCarat + labourValue) * roughCts) /
-          polCts +
-          180) /
-          0.97 -
-        topsAmount
+        (((((((resultPerCarat * 0.06) + resultPerCarat) + labourValue) * roughCts) / polCts) + 180) / 0.97) - topsAmount
       ).toFixed(2)
     );
 

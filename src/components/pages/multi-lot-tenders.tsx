@@ -32,10 +32,14 @@ export function MultiLotTendersPage() {
   });
 
   console.log(multiLotResponse, "multiLotResponse");
+  const handleDialog = () => {
+    setEditData?.(null);
+    setDialogOpen?.(true);
+  };
 
   return (
     <PageWrapper>
-      <PageHeader title="Multi Lot Tenders" setDialogOpen={setDialogOpen} />
+      <PageHeader title="Multi Lot Tenders" handleDialog={handleDialog} />
       <FormDialog
         open={dialogOpen}
         setOpen={setDialogOpen}

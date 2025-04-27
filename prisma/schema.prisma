@@ -37,13 +37,33 @@ model Session {
 
 //single stone, rough lot, multi lot, mix lot
 
-model Tender {
+model BaseTender {
   id                   Int                    @id @default(autoincrement())
   dtVoucherDate        DateTime     
   stTenderName         String
   stPersonName         String
   dcNetPercentage      Decimal                @db.Decimal(10, 2)   
   dcLabour             Decimal                @db.Decimal(10, 2)
+  tender           Tender[]
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+}
+
+model Tender {
+  id                   Int                    @id @default(autoincrement())
+  baseTender           BaseTender                 @relation(fields: [tenderId], references: [id])
+  tenderId             Int
+  mainLot              MainLot?                @relation(fields: [mainLotId], references: [id])
+  mainLotId            Int?
+	stLotNo              String
+  inRoughPcs           Int
+	dcRoughCts           Decimal                @db.Decimal(10, 2)
+  dcRate               Decimal                @db.Decimal(10, 2)
+  dcAmount             Decimal                @db.Decimal(10, 2)
+	dcRemark             String?                @db.Text
+	dcLabour             Decimal                @db.Decimal(10, 2)
+  dcNetPercentage      Decimal                @db.Decimal(10, 2)
+  stCertId             String?
   tenderDetails        TenderDetails[]
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
@@ -90,7 +110,7 @@ model TenderDetails {
   id                Int             @id @default(autoincrement())
   
   tenderId          Int
-  tender            Tender          @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  tender        Tender          @relation(fields: [tenderId], references: [id], onDelete: Cascade)
   
   inRoughPcs        Int 
   dcRoughCts        Decimal         @db.Decimal(10, 2)
@@ -142,6 +162,7 @@ model MainLot {
   stCts             String
   dcRate            Decimal           @db.Decimal(10, 2) 
   dcAmount          Decimal           @db.Decimal(10, 2) 
+  tender            Tender[]
   dtCreatedAt       DateTime          @default(now())
   dtUpdatedAt       DateTime          @updatedAt
 }

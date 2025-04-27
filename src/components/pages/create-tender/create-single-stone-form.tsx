@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { format } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
@@ -16,21 +14,10 @@ import {
   getFluorescenceOptions,
   getShapeOptions,
 } from "@/services/options";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-
 import { cn } from "@/lib/utils";
-import { Calendar } from "@/components/ui/calendar";
-
 import { z } from "zod";
 import { Option } from "@/lib/types/common";
 import { SingleStoneTenderDetails, TotalValues } from "@/lib/types/tender";
-// import { createSingleTender } from "@/services/tender";
-// import { toast } from "react-toastify";
-// import { redirect } from "next/navigation";
 import Link from "next/link";
 import { SingleTenderDataTable } from "./single-tender-data-table";
 import useKeyPress from "@/hooks/useKeyPress";
@@ -82,10 +69,10 @@ interface CreateTenderFormProps {
 }
 
 const createTenderSchema = z.object({
-  voucherDate: z.string(),
-  tenderType: z.string(),
-  tenderName: z.string().trim().min(2, { message: "Tender name is required!" }),
-  personName: z.string().trim().min(2, { message: "Person name is required!" }),
+  // voucherDate: z.string(),
+  // tenderType: z.string(),
+  // tenderName: z.string().trim().min(2, { message: "Tender name is required!" }),
+  // personName: z.string().trim().min(2, { message: "Person name is required!" }),
   netPercent: z.preprocess(
     (val) => Number(val),
     z.number().min(0, "Net Percentage is required")
@@ -166,14 +153,14 @@ export function CreateSingleStoneTenderForm({
     watch,
     // reset,
     formState: { errors },
-    setValue,
-    setError,
+    // setValue,
+    // setError,
   } = useForm<CreateTenderFormValues>({
     mode: "onBlur",
     defaultValues: {
-      voucherDate: tenderData.dtVoucherDate.toLocaleDateString(),
-      tenderName: tenderData.stTenderName,
-      personName: tenderData.stPersonName,
+      // voucherDate: tenderData.dtVoucherDate.toLocaleDateString(),
+      // tenderName: tenderData.stTenderName,
+      // personName: tenderData.stPersonName,
       netPercent: tenderData.dcNetPercentage,
       labour: tenderData.dcLabour,
       remark: "",
@@ -188,8 +175,8 @@ export function CreateSingleStoneTenderForm({
   const [tenderDetails, setTenderDetails] = useState<
     SingleStoneTenderDetails[]
   >([singleInitialRow]);
-  const [calendarOpen, setCalendarOpen] = useState(false);
-  const [date, setDate] = useState<Date>();
+  // const [calendarOpen, setCalendarOpen] = useState(false);
+  // const [date, setDate] = useState<Date>();
   const [totalValues, setTotalValues] = useState<TotalValues>({
     pcs: 0,
     carats: 0,
@@ -200,18 +187,18 @@ export function CreateSingleStoneTenderForm({
     topsAmount: 0,
   });
 
-  useEffect(() => {
-    if (date) {
-      setValue("voucherDate", date.toLocaleDateString());
-      if (errors.voucherDate) {
-        setError("voucherDate", {
-          message: undefined,
-        });
-      }
-    } else if (tenderData.dtVoucherDate) {
-      setDate(tenderData.dtVoucherDate)
-    }
-  }, [date, setValue, errors, setError, tenderData]);
+  // useEffect(() => {
+  //   if (date) {
+  //     setValue("voucherDate", date.toLocaleDateString());
+  //     if (errors.voucherDate) {
+  //       setError("voucherDate", {
+  //         message: undefined,
+  //       });
+  //     }
+  //   } else if (tenderData.dtVoucherDate) {
+  //     setDate(tenderData.dtVoucherDate)
+  //   }
+  // }, [date, setValue, errors, setError, tenderData]);
 
   const netPercent = watch("netPercent");
   const labour = watch("labour");
@@ -395,147 +382,65 @@ export function CreateSingleStoneTenderForm({
     // }
     // setIsPending(false);
   }
+
   // ( ( ( ( ( ( ( ( Res. Per Carat * 6 % ) + Res. Per Carat ) + 50 ) * Rou. Wt. ) / Pol. Wt.) + 180 ) / 97 % ) - Top Amount )
   return (
     <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-      <div className="grid w-full grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Single Stone Tender</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex w-full items-center">
-                <Label className="w-[100px] shrink-0">Voucher Date</Label>
-                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      type="button"
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !date && "text-muted-foreground",
-                        `${
-                          errors.voucherDate?.message && "border border-red-500"
-                        }`
-                      )}
-                    >
-                      <CalendarIcon
-                        className={`${
-                          errors.voucherDate?.message && "text-red-500"
-                        }`}
-                      />
-                      {date ? (
-                        format(date, "PPP")
-                      ) : (
-                        <span
-                          className={`${
-                            errors.voucherDate?.message && "text-red-500"
-                          }`}
-                        >
-                          Pick a date
-                        </span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={(newDate) => {
-                        setDate(newDate);
-                        setCalendarOpen(false);
-                      }}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="flex w-full items-center">
-                <Label className="w-[94px] shrink-0">Tender Type</Label>
-                <Input
-                  type="text"
-                  {...register("tenderType")}
-                  readOnly
-                  defaultValue={"Single Stone"}
-                  className={cn(
-                    errors.tenderType?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                  placeholder="Single Stone"
-                />
-              </div>
-              <div className="flex w-full items-center">
-                <Label className="w-[100px] shrink-0">Tender Name</Label>
-                <Input
-                  type="text"
-                  {...register("tenderName")}
-                  className={cn(
-                    errors.tenderName?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                  placeholder="Single Stone Tender"
-                />
-              </div>
-              <div className="flex w-full items-center justify-between">
-                <Label className="w-[94px] shrink-0">Net %</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  {...register("netPercent")}
-                  className={cn(
-                    errors.netPercent?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                  placeholder="106"
-                />
-              </div>
-              <div className="flex w-full items-center justify-between">
-                <Label className="w-[100px] shrink-0">Person</Label>
-                <Input
-                  type="text"
-                  {...register("personName")}
-                  className={cn(
-                    errors.personName?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                  placeholder="Raj"
-                />
-              </div>
-              <div className="flex w-full items-center justify-between">
-                <Label className="w-[94px] shrink-0">Labour</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  {...register("labour")}
-                  className={cn(
-                    errors.labour?.message &&
-                      "border border-red-500 placeholder:text-red-500"
-                  )}
-                  defaultValue={50}
-                  placeholder="50"
-                />
-              </div>
-              <div className="col-span-full">
-                <div className="flex w-full items-center">
-                  <Label className="w-[100px] shrink-0">Remark</Label>
-                  <Input
-                    type="text"
-                    {...register("remark")}
-                    className={cn(
-                      "w-full",
-                      errors.remark?.message && "border border-red-500"
-                    )}
-                    placeholder="MIX SAWABLE-MAKEABLE YELLOW (AVG - 1.83)"
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex items-center flex-col md:flex-row md:justify-between p-4 border border-neutral-300 rounded-lg shadow-sm">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-lg font-semibold">Singel Stone Tender</h1>
+          <div className="flex items-center gap-2 text-neutral-700">
+            <p className="pr-2 border-r-2">
+              {tenderData.dtVoucherDate.toDateString()}
+            </p>
+            <p className="pr-2 border-r-2">{tenderData.stTenderName}</p>
+            <p>{tenderData.stPersonName}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="">
+            <Label>Labour</Label>
+            <Input
+              type="number"
+              step="0.01"
+              {...register("labour")}
+              className={cn(
+                errors.labour?.message &&
+                  "border border-red-500 placeholder:text-red-500"
+              )}
+              defaultValue={50}
+              placeholder="50"
+            />
+          </div>
+          <div className="">
+            <Label>Net %</Label>
+            <Input
+              type="number"
+              step="0.01"
+              {...register("netPercent")}
+              className={cn(
+                errors.netPercent?.message &&
+                  "border border-red-500 placeholder:text-red-500"
+              )}
+              placeholder="106"
+            />
+          </div>
+          <div className="w-full">
+            <Label>Remark</Label>
+            <Input
+              type="text"
+              {...register("remark")}
+              className={cn(
+                "w-full",
+                errors.remark?.message && "border border-red-500"
+              )}
+              placeholder="MIX SAWABLE-MAKEABLE YELLOW (AVG - 1.83)"
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-lg border">
+      <div className="mt-4 overflow-hidden rounded-lg border border-neutral-300 shadow-sm">
         <SingleTenderDataTable
           totalValues={totalValues}
           setTotalValues={setTotalValues}

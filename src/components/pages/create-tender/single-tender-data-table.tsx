@@ -35,8 +35,8 @@ const columns = [
   "Pcs.",
   "Cts.",
   "Size",
-  "Price",
-  "Total",
+  // "Price",
+  // "Total",
   "Color",
   "C.GD",
   "Clarity",
@@ -121,7 +121,7 @@ export function SingleTenderDataTable({
 
   return (
     <>
-      <div className="rounded-md flex-1 flex flex-col min-h-0 h-[46svh]">
+      <div className="rounded-md flex-1 flex flex-col min-h-0 h-[65svh]">
         <div className="overflow-x-auto w-auto">
           <Table className="bg-white mb-32">
             <TableHeader className="sticky top-0 z-40 bg-white border-b">
@@ -133,7 +133,8 @@ export function SingleTenderDataTable({
                         onClick={() =>
                           handleValueChange(singleInitialRow, data.length + 1)
                         }
-                        className="border-collapse border border-gray-300"
+                        style={{ borderTopWidth: 0 }}
+                        className="border-collapse border border-gray-300 border-t-0"
                         key={index}
                       >
                         {header}
@@ -144,6 +145,7 @@ export function SingleTenderDataTable({
                     <TableHead
                       className={`border-collapse border border-gray-300`}
                       key={index}
+                      style={{ borderTopWidth: 0 }}
                     >
                       {header}
                     </TableHead>
@@ -297,7 +299,7 @@ export function SingleTenderDataTable({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    {/* <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
                         name="roughPrice"
@@ -340,7 +342,7 @@ export function SingleTenderDataTable({
                         }}
                         placeholder="0"
                       />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="border-collapse border border-gray-300">
                       <AutoCompleteInput
                         data={colors}
@@ -877,7 +879,7 @@ export function SingleTenderDataTable({
                           );
                           
                           const resultCost = calculateResultCost(
-                            value,
+                            resultPerCarat,
                             labourValue,
                             row.polCts,
                             row.roughCts,
@@ -980,7 +982,7 @@ export function SingleTenderDataTable({
           </Table>
         </div>
       </div>
-      <div className="px-10 flex items-center gap-10 h-10 bg-gray-100">
+      <div className="px-10 flex items-center gap-10 h-10 bg-gray-100 border-t">
         <p className="text-gray-600 w-28 text-sm font-semibold">
           Pcs: {totalValues.pcs}
         </p>
