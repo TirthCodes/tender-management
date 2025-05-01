@@ -6,18 +6,18 @@ import { useRouter } from "next/navigation";
 export function PageHeader({
   title,
   handleDialog,
-  editPath,
+  createPath,
 }: {
   title: string;
   handleDialog?: () => void;
-  editPath?: string;
+  createPath?: string;
 }) {
 
   const router = useRouter();
 
   const handleCreate = () => {
-    if(editPath) {
-      router.push(editPath);
+    if(createPath) {
+      router.push(createPath);
     } else {
       handleDialog?.();
     }

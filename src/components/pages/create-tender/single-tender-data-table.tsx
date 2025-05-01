@@ -31,7 +31,7 @@ import {
 
 const columns = [
   "Lot",
-  "Name",
+  // "Name",
   "Pcs.",
   "Cts.",
   "Size",
@@ -50,7 +50,7 @@ const columns = [
   "Sale Price",
   "Sale Amnt",
   "Cost Price",
-  "Cost Amnt",
+  // "Cost Amnt",
   "Tops Amnt",
   "Incription",
   "Bid Price",
@@ -175,7 +175,7 @@ export function SingleTenderDataTable({
                         placeholder="FS39"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    {/* <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20"
                         name="roughName"
@@ -192,7 +192,7 @@ export function SingleTenderDataTable({
                         }}
                         placeholder="Name"
                       />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-center"
@@ -738,7 +738,7 @@ export function SingleTenderDataTable({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    {/* <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
                         name="costAmount"
@@ -759,7 +759,7 @@ export function SingleTenderDataTable({
                         }}
                         placeholder="0"
                       />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"

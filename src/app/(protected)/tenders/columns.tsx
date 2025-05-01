@@ -51,11 +51,10 @@ export const columns: ColumnDef<TenderColumns>[] = [
         <div className="flex items-center gap-2">
           {tenderTypes.map((tenderType) => {
 
-            let url = `/tenders/tender-details/create?tenderId=${id}`;
+            // let url = `/tenders/tender-details/create?tenderId=${id}`;
+            let url = `/tenders/${tenderType.value}?tenderId=${id}`
             if(tenderType.value === "single-stone") {
               url = `/tenders/single-stone/create?tenderId=${id}`;
-            } else if(tenderType.value === "multi-lot") {
-              url = `/tenders/multi-lot?tenderId=${id}`;
             }
 
             return (

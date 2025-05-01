@@ -36,7 +36,7 @@ export function SingleStoneTendersPage() {
     <PageWrapper>
       <PageHeader
         title="Single Stone Tenders"
-        editPath={`/tenders/single-stone/create?tenderId=${intId}`}
+        createPath={`/tenders/single-stone/create?tenderId=${intId}`}
       />
       <TenderDataTable
         data={singleStoneResponse?.data || []}

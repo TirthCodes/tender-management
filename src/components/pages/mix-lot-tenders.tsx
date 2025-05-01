@@ -1,22 +1,19 @@
-"use client"
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'next/navigation';
-import React, { useState } from 'react'
-import { PageWrapper } from '../common/page-wrapper';
-import { PageHeader } from '../common/page-header';
-import { FormDialog } from '../common/form-dialog';
-import { TenderDataTable } from '../ui/tender-data-table';
-import { Pagination } from '../common/pagination';
+import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
+import React, { useState } from "react";
+import { PageWrapper } from "../common/page-wrapper";
+import { PageHeader } from "../common/page-header";
+import { TenderDataTable } from "../ui/tender-data-table";
+import { Pagination } from "../common/pagination";
 
 export function MixLotTendersPage() {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editData, setEditData] = useState<null>(null);
   const [page, setPage] = useState(1);
 
   const searchParams = useSearchParams();
-  const id = searchParams.get('id');
-  
+  const id = searchParams.get("tenderId");
+
   const queryKey = "mix-lot-tenders";
 
   const { data: mixLotResponse } = useQuery({
@@ -32,35 +29,20 @@ export function MixLotTendersPage() {
   });
 
   console.log(mixLotResponse, "mixLotResponse");
-  const handleDialog = () => {
-    setEditData?.(null);
-    setDialogOpen?.(true);
-  };
 
   return (
     <PageWrapper>
-      <PageHeader title="Mix Lot Tenders" handleDialog={handleDialog} />
-      <FormDialog
-        open={dialogOpen}
-        setOpen={setDialogOpen}
-        action={editData ? "Edit" : "Add"}
-        title={"Mix Lot Tender"}
-      >
-        <></> {/* form */}
-      </FormDialog>
+      <PageHeader
+        title="Mix Lot Tenders"
+        createPath={`/tenders/tender-details/create?tenderId=${id}`}
+      />
       <TenderDataTable
         columns={[]}
         data={[]}
-        isDialog={true}
-        setEditDialogOpen={setDialogOpen}
-        setEditData={setEditData}
+        isDialog={false}
         queryKey={queryKey}
       />
-      <Pagination 
-        setPage={setPage}
-        nextPage={2}
-        page={page}
-      />
+      <Pagination setPage={setPage} nextPage={2} page={page} />
     </PageWrapper>
-  )
+  );
 }

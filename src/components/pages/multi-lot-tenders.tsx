@@ -5,17 +5,14 @@ import { useSearchParams } from 'next/navigation';
 import React, { useState } from 'react'
 import { PageWrapper } from '../common/page-wrapper';
 import { PageHeader } from '../common/page-header';
-import { FormDialog } from '../common/form-dialog';
 import { TenderDataTable } from '../ui/tender-data-table';
 import { Pagination } from '../common/pagination';
 
 export function MultiLotTendersPage() {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editData, setEditData] = useState<null>(null);
   const [page, setPage] = useState(1);
 
   const searchParams = useSearchParams();
-  const id = searchParams.get('id');
+  const id = searchParams.get('tenderId');
   
   const queryKey = "multi-lot-tenders";
 
@@ -32,28 +29,14 @@ export function MultiLotTendersPage() {
   });
 
   console.log(multiLotResponse, "multiLotResponse");
-  const handleDialog = () => {
-    setEditData?.(null);
-    setDialogOpen?.(true);
-  };
 
   return (
     <PageWrapper>
-      <PageHeader title="Multi Lot Tenders" handleDialog={handleDialog} />
-      <FormDialog
-        open={dialogOpen}
-        setOpen={setDialogOpen}
-        action={editData ? "Edit" : "Add"}
-        title={"Multi Lot Tender"}
-      >
-        <></> {/* form */}
-      </FormDialog>
+      <PageHeader title="Multi Lot Tenders" createPath={`/tenders/tender-details/create?tenderId=${id}`} />
       <TenderDataTable
         columns={[]}
         data={[]}
-        isDialog={true}
-        setEditDialogOpen={setDialogOpen}
-        setEditData={setEditData}
+        isDialog={false}
         queryKey={queryKey}
       />
       <Pagination 
