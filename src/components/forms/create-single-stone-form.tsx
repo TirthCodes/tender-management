@@ -19,7 +19,7 @@ import { z } from "zod";
 import { Option } from "@/lib/types/common";
 import { SingleStoneTenderDetails, TotalValues } from "@/lib/types/tender";
 import Link from "next/link";
-import { SingleTenderDataTable } from "./single-tender-data-table";
+import { SingleTenderDataTable } from "../pages/create-tender/single-tender-data-table";
 import useKeyPress from "@/hooks/useKeyPress";
 
 export const singleInitialRow: SingleStoneTenderDetails = {
@@ -363,9 +363,9 @@ export function CreateSingleStoneTenderForm({
   // ( ( ( ( ( ( ( ( Res. Per Carat * 6 % ) + Res. Per Carat ) + 50 ) * Rou. Wt. ) / Pol. Wt.) + 180 ) / 97 % ) - Top Amount )
   return (
     <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex items-center flex-col md:flex-row md:justify-between p-4 border border-neutral-300 rounded-lg shadow-sm">
+      <div className="flex items-center flex-col md:flex-row md:justify-between px-4 py-2 border border-neutral-300 rounded-lg shadow-sm">
         <div className="flex flex-col gap-2">
-          <h1 className="text-lg font-semibold">Singel Stone Tender</h1>
+          <h1 className="text-lg font-semibold">Single Stone Tender</h1>
           <div className="flex items-center gap-2 text-neutral-700">
             <p className="pr-2 border-r-2">
               {tenderData.dtVoucherDate.toDateString()}

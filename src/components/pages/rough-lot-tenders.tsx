@@ -34,7 +34,7 @@ export function RoughLotTendersPage() {
     <PageWrapper>
       <PageHeader
         title="Rough Lot Tenders"
-        createPath={`/tenders/tender-details/create?tenderId=${id}`}
+        createPath={`/tenders/rough-lot/create?tenderId=${id}`}
       />
       <TenderDataTable
         columns={[]}

@@ -39,7 +39,7 @@ import { TenderDetails, TotalValues } from "@/lib/types/tender";
 // import { toast } from "react-toastify";
 // import { redirect } from "next/navigation";
 import Link from "next/link";
-import { TenderDetailsDataTable } from "./tender-details-data-table";
+import { TenderDetailsDataTable } from "../pages/create-tender/tender-details-data-table";
 
 export const initialRow = {
   pcs: 0,

@@ -1,20 +1,17 @@
 
-import { CreateSingleStoneTenderForm } from "@/components/forms/create-single-stone-form";
+import { CreateRoughLotForm } from "@/components/forms/create-rough-lot-form";
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/server/session";
 import { redirect } from "next/navigation";
 
-export default async function CreateTenderPage({ searchParams }: { searchParams: Promise<{ tenderId: string}> }) {
+export default async function Page() {
   const { user, session } = await getCurrentSession();
 
   if (user === null || session === null) {
     return redirect("/auth/login");
   }
 
-  const { tenderId } = await searchParams;
-  const intId = parseInt(tenderId);
-
-  const [colors, clarities, fluorescence, shapes, tender] = await Promise.all([
+  const [colors, clarities, fluorescence, shapes] = await Promise.all([
     prisma.color.findMany({
       select: {
         id: true,
@@ -51,37 +48,14 @@ export default async function CreateTenderPage({ searchParams }: { searchParams:
         inSerial: "asc",
       },
     }),
-    prisma.baseTender.findUnique({
-      select: {
-        dtVoucherDate: true,
-        stTenderName: true,
-        stPersonName: true,
-        dcNetPercentage: true,
-        dcLabour: true,
-      },
-      where: {
-        id: intId,
-      },
-    }),
   ]);
 
-  if(!tender) {
-    redirect("/tenders")
-  }
-
-  const tenderData = {
-    ...tender,
-    dcNetPercentage: Number(tender.dcNetPercentage),
-    dcLabour: Number(tender.dcLabour)
-  }
-
   return (
-    <CreateSingleStoneTenderForm
+    <CreateRoughLotForm
       colorOptions={colors}
       clarityOptions={clarities}
       fluorescenceOptions={fluorescence}
       shapeOptions={shapes}
-      tenderData={tenderData}
     />
   );
 }
