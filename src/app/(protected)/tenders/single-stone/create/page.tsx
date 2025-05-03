@@ -58,6 +58,7 @@ export default async function CreateTenderPage({ searchParams }: { searchParams:
         stPersonName: true,
         dcNetPercentage: true,
         dcLabour: true,
+        id:true
       },
       where: {
         id: intId,
