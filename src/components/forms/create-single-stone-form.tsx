@@ -21,6 +21,9 @@ import { SingleStoneTenderDetails, TotalValues } from "@/lib/types/tender";
 import Link from "next/link";
 import { SingleTenderDataTable } from "../pages/create-tender/single-tender-data-table";
 import useKeyPress from "@/hooks/useKeyPress";
+import { createSingleTender } from "@/services/tender";
+import { toast } from "react-toastify";
+import { redirect } from "next/navigation";
 
 export const singleInitialRow: SingleStoneTenderDetails = {
   lotNo: "",
@@ -59,20 +62,17 @@ interface CreateTenderFormProps {
   clarityOptions: Option[];
   fluorescenceOptions: Option[];
   shapeOptions: Option[];
-  tenderData: {
+  baseTenderData: {
     dtVoucherDate: Date;
     stTenderName: string;
     stPersonName: string;
     dcNetPercentage: number;
     dcLabour: number;
+    id: number;
   };
 }
 
 const createTenderSchema = z.object({
-  // voucherDate: z.string(),
-  // tenderType: z.string(),
-  // tenderName: z.string().trim().min(2, { message: "Tender name is required!" }),
-  // personName: z.string().trim().min(2, { message: "Person name is required!" }),
   netPercent: z.preprocess(
     (val) => Number(val),
     z.number().min(0, "Net Percentage is required")
@@ -82,20 +82,6 @@ const createTenderSchema = z.object({
     z.number().min(0, { message: "Labour is required!" })
   ),
   remark: z.string().trim().optional(),
-  // lotNo: z.string().trim().min(1, { message: "Lot no.is required!" }),
-  // roughName: z.string().trim().min(2, { message: "Rough name is required!" }),
-  // roughPcs: z.string().trim().min(1, { message: "Rough pcs is required!" }),
-  // roughCts: z.string().trim().min(1, { message: "Rough cts is required!" }),
-  // roughSize: z.string().trim().min(1, { message: "Rough size is required!" }),
-  // roughPrice: z.string().trim().min(1, { message: "Rough price is required!" }),
-  // roughTotal: z.string().trim().min(1, { message: "Rough total is required!" }),
-  // bidPrice: z.number().min(1, { message: "Bid price is required!" }),
-  // totalAmount: z.number().min(1, { message: "Total amount is required!" }),
-  // resultCost: z.number().optional(),
-  // resultPerCarat: z
-  //   .number()
-  //   .min(1, { message: "Result per carat is required!" }),
-  // resultTotal: z.string().min(1, { message: "Result total is required!" }),
 });
 
 type CreateTenderFormValues = z.infer<typeof createTenderSchema>;
@@ -105,7 +91,7 @@ export function CreateSingleStoneTenderForm({
   clarityOptions,
   fluorescenceOptions,
   shapeOptions,
-  tenderData,
+  baseTenderData,
 }: CreateTenderFormProps) {
   const { data: colorsOptions } = useQuery({
     queryKey: ["color-options"],
@@ -161,8 +147,9 @@ export function CreateSingleStoneTenderForm({
       // voucherDate: tenderData.dtVoucherDate.toLocaleDateString(),
       // tenderName: tenderData.stTenderName,
       // personName: tenderData.stPersonName,
-      netPercent: tenderData.dcNetPercentage,
-      labour: tenderData.dcLabour,
+      netPercent: baseTenderData.dcNetPercentage,
+      labour: baseTenderData.dcLabour,
+      
       remark: "",
     },
     resolver: zodResolver(createTenderSchema),
@@ -338,26 +325,35 @@ export function CreateSingleStoneTenderForm({
   useKeyPress({ backPath: "/tenders", ref: formRef });
 
   async function onSubmit(data: CreateTenderFormValues) {
+
+    if(totalValues.pcs <= 0) {
+      toast.error("Pcs should be greater than 0");
+      return;
+    }
     setIsPending(true);
 
-    console.log(data, "datra");
+    const payload = {
+      ...data,
+      //id: baseTenderData.id, // replace with actual singleTenderID
+      baseTenderId: baseTenderData.id,
+      roughPcs:totalValues.pcs,
+      roughCts:totalValues.carats,
+      rate:0,
+      amount:0,
 
-    // const payload = {
-    //   ...data,
-    //   tenderId: tenderDetails.lotNo,
-    //   pcs: tenderDetails.roughName,
-    //   carats: tenderDetails.roughPcs,
-    //   tenderDetails: tenderDetails,
-    // };
+      tenderDetails: tenderDetails, //array of singleTenderDetails
+    };
 
-    // const response = await createSingleTender(payload);
-    // if (response.success) {
-    //   toast.success(response.message);
-    //   redirect("/tenders");
-    // } else {
-    //   toast.error(response.message);
-    // }
-    // setIsPending(false);
+    console.log({payload})
+
+    const response = await createSingleTender(payload);
+    if (response.success) {
+      toast.success(response.message);
+      redirect("/tenders");
+    } else {
+      toast.error(response.message);
+    }
+    setIsPending(false);
   }
 
   // ( ( ( ( ( ( ( ( Res. Per Carat * 6 % ) + Res. Per Carat ) + 50 ) * Rou. Wt. ) / Pol. Wt.) + 180 ) / 97 % ) - Top Amount )
@@ -368,10 +364,10 @@ export function CreateSingleStoneTenderForm({
           <h1 className="text-lg font-semibold">Single Stone Tender</h1>
           <div className="flex items-center gap-2 text-neutral-700">
             <p className="pr-2 border-r-2">
-              {tenderData.dtVoucherDate.toDateString()}
+              {baseTenderData.dtVoucherDate.toDateString()}
             </p>
-            <p className="pr-2 border-r-2">{tenderData.stTenderName}</p>
-            <p>{tenderData.stPersonName}</p>
+            <p className="pr-2 border-r-2">{baseTenderData.stTenderName}</p>
+            <p>{baseTenderData.stPersonName}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
