@@ -344,33 +344,10 @@ export function CreateSingleStoneTenderForm({
 
     // const payload = {
     //   ...data,
-    //   lotNo: tenderDetails.lotNo,
-    //   roughName: tenderDetails.roughName,
-    //   roughPcs: tenderDetails.roughPcs,
-    //   roughCts: tenderDetails.roughCts,
-    //   roughSize: tenderDetails.roughSize,
-    //   roughPrice: tenderDetails.roughPrice,
-    //   roughTotal: tenderDetails.roughTotal,
-    //   tenderDetails: {
-    //     pcs: tenderDetails.roughPcs,
-    //     carats: tenderDetails.roughCts,
-    //     color: tenderDetails.color,
-    //     colorGrade: tenderDetails.colorGrade,
-    //     clarity: tenderDetails.clarity,
-    //     flr: tenderDetails.flr,
-    //     shape: tenderDetails.shape,
-    //     polCts: tenderDetails.polCts,
-    //     polPercent: tenderDetails.polPercent,
-    //     depth: tenderDetails.depth,
-    //     table: tenderDetails.table,
-    //     ratio: tenderDetails.ratio,
-    //     salePrice: tenderDetails.salePrice,
-    //     saleAmount: tenderDetails.saleAmount,
-    //     costPrice: tenderDetails.costPrice,
-    //     costAmount: tenderDetails.costAmount,
-    //     topsAmount: tenderDetails.topsAmount,
-    //     incription: tenderDetails.incription,
-    //   },
+    //   tenderId: tenderDetails.lotNo,
+    //   pcs: tenderDetails.roughName,
+    //   carats: tenderDetails.roughPcs,
+    //   tenderDetails: tenderDetails,
     // };
 
     // const response = await createSingleTender(payload);
