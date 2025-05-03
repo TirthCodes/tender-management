@@ -62,7 +62,7 @@ interface CreateTenderFormProps {
   clarityOptions: Option[];
   fluorescenceOptions: Option[];
   shapeOptions: Option[];
-  tenderData: {
+  baseTenderData: {
     dtVoucherDate: Date;
     stTenderName: string;
     stPersonName: string;
@@ -91,7 +91,7 @@ export function CreateSingleStoneTenderForm({
   clarityOptions,
   fluorescenceOptions,
   shapeOptions,
-  tenderData,
+  baseTenderData,
 }: CreateTenderFormProps) {
   const { data: colorsOptions } = useQuery({
     queryKey: ["color-options"],
@@ -147,8 +147,9 @@ export function CreateSingleStoneTenderForm({
       // voucherDate: tenderData.dtVoucherDate.toLocaleDateString(),
       // tenderName: tenderData.stTenderName,
       // personName: tenderData.stPersonName,
-      netPercent: tenderData.dcNetPercentage,
-      labour: tenderData.dcLabour,
+      netPercent: baseTenderData.dcNetPercentage,
+      labour: baseTenderData.dcLabour,
+      
       remark: "",
     },
     resolver: zodResolver(createTenderSchema),
@@ -325,10 +326,6 @@ export function CreateSingleStoneTenderForm({
 
   async function onSubmit(data: CreateTenderFormValues) {
 
-    // console.log(data, "datra");
-    // console.log({tenderDetails});
-    // console.log({totalValues})
-
     if(totalValues.pcs <= 0) {
       toast.error("Pcs should be greater than 0");
       return;
@@ -337,13 +334,14 @@ export function CreateSingleStoneTenderForm({
 
     const payload = {
       ...data,
-      baseTenderId: tenderData.id,
+      //id: baseTenderData.id, // replace with actual singleTenderID
+      baseTenderId: baseTenderData.id,
       roughPcs:totalValues.pcs,
       roughCts:totalValues.carats,
       rate:0,
       amount:0,
 
-      tenderDetails: tenderDetails,
+      tenderDetails: tenderDetails, //array of singleTenderDetails
     };
 
     console.log({payload})
@@ -366,10 +364,10 @@ export function CreateSingleStoneTenderForm({
           <h1 className="text-lg font-semibold">Single Stone Tender</h1>
           <div className="flex items-center gap-2 text-neutral-700">
             <p className="pr-2 border-r-2">
-              {tenderData.dtVoucherDate.toDateString()}
+              {baseTenderData.dtVoucherDate.toDateString()}
             </p>
-            <p className="pr-2 border-r-2">{tenderData.stTenderName}</p>
-            <p>{tenderData.stPersonName}</p>
+            <p className="pr-2 border-r-2">{baseTenderData.stTenderName}</p>
+            <p>{baseTenderData.stPersonName}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
