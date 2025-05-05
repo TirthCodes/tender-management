@@ -14,12 +14,12 @@ import { PlusCircle, Trash2 } from "lucide-react";
 import React, { useEffect } from "react";
 import AutoCompleteInput from "@/components/ui/auto-complete-input";
 import ColorDialog from "@/components/dialog/color-dialog";
-import { TenderDetails, TotalValues } from "@/lib/types/tender";
+import { RoughLotTenderDetails, TotalValues } from "@/lib/types/tender";
 import { Option } from "@/lib/types/common";
 import ClarityDialog from "@/components/dialog/clarity-dialog";
 import FlrDialog from "@/components/dialog/flr-dialog";
 import ShapeDialog from "@/components/dialog/shape-dialog";
-import { initialRow } from "../forms/create-rough-lot-form";
+import { initialRow } from "../forms/rough-lot-form";
 
 const columns = [
   "Lot",
@@ -30,6 +30,7 @@ const columns = [
   "Clarity",
   "FLR",
   "Shape",
+  "Remark",
   "Pol. Cts.",
   "Pol. %",
   "Depth",
@@ -37,6 +38,7 @@ const columns = [
   "Ratio",
   "Sale Price",
   "Sale Amnt",
+  "Labour",
   "Cost Price",
   "Cost Amnt",
   <Button key={1} className="p-0" variant="ghost" type="button">
@@ -45,9 +47,9 @@ const columns = [
 ];
 
 interface RoughLotDetailsProps {
-  data: TenderDetails[];
+  data: RoughLotTenderDetails[];
   handleValueChange: (
-    value: TenderDetails,
+    value: RoughLotTenderDetails,
     index: number,
     action?: string
   ) => void;
@@ -82,7 +84,6 @@ export function RoughLotDetails({
         polPercent: acc.polPercent + (row.polPercent || 0),
         salePrice: acc.salePrice + (row.salePrice || 0),
         costPrice: acc.costPrice + (row.costPrice || 0),
-        topsAmount: acc.topsAmount + (row.topsAmount || 0),
       }),
       {
         pcs: 0,
@@ -91,7 +92,6 @@ export function RoughLotDetails({
         polPercent: 0,
         salePrice: 0,
         costPrice: 0,
-        topsAmount: 0,
       }
     );
 
@@ -100,7 +100,7 @@ export function RoughLotDetails({
 
   return (
     <>
-      <div className="rounded-md flex-1 flex flex-col min-h-0 h-[38svh]">
+      <div className="rounded-md flex-1 flex flex-col min-h-0 h-[42svh]">
         <div className="overflow-x-auto w-auto">
           <Table className="bg-white mb-40">
             <TableHeader className="sticky top-0 z-40 bg-white border-b">

@@ -210,7 +210,7 @@ export function CreateTenderForm({
       if (tendetType === "singleStone") {
         calculatedBidPrice = parseFloat(
           (
-            ((((totalValues.costPrice + totalValues.topsAmount) * 0.97 - 180) *
+            ((((totalValues.costPrice + (totalValues?.topsAmount ?? 0)) * 0.97 - 180) *
               totalValues.polCts) /
               totalValues.carats -
               labourValue) /
@@ -284,7 +284,7 @@ export function CreateTenderForm({
                     totalValues.polCts +
                     180) /
                     0.97 -
-                  totalValues.topsAmount
+                  (totalValues?.topsAmount ?? 0)
                 ).toFixed(2)
               );
             } else if (tendetType === "mixLot") {
@@ -317,7 +317,7 @@ export function CreateTenderForm({
                   totalValues.polCts +
                   180) /
                   0.97 -
-                totalValues.topsAmount
+                (totalValues?.topsAmount ?? 0)
               ).toFixed(2)
             );
           } else if (tendetType === "mixLot") {

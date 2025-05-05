@@ -9,3 +9,8 @@ export async function getBaseTenders(page: number) {
   const response = await fetchData(`/base-tender?page=${page}`);
   return response;
 }
+
+export async function getBaseTenderById(id: number) {
+  const response = await fetchData(`/base-tender/${id}`);
+  return response;
+}

@@ -17,9 +17,11 @@ import {
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 import { Option } from "@/lib/types/common";
-import { TenderDetails, TotalValues } from "@/lib/types/tender";
+import { RoughLotTenderDetails, TotalValues } from "@/lib/types/tender";
 import Link from "next/link";
 import { RoughLotDetails } from "../data-table/rough-lot-detail";
+import { useSearchParams } from "next/navigation";
+import { getBaseTenderById } from "@/services/base-tender";
 
 export const initialRow = {
   pcs: 0,
@@ -29,6 +31,7 @@ export const initialRow = {
   clarity: { id: 0, stShortName: "" },
   flr: { id: 0, stShortName: "" },
   shape: { id: 0, stShortName: "" },
+  remark: "",
   polCts: 0,
   polPercent: 0,
   depth: 0,
@@ -36,10 +39,9 @@ export const initialRow = {
   ratio: 0,
   salePrice: 0,
   saleAmount: 0,
+  labour: 0,
   costPrice: 0,
   costAmount: 0,
-  topsAmount: 0,
-  incription: "",
 };
 
 const initialTenderDetails = [initialRow];
@@ -76,7 +78,7 @@ const createRoughLotSchema = z.object({
 
 type CreateRoughLotFormValues = z.infer<typeof createRoughLotSchema>;
 
-export function CreateRoughLotForm({
+export function RoughLotForm({
   colorOptions,
   clarityOptions,
   fluorescenceOptions,
@@ -122,6 +124,15 @@ export function CreateRoughLotForm({
     },
   });
 
+  const searchParams = useSearchParams();
+  const tenderId = searchParams.get("tenderId") as string;
+
+  const { data: baseTender, isLoading: lodingBaseTender } = useQuery({
+    queryKey: ["base-tender"],
+    queryFn: () => getBaseTenderById(parseInt(tenderId)),
+    enabled: !!tenderId,
+  });
+
   const {
     register,
     handleSubmit,
@@ -137,7 +148,7 @@ export function CreateRoughLotForm({
   const [isPending, setIsPending] = useState(false);
 
   const [tenderDetails, setTenderDetails] =
-    useState<TenderDetails[]>(initialTenderDetails);
+    useState<RoughLotTenderDetails[]>(initialTenderDetails);
   const [totalValues, setTotalValues] = useState<TotalValues>({
     pcs: 0,
     carats: 0,
@@ -152,6 +163,13 @@ export function CreateRoughLotForm({
   const resultTotal = watch("resultTotal");
   const roughCts = watch("roughCts");
   const labour = watch("labour");
+
+  useEffect(() => {
+    if(!lodingBaseTender && baseTender?.data) {
+      setValue("netPercent", baseTender.data.dcNetPercentage);
+      setValue("labour", baseTender.data.dcLabour);
+    }
+  }, [baseTender, lodingBaseTender, setValue])
 
   useEffect(() => {
     if (netPercent && labour) {
@@ -216,7 +234,7 @@ export function CreateRoughLotForm({
   }, [roughPcs, roughCts, setValue]);
 
   const handleDetailsValueChange = (
-    value: TenderDetails,
+    value: RoughLotTenderDetails,
     index: number,
     action?: string
   ) => {
@@ -259,20 +277,23 @@ export function CreateRoughLotForm({
     setIsPending(false);
   }
 
+  if(lodingBaseTender) {
+    return <div className="flex justify-center items-center h-[90dvh]">
+      <Loader2 className="h-20 w-20 animate-spin" />
+    </div>
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex items-center flex-col md:flex-row md:justify-between p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
         <div className="flex flex-col gap-2">
           <h1 className="text-lg font-semibold">Rough Lot Tender</h1>
           <div className="flex items-center gap-2 text-neutral-700">
-            <p className="pr-2 border-r-2">{new Date().toDateString()}</p>
-            <p className="pr-2 border-r-2">Tender 1</p>
-            <p>Test</p>
-            {/* <p className="pr-2 border-r-2">
-              {tenderData.dtVoucherDate.toDateString()}
+            <p className="pr-2 border-r-2">
+              {new Date(baseTender?.data.dtVoucherDate).toDateString()}
             </p>
-            <p className="pr-2 border-r-2">{tenderData.stTenderName}</p>
-            <p>{tenderData.stPersonName}</p> */}
+            <p className="pr-2 border-r-2">{baseTender?.data.stTenderName}</p>
+            <p>{baseTender?.data.stPersonName}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -286,7 +307,6 @@ export function CreateRoughLotForm({
                 errors.labour?.message &&
                   "border border-red-500 placeholder:text-red-500"
               )}
-              defaultValue={50}
               placeholder="50"
             />
           </div>
@@ -319,10 +339,10 @@ export function CreateRoughLotForm({
       </div>
 
       <div className="p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
-        <h1 className="text-base font-semibold mb-2">Rough Details</h1>
-        <div className="grid grid-cols-4 gap-x-3 gap-y-4">
-          <div className="flex w-full items-center">
-            <Label className="w-[88px] shrink-0">Lot No.</Label>
+        {/* <h1 className="text-base font-semibold mb-2">Rough Details</h1> */}
+        <div className="grid grid-cols-6 gap-x-3 gap-y-4">
+        <div className="flex w-full items-center gap-2">
+            <Label className="text-nowrap shrink-0">Lot No.</Label>
             <Input
               type="text"
               {...register("lotNo")}
@@ -345,8 +365,8 @@ export function CreateRoughLotForm({
               )}
             />
           </div> */}
-          <div className="flex w-full items-center">
-            <Label className="w-[88px] shrink-0">Rough Pcs.</Label>
+          <div className="flex w-full items-center gap-2">
+            <Label className="text-nowrap shrink-0">Rough Pcs.</Label>
             <Input
               type="number"
               {...register("roughPcs")}
@@ -357,8 +377,8 @@ export function CreateRoughLotForm({
               )}
             />
           </div>
-          <div className="flex w-full items-center">
-            <Label className="w-[88px] shrink-0">Rough Cts.</Label>
+          <div className="flex w-full items-center gap-2">
+            <Label className="text-nowrap shrink-0">Rough Cts.</Label>
             <Input
               type="number"
               {...register("roughCts")}
@@ -370,8 +390,8 @@ export function CreateRoughLotForm({
               )}
             />
           </div>
-          <div className="flex w-full items-center">
-            <Label className="w-[88px] shrink-0">Lot Size</Label>
+          <div className="flex w-full items-center gap-2">
+            <Label className="text-nowrap shrink-0">Lot Size</Label>
             <Input
               {...register("lotSize")}
               disabled
@@ -385,8 +405,8 @@ export function CreateRoughLotForm({
               )}
             />
           </div>
-          <div className="flex w-full items-center">
-            <Label className="w-[88px] shrink-0">Rate</Label>
+          <div className="flex w-full items-center gap-2">
+            <Label className="text-nowrap shrink-0">Rate</Label>
             <Input
               {...register("rate")}
               type="number"
@@ -399,8 +419,8 @@ export function CreateRoughLotForm({
             />
           </div>
 
-          <div className="flex w-full items-center">
-            <Label className="w-[88px] shrink-0">Amount</Label>
+          <div className="flex w-full items-center gap-2">
+            <Label className="text-nowrap shrink-0">Amount</Label>
             <Input
               {...register("amount")}
               type="number"

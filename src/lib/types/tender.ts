@@ -18,7 +18,7 @@ export interface TotalValues {
   polPercent: number;
   salePrice: number;
   costPrice: number;
-  topsAmount: number;
+  topsAmount?: number;
 }
 
 export interface TenderDetails {
@@ -40,6 +40,27 @@ export interface TenderDetails {
   costAmount: number;
   topsAmount: number;
   incription: string;
+}
+
+export interface RoughLotTenderDetails {
+  pcs: number;
+  carats: number;
+  color: Option;
+  colorGrade: number;
+  clarity: Option;
+  flr: Option;
+  shape: Option;
+  remark: string;
+  polCts: number;
+  polPercent: number;
+  depth: number;
+  table: number;
+  ratio: number;
+  salePrice: number;
+  saleAmount: number;
+  labour: number;
+  costPrice: number;
+  costAmount: number;
 }
 
 export interface SingleStoneTenderDetails {

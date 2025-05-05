@@ -1,5 +1,5 @@
 
-import { CreateRoughLotForm } from "@/components/forms/create-rough-lot-form";
+import { RoughLotForm } from "@/components/forms/rough-lot-form";
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/server/session";
 import { redirect } from "next/navigation";
@@ -51,7 +51,7 @@ export default async function Page() {
   ]);
 
   return (
-    <CreateRoughLotForm
+    <RoughLotForm
       colorOptions={colors}
       clarityOptions={clarities}
       fluorescenceOptions={fluorescence}
