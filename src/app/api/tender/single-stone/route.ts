@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/server/session";
+import { SingleStoneTenderDetails } from "@/lib/types/tender";
 
 // export async function POST(req: Request) {
 //   const { session, user } = await getCurrentSession();
@@ -186,11 +187,11 @@ export async function POST(req: Request) {
           singleTenderDetails: {
             // Delete existing details and create new ones
             deleteMany: {},
-            create: tenderDetails.map((detail: any) => ({
+            create: tenderDetails.map((detail: SingleStoneTenderDetails) => ({
               stLotNo: detail.lotNo,
               inRoughPcs: detail.roughPcs,
               dcRoughCts: detail.roughCts,
-              dcSize: detail.size,
+              dcSize: detail.roughSize,
               colorId: detail.color.id,
               clarityId: detail.clarity.id,
               flrId: detail.flr.id,
@@ -239,7 +240,7 @@ export async function POST(req: Request) {
         dcNetPercentage: netPercent,
         stCertId: certId || null,
         singleTenderDetails: {
-          create: tenderDetails.map((detail: any) => ({
+          create: tenderDetails.map((detail: SingleStoneTenderDetails) => ({
             stLotNo: detail.lotNo,
             inRoughPcs: detail.roughPcs,
             dcRoughCts: detail.roughCts,
@@ -258,11 +259,11 @@ export async function POST(req: Request) {
             dcSaleAmount: detail.saleAmount || null,
             dcCostPrice: detail.costPrice || null,
             dcTopsAmount: detail.topsAmount || null,
-            stIncription: detail.inscription || null,
+            stIncription: detail.incription || null,
             dcBidPrice: detail.bidPrice || null,
             dcTotalAmount: detail.totalAmount || null,
             dcResultCost: detail.resultCost || null,
-            dcResultPerCt: detail.resultPerCt || null,
+            dcResultPerCt: detail.resultPerCarat || null,
             dcResultTotal: detail.resultTotal || null,
           })),
         },
