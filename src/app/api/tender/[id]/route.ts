@@ -1,7 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/server/session";
 
-export async function DELETE(_req: Request, { params }: { params: Promise<{ id: number }> }) { 
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: number }> }
+) {
   const { id } = await params;
 
   const { session, user } = await getCurrentSession();
@@ -48,7 +51,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
       }),
       { status: 200 }
     );
-
   } catch (error) {
     return new Response(
       JSON.stringify({

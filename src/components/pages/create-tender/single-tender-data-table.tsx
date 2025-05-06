@@ -119,6 +119,8 @@ export function SingleTenderDataTable({
     setTotalValues(totals);
   }, [data, setTotalValues]);
 
+  console.log("data", data);
+
   return (
     <>
       <div className="rounded-md flex-1 flex flex-col min-h-0 h-[65svh]">
@@ -877,7 +879,7 @@ export function SingleTenderDataTable({
                             value,
                             row.roughCts
                           );
-                          
+
                           const resultCost = calculateResultCost(
                             resultPerCarat,
                             labourValue,

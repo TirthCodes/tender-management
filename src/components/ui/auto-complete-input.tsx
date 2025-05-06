@@ -41,9 +41,9 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
   const previousCreateDialogOpen = useRef(false);
 
-  // useEffect(() => {
-  //   setInputValue(selectedValue?.label ? selectedValue.label : "");
-  // }, [selectedValue])
+  useEffect(() => {
+    setInputValue(selectedValue?.stShortName ? selectedValue.stShortName : "");
+  }, [selectedValue]);
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -154,7 +154,10 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
   }, [createDialogOpen]);
 
   return (
-    <div ref={dropdownRef} className={`relative bg-white ${widthClass ? widthClass : "w-full"}`}>
+    <div
+      ref={dropdownRef}
+      className={`relative bg-white ${widthClass ? widthClass : "w-full"}`}
+    >
       <Input
         type="text"
         value={inputValue}
@@ -163,8 +166,12 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
         className="w-full w border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
         placeholder={`Select ${title}`}
       />
-      {showDropdown && filteredData.length > 0  ? (
-        <ul className={`absolute z-50 mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto ${dropdownClass ? dropdownClass : "w-full"}`}>
+      {showDropdown && filteredData.length > 0 ? (
+        <ul
+          className={`absolute z-50 mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto ${
+            dropdownClass ? dropdownClass : "w-full"
+          }`}
+        >
           {filteredData.map((item, index) => (
             <li
               key={item.stShortName}
@@ -176,12 +183,22 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
                 focusedIndex === index ? "bg-gray-100" : ""
               }`}
             >
-              <span className="font-semibold text-base">{item.stShortName}</span>
+              <span className="font-semibold text-base">
+                {item.stShortName}
+              </span>
             </li>
           ))}
           <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-            <DialogTrigger onClick={() => setCreateDialogOpen(true)} className="z-50" asChild>
-              <div className={`p-2 cursor-pointer bg-white h-9 flex items-center gap-2 border-b ${dropdownClass ? dropdownClass : "w-full"}`}>
+            <DialogTrigger
+              onClick={() => setCreateDialogOpen(true)}
+              className="z-50"
+              asChild
+            >
+              <div
+                className={`p-2 cursor-pointer bg-white h-9 flex items-center gap-2 border-b ${
+                  dropdownClass ? dropdownClass : "w-full"
+                }`}
+              >
                 <PlusCircle className="h-5 w-5" /> Create
               </div>
             </DialogTrigger>
@@ -191,7 +208,11 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
       ) : (
         <>
           {showDropdown ? (
-            <div className={`absolute z-50 bg-white mt-1 border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto ${dropdownClass ? dropdownClass : "w-full"}`}>
+            <div
+              className={`absolute z-50 bg-white mt-1 border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto ${
+                dropdownClass ? dropdownClass : "w-full"
+              }`}
+            >
               <Dialog
                 open={createDialogOpen}
                 onOpenChange={setCreateDialogOpen}

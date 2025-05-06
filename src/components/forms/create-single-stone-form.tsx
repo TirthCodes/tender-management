@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,6 +24,7 @@ import useKeyPress from "@/hooks/useKeyPress";
 import { createSingleTender } from "@/services/tender";
 import { toast } from "react-toastify";
 import { redirect } from "next/navigation";
+import { getSingleStoneTender } from "@/services/single-stone";
 
 export const singleInitialRow: SingleStoneTenderDetails = {
   lotNo: "",
@@ -93,6 +94,12 @@ export function CreateSingleStoneTenderForm({
   shapeOptions,
   baseTenderData,
 }: CreateTenderFormProps) {
+  const { data: tenderRowsData, isLoading: isRowsLoading } = useQuery({
+    queryKey: ["single-stone-tender-rows", baseTenderData.id],
+    queryFn: () => getSingleStoneTender(baseTenderData.id),
+    enabled: !!baseTenderData.id,
+  });
+
   const { data: colorsOptions } = useQuery({
     queryKey: ["color-options"],
     queryFn: getColorOptions,
@@ -137,7 +144,7 @@ export function CreateSingleStoneTenderForm({
     register,
     handleSubmit,
     watch,
-    // reset,
+    reset,
     formState: { errors },
     // setValue,
     // setError,
@@ -149,7 +156,6 @@ export function CreateSingleStoneTenderForm({
       // personName: tenderData.stPersonName,
       netPercent: baseTenderData.dcNetPercentage,
       labour: baseTenderData.dcLabour,
-      
       remark: "",
     },
     resolver: zodResolver(createTenderSchema),
@@ -159,9 +165,24 @@ export function CreateSingleStoneTenderForm({
 
   const [isPending, setIsPending] = useState(false);
 
+  console.log("tenderRowsData", tenderRowsData);
+
   const [tenderDetails, setTenderDetails] = useState<
     SingleStoneTenderDetails[]
-  >([singleInitialRow]);
+  >([]);
+
+  useEffect(() => {
+    if (tenderRowsData && isRowsLoading === false) {
+      setTenderDetails(tenderRowsData.data.singleTenderDetails);
+      reset({
+        remark: tenderRowsData.data.stRemark,
+        netPercent: tenderRowsData.data.dcNetPercentage,
+        labour: tenderRowsData.data.dcLabour,
+      });
+    } else {
+      setTenderDetails([singleInitialRow]);
+    }
+  }, [tenderRowsData, isRowsLoading]);
   // const [calendarOpen, setCalendarOpen] = useState(false);
   // const [date, setDate] = useState<Date>();
   const [totalValues, setTotalValues] = useState<TotalValues>({
@@ -325,8 +346,7 @@ export function CreateSingleStoneTenderForm({
   useKeyPress({ backPath: "/tenders", ref: formRef });
 
   async function onSubmit(data: CreateTenderFormValues) {
-
-    if(totalValues.pcs <= 0) {
+    if (totalValues.pcs <= 0) {
       toast.error("Pcs should be greater than 0");
       return;
     }
@@ -336,15 +356,14 @@ export function CreateSingleStoneTenderForm({
       ...data,
       //id: baseTenderData.id, // replace with actual singleTenderID
       baseTenderId: baseTenderData.id,
-      roughPcs:totalValues.pcs,
-      roughCts:totalValues.carats,
-      rate:0,
-      amount:0,
-
+      roughPcs: totalValues.pcs,
+      roughCts: totalValues.carats,
+      rate: 0,
+      amount: 0,
       tenderDetails: tenderDetails, //array of singleTenderDetails
     };
 
-    console.log({payload})
+    console.log({ payload });
 
     const response = await createSingleTender(payload);
     if (response.success) {
@@ -355,6 +374,14 @@ export function CreateSingleStoneTenderForm({
     }
     setIsPending(false);
   }
+
+  // if (isRowsLoading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-[90dvh]">
+  //       <Loader2 className="h-20 w-20 animate-spin" />
+  //     </div>
+  //   );
+  // }
 
   // ( ( ( ( ( ( ( ( Res. Per Carat * 6 % ) + Res. Per Carat ) + 50 ) * Rou. Wt. ) / Pol. Wt.) + 180 ) / 97 % ) - Top Amount )
   return (
