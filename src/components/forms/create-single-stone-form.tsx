@@ -94,6 +94,7 @@ export function CreateSingleStoneTenderForm({
   shapeOptions,
   baseTenderData,
 }: CreateTenderFormProps) {
+  
   const { data: tenderRowsData, isLoading: isRowsLoading } = useQuery({
     queryKey: ["single-stone-tender-rows", baseTenderData.id],
     queryFn: () => getSingleStoneTender(baseTenderData.id),
@@ -146,14 +147,9 @@ export function CreateSingleStoneTenderForm({
     watch,
     reset,
     formState: { errors },
-    // setValue,
-    // setError,
   } = useForm<CreateTenderFormValues>({
     mode: "onBlur",
     defaultValues: {
-      // voucherDate: tenderData.dtVoucherDate.toLocaleDateString(),
-      // tenderName: tenderData.stTenderName,
-      // personName: tenderData.stPersonName,
       netPercent: baseTenderData.dcNetPercentage,
       labour: baseTenderData.dcLabour,
       remark: "",
@@ -165,14 +161,12 @@ export function CreateSingleStoneTenderForm({
 
   const [isPending, setIsPending] = useState(false);
 
-  console.log("tenderRowsData", tenderRowsData);
-
   const [tenderDetails, setTenderDetails] = useState<
     SingleStoneTenderDetails[]
   >([]);
 
   useEffect(() => {
-    if (tenderRowsData && isRowsLoading === false) {
+    if (tenderRowsData && !isRowsLoading) {
       setTenderDetails(tenderRowsData.data.singleTenderDetails);
       reset({
         remark: tenderRowsData.data.stRemark,
@@ -182,9 +176,8 @@ export function CreateSingleStoneTenderForm({
     } else {
       setTenderDetails([singleInitialRow]);
     }
-  }, [tenderRowsData, isRowsLoading]);
-  // const [calendarOpen, setCalendarOpen] = useState(false);
-  // const [date, setDate] = useState<Date>();
+  }, [tenderRowsData, isRowsLoading, reset]);
+
   const [totalValues, setTotalValues] = useState<TotalValues>({
     pcs: 0,
     carats: 0,
@@ -195,129 +188,8 @@ export function CreateSingleStoneTenderForm({
     topsAmount: 0,
   });
 
-  // useEffect(() => {
-  //   if (date) {
-  //     setValue("voucherDate", date.toLocaleDateString());
-  //     if (errors.voucherDate) {
-  //       setError("voucherDate", {
-  //         message: undefined,
-  //       });
-  //     }
-  //   } else if (tenderData.dtVoucherDate) {
-  //     setDate(tenderData.dtVoucherDate)
-  //   }
-  // }, [date, setValue, errors, setError, tenderData]);
-
   const netPercent = watch("netPercent");
   const labour = watch("labour");
-
-  // useEffect(() => {
-  //   if (netPercent && labour) {
-  //     const netPercentValue = parseFloat(netPercent);
-  //     const labourValue = parseFloat(labour);
-
-  //     const netPercentage = netPercentValue / 100;
-
-  //     const calculatedBidPrice = parseFloat(
-  //       (
-  //         ((((totalValues.costPrice + totalValues.topsAmount) * 0.97 - 180) *
-  //           totalValues.polCts) /
-  //           totalValues.carats -
-  //           labourValue) /
-  //         netPercentage
-  //       ).toFixed(2)
-  //     );
-
-  //     if (!isNaN(calculatedBidPrice)) {
-  //       setValue("bidPrice", calculatedBidPrice);
-  //       const totalAmount = parseFloat(
-  //         (totalValues.carats * calculatedBidPrice).toFixed(2)
-  //       );
-  //       if (!isNaN(totalAmount)) {
-  //         setValue("totalAmount", totalAmount);
-  //       }
-  //     }
-
-  //     if (resultTotal) {
-  //       const resultTotalValue = parseFloat(resultTotal);
-  //       if (!isNaN(resultTotalValue)) {
-  //         const resultPerCarat = parseFloat(
-  //           (resultTotalValue / totalValues.carats).toFixed(2)
-  //         );
-
-  //         if (!isNaN(resultPerCarat)) {
-  //           setValue("resultPerCarat", resultPerCarat);
-  //           const resultCost = parseFloat(
-  //             (
-  //               (((resultPerCarat * 0.06 + resultPerCarat + labourValue) *
-  //                 totalValues.carats) /
-  //                 totalValues.polCts +
-  //                 180) /
-  //                 0.97 -
-  //               totalValues.topsAmount
-  //             ).toFixed(2)
-  //           );
-  //           if (!isNaN(resultCost)) {
-  //             setValue("resultCost", resultCost);
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     if (bidPrice) {
-  //       if (!isNaN(bidPrice)) {
-  //         const finalCostPrice = parseFloat(
-  //           (
-  //             (((bidPrice * 0.06 + bidPrice + labourValue) *
-  //               totalValues.carats) /
-  //               totalValues.polCts +
-  //               180) /
-  //               0.97 -
-  //             totalValues.topsAmount
-  //           ).toFixed(2)
-  //         );
-
-  //         console.log(finalCostPrice, "finalCostPrice")
-
-  // if (!isNaN(finalCostPrice)) {
-  //   setValue("finalCostPrice", finalCostPrice);
-  // }
-
-  // const finalTotalAmount = parseFloat(
-  //   (finalBidPriceValue * totalValues.carats).toFixed(2)
-  // );
-  // if (!isNaN(finalTotalAmount)) {
-  //   setValue("finalTotalAmount", finalTotalAmount);
-  // }
-  //       }
-  //     }
-  //   }
-  // }, [
-  //   labour,
-  //   totalValues,
-  //   setValue,
-  //   netPercent,
-  //   resultTotal,
-  //   bidPrice,
-  //   roughCts,
-  // ]);
-
-  // const finalBidPriceDetails = tenderDetails?.finalBidPrice;
-  // const resultTotalDetails = tenderDetails?.resultTotal;
-
-  // useEffect(() => {
-  //   if(finalBidPriceDetails) {
-  //     setValue("finalBidPrice", String(tenderDetails?.finalBidPrice));
-  //   }
-  //   if(resultTotalDetails) {
-  //     setValue("resultTotal", String(tenderDetails?.resultTotal));
-  //   }
-  // }, [
-  //   tenderDetails,
-  //   finalBidPriceDetails,
-  //   resultTotalDetails,
-  //   setValue,
-  // ]);
 
   const handleDetailsValueChange = (
     value: SingleStoneTenderDetails,
@@ -374,14 +246,6 @@ export function CreateSingleStoneTenderForm({
     }
     setIsPending(false);
   }
-
-  // if (isRowsLoading) {
-  //   return (
-  //     <div className="flex justify-center items-center h-[90dvh]">
-  //       <Loader2 className="h-20 w-20 animate-spin" />
-  //     </div>
-  //   );
-  // }
 
   // ( ( ( ( ( ( ( ( Res. Per Carat * 6 % ) + Res. Per Carat ) + 50 ) * Rou. Wt. ) / Pol. Wt.) + 180 ) / 97 % ) - Top Amount )
   return (
@@ -455,95 +319,6 @@ export function CreateSingleStoneTenderForm({
         />
       </div>
 
-      {/* <div className="grid grid-cols-1 mt-4">
-        <Card>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="flex flex-col gap-4">
-                <div className="flex w-full max-w-sm items-center gap-1.5">
-                  <Label className="w-32">Bid Price</Label>
-                  <Input
-                    type="number"
-                    {...register("bidPrice")}
-                    readOnly
-                    disabled
-                  />
-                </div>
-                <div className="flex w-full max-w-sm items-center gap-1.5">
-                  <Label className="w-32">Total Amount</Label>
-
-                  <Input
-                    type="number"
-                    {...register("totalAmount")}
-                    readOnly
-                    disabled
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <div className="flex w-full max-w-sm items-center gap-1.5">
-                  <Label className="w-32">Result Cost</Label>
-                  <Input
-                    type="number"
-                    {...register("resultCost")}
-                    disabled
-                    readOnly
-                  />
-                </div>
-                <div className="flex w-full max-w-sm items-center gap-1.5">
-                  <Label className="w-32">Result / Cts</Label>
-                  <Input
-                    type="number"
-                    {...register("resultPerCarat")}
-                    readOnly
-                    disabled
-                  />
-                </div>
-                <div className="flex w-full max-w-sm items-center gap-1.5">
-                  <Label className="w-32">Result Total</Label>
-                  <Input
-                    type="number"
-                    {...register("resultTotal")}
-                    step={0.01}
-                    placeholder="10000"
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <div className="flex w-full max-w-sm items-center gap-1.5">
-                  <Label className="w-52">Final Cost Price</Label>
-                  <Input
-                    type="number"
-                    {...register("finalCostPrice")}
-                    readOnly
-                    disabled
-                  />
-                </div>
-                <div className="flex w-full max-w-sm items-center gap-1.5">
-                  <Label className="w-52">Final Bid Price</Label>
-                  <Input
-                    type="number"
-                    {...register("finalBidPrice")}
-                    step={0.01}
-                    placeholder="20000"
-                  />
-                </div>
-                <div className="flex w-full max-w-sm items-center gap-1.5">
-                  <Label className="w-52">Final Total Amount</Label>
-                  <Input
-                    type="number"
-                    {...register("finalTotalAmount")}
-                    readOnly
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div> */}
       <div className="flex justify-end gap-2 items-center">
         <Button className="mt-4" type="button">
           <Link href={"/tenders"}>Cancel</Link>
@@ -555,8 +330,3 @@ export function CreateSingleStoneTenderForm({
     </form>
   );
 }
-
-// Pol % - (cts * 100) / polcts
-// PolCts - (pol% * cts) / 100
-// Sale Amount - (PolCts * salePricr)
-// Sale Price - (Sale Amount / polcts)

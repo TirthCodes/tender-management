@@ -14,7 +14,7 @@ import { PlusCircle, Trash2 } from "lucide-react";
 import React, { useEffect } from "react";
 import AutoCompleteInput from "@/components/ui/auto-complete-input";
 import ColorDialog from "@/components/dialog/color-dialog";
-import { RoughLotTenderDetails, TotalValues } from "@/lib/types/tender";
+import { MixLotTenderDetails, TotalValues } from "@/lib/types/tender";
 import { Option } from "@/lib/types/common";
 import ClarityDialog from "@/components/dialog/clarity-dialog";
 import FlrDialog from "@/components/dialog/flr-dialog";
@@ -38,18 +38,15 @@ const columns = [
   "Ratio",
   "Sale Price",
   "Sale Amnt",
-  "Labour",
-  "Cost Price",
-  "Cost Amnt",
   <Button key={1} className="p-0" variant="ghost" type="button">
     <PlusCircle className="h-4 w-4" />
   </Button>,
 ];
 
-interface RoughLotDetailsProps {
-  data: RoughLotTenderDetails[];
+interface MixLotDetailsProps {
+  data: MixLotTenderDetails[];
   handleValueChange: (
-    value: RoughLotTenderDetails,
+    value: MixLotTenderDetails,
     index: number,
     action?: string
   ) => void;
@@ -64,7 +61,7 @@ interface RoughLotDetailsProps {
   setTotalValues: React.Dispatch<React.SetStateAction<TotalValues>>;
 }
 
-export function RoughLotDetails({
+export function MixLotDetails({
   data,
   handleValueChange,
   colors,
@@ -74,7 +71,7 @@ export function RoughLotDetails({
   setTotalValues,
   shapes,
   lotNo,
-}: RoughLotDetailsProps) {
+}: MixLotDetailsProps) {
   useEffect(() => {
     const totals = data.reduce(
       (acc, row) => ({
@@ -83,7 +80,7 @@ export function RoughLotDetails({
         polCts: acc.polCts + (row.polCts || 0),
         polPercent: acc.polPercent + (row.polPercent || 0),
         salePrice: acc.salePrice + (row.salePrice || 0),
-        costPrice: acc.costPrice + (row.costPrice || 0),
+        costPrice: 0,
       }),
       {
         pcs: 0,
@@ -460,72 +457,6 @@ export function RoughLotDetails({
                       />
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20 text-right"
-                        name="labour"
-                        type="number"
-                        value={row.labour || ""}
-                        step={0.01}
-                        onChange={(e) => {
-                          const value = e.target.value
-                            ? parseFloat(e.target.value)
-                            : 0;
-                          handleValueChange(
-                            {
-                              ...row,
-                              labour: value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="0"
-                      />
-                    </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20 text-right"
-                        name="costPrice"
-                        type="number"
-                        value={row.costPrice || ""}
-                        step={0.01}
-                        onChange={(e) => {
-                          const value = e.target.value
-                            ? parseFloat(e.target.value)
-                            : 0;
-                          handleValueChange(
-                            {
-                              ...row,
-                              costPrice: value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="0"
-                      />
-                    </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20 text-right"
-                        name="costAmount"
-                        type="number"
-                        value={row.costAmount || ""}
-                        step={0.01}
-                        onChange={(e) => {
-                          const value = e.target.value
-                            ? parseFloat(e.target.value)
-                            : 0;
-                          handleValueChange(
-                            {
-                              ...row,
-                              costAmount: value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="0"
-                      />
-                    </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
                       <Button
                         variant="ghost"
                         type="button"
@@ -566,9 +497,6 @@ export function RoughLotDetails({
         </p>
         <p className="text-gray-600 w-36 text-sm font-semibold">
           Sale Price: {totalValues.salePrice}
-        </p>
-        <p className="text-gray-600 w-36 text-sm font-semibold">
-          Cost Price: {totalValues.costPrice}
         </p>
       </div>
     </>

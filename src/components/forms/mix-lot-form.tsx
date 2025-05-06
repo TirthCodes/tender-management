@@ -17,11 +17,11 @@ import {
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 import { Option } from "@/lib/types/common";
-import { RoughLotTenderDetails, TotalValues } from "@/lib/types/tender";
+import { MixLotTenderDetails, TotalValues } from "@/lib/types/tender";
 import Link from "next/link";
-import { RoughLotDetails } from "../data-table/rough-lot-detail";
 import { useSearchParams } from "next/navigation";
 import { getBaseTenderById } from "@/services/base-tender";
+import { MixLotDetails } from "../data-table/mix-lot-details";
 
 export const initialRow = {
   pcs: 0,
@@ -39,21 +39,18 @@ export const initialRow = {
   ratio: 0,
   salePrice: 0,
   saleAmount: 0,
-  labour: 0,
-  costPrice: 0,
-  costAmount: 0,
 };
 
 const initialTenderDetails = [initialRow];
 
-interface CreateRoughLotFormProps {
+interface MixLotFormProps {
   colorOptions: Option[];
   clarityOptions: Option[];
   fluorescenceOptions: Option[];
   shapeOptions: Option[];
 }
 
-const createRoughLotSchema = z.object({
+const mixLotSchema = z.object({
   voucherDate: z.string(),
   tenderName: z.string().trim().min(2, { message: "Tender name is required!" }),
   personName: z.string().trim().min(2, { message: "Person name is required!" }),
@@ -104,16 +101,20 @@ const createRoughLotSchema = z.object({
     (val) => Number(val),
     z.number().min(0, "Result total is required!")
   ),
+  resultCost: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, "Result cost is required!")
+  ),
 });
 
-type CreateRoughLotFormValues = z.infer<typeof createRoughLotSchema>;
+type MixLotFormValues = z.infer<typeof mixLotSchema>;
 
-export function RoughLotForm({
+export function MixLotForm({
   colorOptions,
   clarityOptions,
   fluorescenceOptions,
   shapeOptions,
-}: CreateRoughLotFormProps) {
+}: MixLotFormProps) {
   const { data: colorsOptions } = useQuery({
     queryKey: ["color-options"],
     queryFn: getColorOptions,
@@ -170,15 +171,15 @@ export function RoughLotForm({
     // reset,
     formState: { errors },
     setValue,
-  } = useForm<CreateRoughLotFormValues>({
+  } = useForm<MixLotFormValues>({
     mode: "onBlur",
-    resolver: zodResolver(createRoughLotSchema),
+    resolver: zodResolver(mixLotSchema),
   });
 
   const [isPending, setIsPending] = useState(false);
 
   const [tenderDetails, setTenderDetails] =
-    useState<RoughLotTenderDetails[]>(initialTenderDetails);
+    useState<MixLotTenderDetails[]>(initialTenderDetails);
   const [totalValues, setTotalValues] = useState<TotalValues>({
     pcs: 0,
     carats: 0,
@@ -203,19 +204,25 @@ export function RoughLotForm({
 
   useEffect(() => {
     if (netPercent && labour) {
-      // const netPercentValue = parseFloat(netPercent);
+      // const netPercentValue = parseFloat(netPercent.toFixed(2));
+      // const labourValue = parseFloat(labour.toFixed(2));
 
       const netPercentage = netPercent / 100;
 
       const calculatedBidPrice = parseFloat(
-        (totalValues.costPrice / netPercentage).toFixed(2)
+        (
+          (((totalValues.salePrice * 0.97 - 180) * totalValues.polCts) /
+            totalValues.carats -
+            labour) /
+          netPercentage
+        ).toFixed(2)
       );
 
       if (!isNaN(calculatedBidPrice)) {
         setValue("bidPrice", calculatedBidPrice);
         let totalAmount = 0;
-        if (roughCts) {
-          // const roughCtsValue = parseFloat(roughCts);
+        if(roughCts) {
+          // const roughCtsValue = parseFloat(roughCts.toFixed(2));
           if (!isNaN(roughCts)) {
             totalAmount = parseFloat(
               (calculatedBidPrice * roughCts).toFixed(2)
@@ -226,12 +233,11 @@ export function RoughLotForm({
       }
 
       if (resultTotal) {
-        // const resultTotalValue = parseFloat(resultTotal);
-
+        // const resultTotalValue = parseFloat(resultTotal.toFixed(2));
         if (!isNaN(resultTotal)) {
           let resultPerCarat = 0;
-          if (roughCts) {
-            // const roughCtsValue = parseFloat(roughCts);
+          if(roughCts) {
+            // const roughCtsValue = parseFloat(roughCts.toFixed(2));
             if (!isNaN(roughCts)) {
               resultPerCarat = parseFloat(
                 (resultTotal / roughCts).toFixed(2)
@@ -241,22 +247,44 @@ export function RoughLotForm({
 
           if (!isNaN(resultPerCarat)) {
             setValue("resultPerCarat", resultPerCarat);
+            let resultCost = 0;
+            if(roughCts) {
+              resultCost = parseFloat(
+                (
+                  (((resultPerCarat * 0.06 + resultPerCarat + labour) *
+                    totalValues.carats) /
+                    totalValues.polCts +
+                    180) /
+                  0.97
+                ).toFixed(2)
+              );
+            }
+            if (!isNaN(resultCost)) {
+              setValue("resultCost", resultCost);
+            }
           }
         }
       }
     }
-  }, [labour, totalValues, setValue, netPercent, resultTotal, roughCts]);
+  }, [
+    labour,
+    totalValues,
+    setValue,
+    netPercent,
+    resultTotal,
+    roughCts,
+  ]);
 
   const roughPcs = watch("roughPcs");
 
   useEffect(() => {
     if (roughPcs) {
-      // const roughPcsValue = parseFloat(roughPcs);
-      // const roughCtsValue = parseFloat(roughCts);
+      // const roughPcsValue = parseFloat(roughPcs.toFixed(2));
+      // const roughCtsValue = parseFloat(roughCts.toFixed(2));
 
       if (!isNaN(roughPcs)) {
         const roughSize = parseFloat(
-          (roughCts / roughPcs).toFixed(2)
+          (roughPcs / roughCts).toFixed(2)
         );
         setValue("lotSize", roughSize);
       }
@@ -264,7 +292,7 @@ export function RoughLotForm({
   }, [roughPcs, roughCts, setValue]);
 
   const handleDetailsValueChange = (
-    value: RoughLotTenderDetails,
+    value: MixLotTenderDetails,
     index: number,
     action?: string
   ) => {
@@ -287,7 +315,7 @@ export function RoughLotForm({
     );
   };
 
-  async function onSubmit(data: CreateRoughLotFormValues) {
+  async function onSubmit(data: MixLotFormValues) {
     setIsPending(true);
 
     const payload = {
@@ -466,7 +494,7 @@ export function RoughLotForm({
       </div>
 
       <div className="mt-4 overflow-hidden rounded-lg border border-neutral-300 shadow-sm">
-        <RoughLotDetails
+        <MixLotDetails
           lotNo={watch("lotNo")}
           totalValues={totalValues}
           setTotalValues={setTotalValues}
@@ -480,7 +508,7 @@ export function RoughLotForm({
       </div>
 
       <div className="p-3 border border-neutral-300 rounded-lg shadow-sm mt-4">
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-5 gap-6">
           <div className="flex w-full max-w-sm items-center gap-2">
             <Label className="text-nowrap">Bid Price</Label>
             <Input type="number" {...register("bidPrice")} readOnly disabled />
@@ -509,6 +537,15 @@ export function RoughLotForm({
             <Input
               type="number"
               {...register("resultPerCarat")}
+              readOnly
+              disabled
+            />
+          </div>
+          <div className="flex w-full max-w-sm items-center gap-2">
+            <Label className="text-nowrap">Result cost</Label>
+            <Input
+              type="number"
+              {...register("resultCost")}
               readOnly
               disabled
             />

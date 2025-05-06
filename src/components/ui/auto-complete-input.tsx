@@ -189,18 +189,10 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
             </li>
           ))}
           <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-            <DialogTrigger
-              onClick={() => setCreateDialogOpen(true)}
-              className="z-50"
-              asChild
-            >
-              <div
-                className={`p-2 cursor-pointer bg-white h-9 flex items-center gap-2 border-b ${
-                  dropdownClass ? dropdownClass : "w-full"
-                }`}
-              >
+            <DialogTrigger onClick={() => setCreateDialogOpen(true)} className="z-50" asChild>
+              <button className={`p-2 cursor-pointer bg-white hover:bg-gray-100 h-9 flex items-center gap-2 border-b ${dropdownClass ? dropdownClass : "w-full"}`}>
                 <PlusCircle className="h-5 w-5" /> Create
-              </div>
+              </button>
             </DialogTrigger>
             {createDialogContent}
           </Dialog>
@@ -221,9 +213,9 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
                   onClick={() => setCreateDialogOpen(true)}
                   asChild
                 >
-                  <div className="p-2 cursor-pointer h-9 flex items-center gap-2 border-b">
+                  <button className="p-2 cursor-pointer hover:bg-gray-100 h-9 flex items-center gap-2 border-b">
                     <PlusCircle className="h-5 w-5" /> Create
-                  </div>
+                  </button>
                 </DialogTrigger>
                 {createDialogContent}
               </Dialog>

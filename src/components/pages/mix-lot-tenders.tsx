@@ -34,7 +34,7 @@ export function MixLotTendersPage() {
     <PageWrapper>
       <PageHeader
         title="Mix Lot Tenders"
-        createPath={`/tenders/tender-details/create?tenderId=${id}`}
+        createPath={`/tenders/mix-lot/create?tenderId=${id}`}
       />
       <TenderDataTable
         columns={[]}
