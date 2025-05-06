@@ -135,10 +135,11 @@ model OtherTenderDetails {
   id                Int             @id @default(autoincrement())
   
   tender            OtherTender     @relation(fields: [otherTenderId], references: [id], onDelete: Cascade)
-  otherTenderId          Int
+  otherTenderId     Int
   
   inRoughPcs        Int 
   dcRoughCts        Decimal         @db.Decimal(10, 2)
+  stRemark          String?
 
   color             Color           @relation(fields: [colorId], references: [id], onDelete: Cascade)
   colorId           Int          

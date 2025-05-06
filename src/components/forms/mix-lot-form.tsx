@@ -23,22 +23,22 @@ import { useSearchParams } from "next/navigation";
 import { getBaseTenderById } from "@/services/base-tender";
 import { MixLotDetails } from "../data-table/mix-lot-details";
 
-export const initialRow = {
-  pcs: 0,
-  carats: 0,
+export const initialRow: MixLotTenderDetails = {
+  inRoughPcs: 0,
+  dcRoughCts: 0,
   color: { id: 0, stShortName: "" },
-  colorGrade: 0,
+  inColorGrade: 0,
   clarity: { id: 0, stShortName: "" },
-  flr: { id: 0, stShortName: "" },
+  fluorescence: { id: 0, stShortName: "" },
   shape: { id: 0, stShortName: "" },
-  remark: "",
-  polCts: 0,
-  polPercent: 0,
-  depth: 0,
-  table: 0,
-  ratio: 0,
-  salePrice: 0,
-  saleAmount: 0,
+  stRemark: "",
+  dcPolCts: 0,
+  dcPolPer: 0,
+  dcDepth: 0,
+  dcTable: 0,
+  dcRatio: 0,
+  dcSalePrice: 0,
+  dcSaleAmount: 0,
 };
 
 const initialTenderDetails = [initialRow];
@@ -411,18 +411,6 @@ export function MixLotForm({
               )}
             />
           </div>
-          {/* <div className="flex w-full items-center col-span-2">
-            <Label className="w-[94px] shrink-0">Rough Name</Label>
-            <Input
-              type="text"
-              {...register("roughName")}
-              placeholder="Name"
-              className={cn(
-                errors.roughName?.message &&
-                  "border border-red-500 placeholder:text-red-500"
-              )}
-            />
-          </div> */}
           <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Rough Pcs.</Label>
             <Input

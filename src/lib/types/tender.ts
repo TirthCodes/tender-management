@@ -43,42 +43,42 @@ export interface TenderDetails {
 }
 
 export interface RoughLotTenderDetails {
-  pcs: number;
-  carats: number;
+  inRoughPcs: number;
+  dcRoughCts: number;
   color: Option;
-  colorGrade: number;
+  inColorGrade: number;
   clarity: Option;
-  flr: Option;
+  fluorescence: Option;
   shape: Option;
-  remark: string;
-  polCts: number;
-  polPercent: number;
-  depth: number;
-  table: number;
-  ratio: number;
-  salePrice: number;
-  saleAmount: number;
-  labour: number;
-  costPrice: number;
-  costAmount: number;
+  stRemark: string;
+  dcPolCts: number;
+  dcPolPer: number;
+  dcDepth: number;
+  dcTable: number;
+  dcRatio: number;
+  dcSalePrice: number;
+  dcSaleAmount: number;
+  dcLabour: number;
+  dcCostPrice: number;
+  dcCostAmount: number;
 }
 
 export interface MixLotTenderDetails {
-  pcs: number;
-  carats: number;
+  inRoughPcs: number;
+  dcRoughCts: number;
   color: Option;
-  colorGrade: number;
+  inColorGrade: number;
   clarity: Option;
-  flr: Option;
+  fluorescence: Option;
   shape: Option;
-  remark: string;
-  polCts: number;
-  polPercent: number;
-  depth: number;
-  table: number;
-  ratio: number;
-  salePrice: number;
-  saleAmount: number;
+  stRemark: string;
+  dcPolCts: number;
+  dcPolPer: number;
+  dcDepth: number;
+  dcTable: number;
+  dcRatio: number;
+  dcSalePrice: number;
+  dcSaleAmount: number;
 }
 
 export interface SingleStoneTenderDetails {

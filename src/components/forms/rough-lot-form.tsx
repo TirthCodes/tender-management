@@ -23,25 +23,25 @@ import { RoughLotDetails } from "../data-table/rough-lot-detail";
 import { useSearchParams } from "next/navigation";
 import { getBaseTenderById } from "@/services/base-tender";
 
-export const initialRow = {
-  pcs: 0,
-  carats: 0,
+export const initialRow: RoughLotTenderDetails = {
+  inRoughPcs: 0,
+  dcRoughCts: 0,
   color: { id: 0, stShortName: "" },
-  colorGrade: 0,
+  inColorGrade: 0,
   clarity: { id: 0, stShortName: "" },
-  flr: { id: 0, stShortName: "" },
+  fluorescence: { id: 0, stShortName: "" },
   shape: { id: 0, stShortName: "" },
-  remark: "",
-  polCts: 0,
-  polPercent: 0,
-  depth: 0,
-  table: 0,
-  ratio: 0,
-  salePrice: 0,
-  saleAmount: 0,
-  labour: 0,
-  costPrice: 0,
-  costAmount: 0,
+  stRemark: "",
+  dcPolCts: 0,
+  dcPolPer: 0,
+  dcDepth: 0,
+  dcTable: 0,
+  dcRatio: 0,
+  dcSalePrice: 0,
+  dcSaleAmount: 0,
+  dcLabour: 0,
+  dcCostPrice: 0,
+  dcCostAmount: 0,
 };
 
 const initialTenderDetails = [initialRow];
