@@ -1,10 +1,10 @@
 
-import { CreateTenderForm } from "@/components/forms/create-tender-form";
+import { RoughLotForm } from "@/components/forms/rough-lot-form";
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/server/session";
 import { redirect } from "next/navigation";
 
-export default async function CreateTenderPage() {
+export default async function Page() {
   const { user, session } = await getCurrentSession();
 
   if (user === null || session === null) {
@@ -51,7 +51,7 @@ export default async function CreateTenderPage() {
   ]);
 
   return (
-    <CreateTenderForm
+    <RoughLotForm
       colorOptions={colors}
       clarityOptions={clarities}
       fluorescenceOptions={fluorescence}

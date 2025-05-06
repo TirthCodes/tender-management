@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/server/session";
+import { SingleStoneTenderDetails } from "@/lib/types/tender";
 
 // export async function POST(req: Request) {
 //   const { session, user } = await getCurrentSession();
@@ -144,53 +145,75 @@ export async function POST(req: Request) {
 
   try {
     const {
-      id, 
-      tenderId,
-      pcs,
-      carats,
-      color,
-      clarity,
-      flr,
-      shape,
-      colorGrade,
-      polCts,
-      polPercent,
-      depth,
-      table,
-      ratio,
-      salePrice,
-      saleAmount,
-      costPrice,
-      costAmount,
-      topsAmount,
-      incription,
+      id,
+      labour,
+      netPercent,
+      remark,
+      baseTenderId,
+      roughPcs,
+      roughCts,
+      rate,
+      amount,
+      certId,
+      tenderDetails,
     } = await req.json();
 
-    if(id) {
-      await prisma.tenderDetails.update({
-        where: {
-          id: Number(id),
+    if (!baseTenderId || !roughPcs || !roughCts || !labour || !netPercent) {
+      return Response.json(
+        {
+          success: false,
+          message: "Missing required fields",
         },
+        { status: 400 }
+      );
+    }
+
+
+    if (id) {
+      // Update existing tender
+      const updatedTender = await prisma.singleTender.update({
+        where: { id: Number(id) },
         data: {
-          tenderId: tenderId,
-          inRoughPcs: pcs,
-          dcRoughCts: carats,
-          colorId: color.id,
-          clarityId: clarity.id,
-          fluorescenceId: flr.id,
-          shapeId: shape.id,
-          inColorGrade: colorGrade,
-          dcPolCts: polCts,
-          dcPolPer: polPercent,
-          dcDepth: depth || 0,
-          dcTable: table || 0,
-          dcRatio: ratio || 0,
-          dcSalePrice: salePrice || 0,
-          dcSaleAmount: saleAmount || 0,
-          dcCostPrice: costPrice || 0,
-          dcCostAmount: costAmount || 0,
-          dcTopsAmount: topsAmount || 0,
-          stIncription: incription || "",
+          baseTenderId,
+          inRoughPcs: roughPcs,
+          dcRoughCts: roughCts,
+          dcRate: rate || null,
+          dcAmount: amount || null,
+          stRemark: remark || null,
+          dcLabour: labour,
+          dcNetPercentage: netPercent,
+          stCertId: certId || null,
+          updatedAt: new Date(),
+          singleTenderDetails: {
+            // Delete existing details and create new ones
+            deleteMany: {},
+            create: tenderDetails.map((detail: SingleStoneTenderDetails) => ({
+              stLotNo: detail.lotNo,
+              inRoughPcs: detail.roughPcs,
+              dcRoughCts: detail.roughCts,
+              dcSize: detail.roughSize,
+              colorId: detail.color.id,
+              clarityId: detail.clarity.id,
+              flrId: detail.flr.id,
+              shapeId: detail.shape.id,
+              inColorGrade: detail.colorGrade,
+              dcPolCts: detail.polCts,
+              dcPolPercent: detail.polPercent,
+              dcDepth: detail.depth || null,
+              dcTable: detail.table || null,
+              dcRatio: detail.ratio || null,
+              dcSalePrice: detail.salePrice || null,
+              dcSaleAmount: detail.saleAmount || null,
+              dcCostPrice: detail.costPrice || null,
+              dcTopsAmount: detail.topsAmount || 0,
+              stIncription: detail.incription || null,
+              dcBidPrice: detail.bidPrice || null,
+              dcTotalAmount: detail.totalAmount || null,
+              dcResultCost: detail.resultCost || null,
+              dcResultPerCt: detail.resultPerCarat || null,
+              dcResultTotal: detail.resultTotal || null,
+            })),
+          },
         },
       });
 
@@ -198,32 +221,52 @@ export async function POST(req: Request) {
         {
           success: true,
           message: "Single Stone Tender updated successfully",
+          data: updatedTender,
         },
         { status: 200 }
       );
     }
 
-    await prisma.tenderDetails.create({
+
+    const newTender = await prisma.singleTender.create({
       data: {
-        tenderId: tenderId,
-        inRoughPcs: pcs,
-        dcRoughCts: carats,
-        colorId: color.id,
-        clarityId: clarity.id,
-        fluorescenceId: flr.id,
-        shapeId: shape.id,
-        inColorGrade: colorGrade,
-        dcPolCts: polCts,
-        dcPolPer: polPercent,
-        dcDepth: depth || 0,
-        dcTable: table || 0,
-        dcRatio: ratio || 0,
-        dcSalePrice: salePrice || 0,
-        dcSaleAmount: saleAmount || 0,
-        dcCostPrice: costPrice || 0,
-        dcCostAmount: costAmount || 0,
-        dcTopsAmount: topsAmount || 0,
-        stIncription: incription || "",
+        baseTenderId,
+        inRoughPcs: roughPcs,
+        dcRoughCts: roughCts,
+        dcRate: rate || null,
+        dcAmount: amount || null,
+        stRemark: remark || null,
+        dcLabour: labour,
+        dcNetPercentage: netPercent,
+        stCertId: certId || null,
+        singleTenderDetails: {
+          create: tenderDetails.map((detail: SingleStoneTenderDetails) => ({
+            stLotNo: detail.lotNo,
+            inRoughPcs: detail.roughPcs,
+            dcRoughCts: detail.roughCts,
+            dcSize: detail.roughSize,
+            colorId: detail.color.id,
+            clarityId: detail.clarity.id,
+            flrId: detail.flr.id,
+            shapeId: detail.shape.id,
+            inColorGrade: detail.colorGrade,
+            dcPolCts: detail.polCts,
+            dcPolPercent: detail.polPercent,
+            dcDepth: detail.depth || null,
+            dcTable: detail.table || null,
+            dcRatio: detail.ratio || null,
+            dcSalePrice: detail.salePrice || null,
+            dcSaleAmount: detail.saleAmount || null,
+            dcCostPrice: detail.costPrice || null,
+            dcTopsAmount: detail.topsAmount || null,
+            stIncription: detail.incription || null,
+            dcBidPrice: detail.bidPrice || null,
+            dcTotalAmount: detail.totalAmount || null,
+            dcResultCost: detail.resultCost || null,
+            dcResultPerCt: detail.resultPerCarat || null,
+            dcResultTotal: detail.resultTotal || null,
+          })),
+        },
       },
     });
 
@@ -231,6 +274,7 @@ export async function POST(req: Request) {
       {
         success: true,
         message: "Single Stone Tender created successfully",
+        data: newTender,
       },
       { status: 201 }
     );

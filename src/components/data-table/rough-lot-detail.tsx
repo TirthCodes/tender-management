@@ -14,12 +14,12 @@ import { PlusCircle, Trash2 } from "lucide-react";
 import React, { useEffect } from "react";
 import AutoCompleteInput from "@/components/ui/auto-complete-input";
 import ColorDialog from "@/components/dialog/color-dialog";
-import { TenderDetails, TotalValues } from "@/lib/types/tender";
+import { RoughLotTenderDetails, TotalValues } from "@/lib/types/tender";
 import { Option } from "@/lib/types/common";
 import ClarityDialog from "@/components/dialog/clarity-dialog";
 import FlrDialog from "@/components/dialog/flr-dialog";
 import ShapeDialog from "@/components/dialog/shape-dialog";
-import { initialRow } from "../../forms/create-tender-form";
+import { initialRow } from "../forms/rough-lot-form";
 
 const columns = [
   "Lot",
@@ -30,6 +30,7 @@ const columns = [
   "Clarity",
   "FLR",
   "Shape",
+  "Remark",
   "Pol. Cts.",
   "Pol. %",
   "Depth",
@@ -37,19 +38,18 @@ const columns = [
   "Ratio",
   "Sale Price",
   "Sale Amnt",
+  "Labour",
   "Cost Price",
   "Cost Amnt",
-  "Tops Amnt",
-  "Incription",
   <Button key={1} className="p-0" variant="ghost" type="button">
     <PlusCircle className="h-4 w-4" />
   </Button>,
 ];
 
-interface TenderDetailsDataTableProps {
-  data: TenderDetails[];
+interface RoughLotDetailsProps {
+  data: RoughLotTenderDetails[];
   handleValueChange: (
-    value: TenderDetails,
+    value: RoughLotTenderDetails,
     index: number,
     action?: string
   ) => void;
@@ -64,7 +64,7 @@ interface TenderDetailsDataTableProps {
   setTotalValues: React.Dispatch<React.SetStateAction<TotalValues>>;
 }
 
-export function TenderDetailsDataTable({
+export function RoughLotDetails({
   data,
   handleValueChange,
   colors,
@@ -74,7 +74,7 @@ export function TenderDetailsDataTable({
   setTotalValues,
   shapes,
   lotNo,
-}: TenderDetailsDataTableProps) {
+}: RoughLotDetailsProps) {
   useEffect(() => {
     const totals = data.reduce(
       (acc, row) => ({
@@ -84,7 +84,6 @@ export function TenderDetailsDataTable({
         polPercent: acc.polPercent + (row.polPercent || 0),
         salePrice: acc.salePrice + (row.salePrice || 0),
         costPrice: acc.costPrice + (row.costPrice || 0),
-        topsAmount: acc.topsAmount + (row.topsAmount || 0),
       }),
       {
         pcs: 0,
@@ -93,7 +92,6 @@ export function TenderDetailsDataTable({
         polPercent: 0,
         salePrice: 0,
         costPrice: 0,
-        topsAmount: 0,
       }
     );
 
@@ -102,9 +100,9 @@ export function TenderDetailsDataTable({
 
   return (
     <>
-      <div className="rounded-md flex-1 flex flex-col min-h-0 h-[23.5svh]">
+      <div className="rounded-md flex-1 flex flex-col min-h-0 h-[42svh]">
         <div className="overflow-x-auto w-auto">
-          <Table className="bg-white mb-14">
+          <Table className="bg-white mb-40">
             <TableHeader className="sticky top-0 z-40 bg-white border-b">
               <TableRow>
                 {columns.map((header, index) => {
@@ -114,7 +112,7 @@ export function TenderDetailsDataTable({
                         onClick={() =>
                           handleValueChange(initialRow, data.length + 1)
                         }
-                        className="border-collapse border border-gray-300"
+                        className="border-collapse border border-gray-300 border-t-0"
                         key={index}
                       >
                         {header}
@@ -123,7 +121,7 @@ export function TenderDetailsDataTable({
                   }
                   return (
                     <TableHead
-                      className={`border-collapse border border-gray-300`}
+                      className={`border-collapse border border-gray-300 border-t-0`}
                       key={index}
                     >
                       {header}
@@ -487,47 +485,6 @@ export function TenderDetailsDataTable({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20 text-right"
-                        name="topsAmount"
-                        type="number"
-                        value={row.topsAmount || ""}
-                        step={0.01}
-                        onChange={(e) => {
-                          const value = e.target.value
-                            ? parseFloat(e.target.value)
-                            : 0;
-                          handleValueChange(
-                            {
-                              ...row,
-                              topsAmount: value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="0"
-                      />
-                    </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20"
-                        name="incription"
-                        type="text"
-                        value={row.incription || ""}
-                        onChange={(e) => {
-                          handleValueChange(
-                            {
-                              ...row,
-                              incription: e.target.value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="0"
-                      />
-                    </TableCell>
-
                     <TableCell className="border-collapse border border-gray-300">
                       <Button
                         variant="ghost"

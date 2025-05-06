@@ -44,7 +44,7 @@ model BaseTender {
   stPersonName         String
   dcNetPercentage      Decimal                @db.Decimal(10, 2)   
   dcLabour             Decimal                @db.Decimal(10, 2)
-  tender               Tender[]
+  otherTender          OtherTender[]
   singleTender         SingleTender[]
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
@@ -105,43 +105,49 @@ model SingleTenderDetails {
   updatedAt       DateTime        @updatedAt
 }
 
-model Tender {
+model OtherTender {
   id                   Int                    @id @default(autoincrement())
-  baseTender           BaseTender             @relation(fields: [tenderId], references: [id])
-  tenderId             Int
+  baseTender           BaseTender             @relation(fields: [baseTenderId], references: [id])
+  baseTenderId         Int
   mainLot              MainLot?               @relation(fields: [mainLotId], references: [id])
   mainLotId            Int?
 	stLotNo              String
   inRoughPcs           Int
 	dcRoughCts           Decimal                @db.Decimal(10, 2)
+  dcLotSize            Decimal                @db.Decimal(10, 2)
+  dcBidPrice           Decimal                @db.Decimal(10, 2)
+  dcTotalAmount        Decimal?               @db.Decimal(10, 2) //Bid Amount
+  dcResultCost         Decimal?               @db.Decimal(10, 2)
+  dcResultPerCt        Decimal?               @db.Decimal(10, 2)
+  dcResultTotal        Decimal?               @db.Decimal(10, 2)
   dcRate               Decimal                @db.Decimal(10, 2)
   dcAmount             Decimal                @db.Decimal(10, 2)
-	dcRemark             String?                @db.Text
+	stRemark             String?                @db.Text
 	dcLabour             Decimal                @db.Decimal(10, 2)
   dcNetPercentage      Decimal                @db.Decimal(10, 2)
   stCertId             String?
-  tenderDetails        TenderDetails[]
+  otherTenderDetails   OtherTenderDetails[]
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
 }
 
-model TenderDetails {
+model OtherTenderDetails {
   id                Int             @id @default(autoincrement())
   
-  tenderId          Int
-  tender            Tender          @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  tender            OtherTender     @relation(fields: [otherTenderId], references: [id], onDelete: Cascade)
+  otherTenderId          Int
   
   inRoughPcs        Int 
   dcRoughCts        Decimal         @db.Decimal(10, 2)
 
-  colorId           Int          
   color             Color           @relation(fields: [colorId], references: [id], onDelete: Cascade)
-  clarityId         Int          
+  colorId           Int          
   clarity           Clarity         @relation(fields: [clarityId], references: [id], onDelete: Cascade)
-  fluorescenceId    Int          
+  clarityId         Int          
   fluorescence      Fluorescence    @relation(fields: [fluorescenceId], references: [id], onDelete: Cascade)
-  shapeId           Int          
+  fluorescenceId    Int          
   shape             Shape           @relation(fields: [shapeId], references: [id], onDelete: Cascade)
+  shapeId           Int          
   
   inColorGrade      Int
   
@@ -158,19 +164,10 @@ model TenderDetails {
   dcCostPrice       Decimal?        @db.Decimal(10, 2)
   dcCostAmount      Decimal?        @db.Decimal(10, 2)
 
-  dcTopsAmount      Decimal?        @db.Decimal(10, 2)
+  dcLabour          Decimal?        @db.Decimal(10, 2)
 
-  stIncription      String?         @db.Text
-
-  dcBidPrice        Decimal?        @db.Decimal(10, 2)
-  dcTotalAmount     Decimal?        @db.Decimal(10, 2) //Bid Amount
-
-  dcResultCost      Decimal?        @db.Decimal(10, 2)
-  dcResultPerCt     Decimal?        @db.Decimal(10, 2)
-  dcResultTotal     Decimal?        @db.Decimal(10, 2)
-
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 }
 
 model MainLot {
@@ -181,7 +178,7 @@ model MainLot {
   stCts             String
   dcRate            Decimal           @db.Decimal(10, 2) 
   dcAmount          Decimal           @db.Decimal(10, 2) 
-  tender            Tender[]
+  tender            OtherTender[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 }
@@ -193,7 +190,7 @@ model Color {
   inSerial                Int
   dtCreatedAt             DateTime                @default(now())
   dtUpdatedAt             DateTime                @updatedAt
-  tenderDetails           TenderDetails[]
+  tenderDetails           OtherTenderDetails[]
   singleTenderDetails     SingleTenderDetails[]
 }
 
@@ -204,7 +201,7 @@ model Clarity {
   inSerial                Int
   dtCreatedAt             DateTime                @default(now())
   dtUpdatedAt             DateTime                @updatedAt
-  tenderDetails           TenderDetails[]
+  tenderDetails           OtherTenderDetails[]
   singleTenderDetails     SingleTenderDetails[]
 }
 
@@ -215,7 +212,7 @@ model Fluorescence {
   inSerial                Int
   dtCreatedAt             DateTime                @default(now())
   dtUpdatedAt             DateTime                @updatedAt
-  tenderDetails           TenderDetails[]
+  tenderDetails           OtherTenderDetails[]
   singleTenderDetails     SingleTenderDetails[]
 } 
 
@@ -226,7 +223,7 @@ model Shape {
   inSerial                Int
   dtCreatedAt             DateTime                @default(now())
   dtUpdatedAt             DateTime                @updatedAt
-  tenderDetails           TenderDetails[]
+  tenderDetails           OtherTenderDetails[]
   singleTenderDetails     SingleTenderDetails[]
 }
 

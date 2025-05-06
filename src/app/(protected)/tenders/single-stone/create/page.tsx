@@ -1,5 +1,5 @@
 
-import { CreateSingleStoneTenderForm } from "@/components/pages/create-tender/create-single-stone-form";
+import { CreateSingleStoneTenderForm } from "@/components/forms/create-single-stone-form";
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/server/session";
 import { redirect } from "next/navigation";
@@ -14,7 +14,7 @@ export default async function CreateTenderPage({ searchParams }: { searchParams:
   const { tenderId } = await searchParams;
   const intId = parseInt(tenderId);
 
-  const [colors, clarities, fluorescence, shapes, tender] = await Promise.all([
+  const [colors, clarities, fluorescence, shapes, baseTender] = await Promise.all([
     prisma.color.findMany({
       select: {
         id: true,
@@ -58,6 +58,7 @@ export default async function CreateTenderPage({ searchParams }: { searchParams:
         stPersonName: true,
         dcNetPercentage: true,
         dcLabour: true,
+        id: true,
       },
       where: {
         id: intId,
@@ -65,14 +66,15 @@ export default async function CreateTenderPage({ searchParams }: { searchParams:
     }),
   ]);
 
-  if(!tender) {
+  if(!baseTender) {
     redirect("/tenders")
   }
+  console.log({baseTender})
 
-  const tenderData = {
-    ...tender,
-    dcNetPercentage: Number(tender.dcNetPercentage),
-    dcLabour: Number(tender.dcLabour)
+  const baseTenderData = {
+    ...baseTender,
+    dcNetPercentage: Number(baseTender.dcNetPercentage),
+    dcLabour: Number(baseTender.dcLabour)
   }
 
   return (
@@ -81,7 +83,7 @@ export default async function CreateTenderPage({ searchParams }: { searchParams:
       clarityOptions={clarities}
       fluorescenceOptions={fluorescence}
       shapeOptions={shapes}
-      tenderData={tenderData}
+      baseTenderData={baseTenderData}
     />
   );
 }

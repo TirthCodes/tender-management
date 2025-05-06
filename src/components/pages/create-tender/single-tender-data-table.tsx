@@ -19,7 +19,7 @@ import FlrDialog from "@/components/dialog/flr-dialog";
 import ShapeDialog from "@/components/dialog/shape-dialog";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Trash2 } from "lucide-react";
-import { singleInitialRow } from "./create-single-stone-form";
+import { singleInitialRow } from "../../forms/create-single-stone-form";
 import {
   calculateBidPrice,
   calculateBidPriceOnAmount,
@@ -143,7 +143,7 @@ export function SingleTenderDataTable({
                   }
                   return (
                     <TableHead
-                      className={`border-collapse border border-gray-300`}
+                      className={`border-collapse border border-gray-300 border-t-0`}
                       key={index}
                       style={{ borderTopWidth: 0 }}
                     >
