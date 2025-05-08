@@ -3,10 +3,8 @@ import { getCurrentSession } from "@/lib/server/session";
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: Promise<{ id: number }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-
   const { session, user } = await getCurrentSession();
 
   if (!session || !user) {
@@ -19,30 +17,32 @@ export async function DELETE(
     );
   }
 
+  const { id } = await params;
+
+  const intId = parseInt(id);
+
   if (!id) {
-    return new Response(
-      JSON.stringify({
-        message: "Tender ID is required",
+    return Response.json(
+      {
         success: false,
-      }),
+        message: "Missing ID",
+      },
       { status: 400 }
     );
   }
 
   try {
-    await prisma.baseTender.delete({
+    await prisma.otherTender.delete({
       where: {
-        id: Number(id),
+        id: intId,
       },
     });
 
-    // TODO: delete tender details when it is implemented
-
-    // await prisma.tenderDetails.deleteMany({
-    //   where: {
-    //     tenderId: id,
-    //   },
-    // });
+    await prisma.otherTenderDetails.deleteMany({
+      where: {
+        otherTenderId: intId,
+      },
+    });
 
     return new Response(
       JSON.stringify({

@@ -109,6 +109,7 @@ model OtherTender {
   id                   Int                    @id @default(autoincrement())
   baseTender           BaseTender             @relation(fields: [baseTenderId], references: [id])
   baseTenderId         Int
+  stTenderType           String
   mainLot              MainLot?               @relation(fields: [mainLotId], references: [id])
   mainLotId            Int?
 	stLotNo              String
@@ -135,10 +136,11 @@ model OtherTenderDetails {
   id                Int             @id @default(autoincrement())
   
   tender            OtherTender     @relation(fields: [otherTenderId], references: [id], onDelete: Cascade)
-  otherTenderId          Int
+  otherTenderId     Int
   
   inRoughPcs        Int 
   dcRoughCts        Decimal         @db.Decimal(10, 2)
+  stRemark          String?
 
   color             Color           @relation(fields: [colorId], references: [id], onDelete: Cascade)
   colorId           Int          

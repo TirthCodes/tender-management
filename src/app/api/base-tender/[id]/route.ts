@@ -64,19 +64,26 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   }
 
   try {
+
+    const intId = parseInt(id);
+
     await prisma.baseTender.delete({
       where: {
-        id: parseInt(id),
+        id: intId,
       },
     });
 
-    // TODO: delete tender details when it is implemented
+    await prisma.singleTender.deleteMany({
+      where: {
+        baseTenderId: intId,
+      },
+    });
 
-    // await prisma.tenderDetails.deleteMany({
-    //   where: {
-    //     tenderId: id,
-    //   },
-    // });
+    await prisma.otherTender.deleteMany({
+      where: {
+        baseTenderId: intId,
+      },
+    });
 
     return new Response(
       JSON.stringify({

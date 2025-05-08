@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Trash } from "lucide-react";
+import { Loader2, Pencil, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { deleteFn } from "@/services/delete";
@@ -60,7 +60,7 @@ export function TenderDataTable<TData extends { id?: number }>({
     isPending,
     data: deleteResponse,
   } = useMutation({
-    mutationFn: (id: number) => deleteFn(`${deleteEndpoint}/${id}`),
+    mutationFn: (id: number) => deleteFn(`/api/${deleteEndpoint}/${id}`),
   });
 
   useEffectAfterMount(() => {
@@ -120,27 +120,36 @@ export function TenderDataTable<TData extends { id?: number }>({
                       {cell.column.id === "actions" ? (
                         <div className="flex items-center gap-2">
                           <Button
-                            // variant={"outline"}
+                            variant={"outline"}
+                            className="text-blue-600 border-blue-600"
                             onClick={() => {
                               if (isDialog) {
                                 setEditDialogOpen?.(true);
                                 setEditData?.(row.original);
                               } else if (editPath) {
-                                router.push(
-                                  `${editPath}?id=${row.original?.id}`
-                                );
+                                if(editPath.includes("?")) {
+                                  router.push(
+                                    `${editPath}&id=${row.original?.id}`
+                                  );
+                                } else {
+                                  router.push(
+                                    `${editPath}?id=${row.original?.id}`
+                                  );
+                                }
                               }
                             }}
                           >
-                            <Pencil /> Edit
+                            <Pencil />
                           </Button>
                           <Button
+                            variant={"outline"}
+                            className="text-red-600 border-red-600"
                             onClick={() => handleDelete(row.original?.id)}
                             disabled={
                               isPending && deletingId === row.original?.id
                             }
                           >
-                            <Trash /> Delete
+                            {isPending && deletingId === row.original?.id ? <Loader2  className="animate-spin" /> : <Trash />} 
                           </Button>
                         </div>
                       ) : (

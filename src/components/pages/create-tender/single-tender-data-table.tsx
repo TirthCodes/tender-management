@@ -31,12 +31,9 @@ import {
 
 const columns = [
   "Lot",
-  // "Name",
   "Pcs.",
   "Cts.",
   "Size",
-  // "Price",
-  // "Total",
   "Color",
   "C.GD",
   "Clarity",
@@ -50,7 +47,6 @@ const columns = [
   "Sale Price",
   "Sale Amnt",
   "Cost Price",
-  // "Cost Amnt",
   "Tops Amnt",
   "Incription",
   "Bid Price",
@@ -70,8 +66,6 @@ interface SingleTenderDataTableProps {
     index: number,
     action?: string
   ) => void;
-  // handleCostDetails: (values: CostDetails) => void;
-  // costDetails: CostDetails;
   colors: Option[];
   clarities: Option[];
   fluorescences: Option[];
@@ -175,24 +169,6 @@ export function SingleTenderDataTable({
                         placeholder="FS39"
                       />
                     </TableCell>
-                    {/* <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20"
-                        name="roughName"
-                        type="text"
-                        value={row.roughName || ""}
-                        onChange={(e) => {
-                          handleValueChange(
-                            {
-                              ...row,
-                              roughName: e.target.value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="Name"
-                      />
-                    </TableCell> */}
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-center"
@@ -299,50 +275,6 @@ export function SingleTenderDataTable({
                         placeholder="0"
                       />
                     </TableCell>
-                    {/* <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20 text-right"
-                        name="roughPrice"
-                        type="number"
-                        value={row.roughPrice || ""}
-                        step={0.01}
-                        onChange={(e) => {
-                          const value = e.target.value
-                            ? parseFloat(e.target.value)
-                            : 0;
-                          handleValueChange(
-                            {
-                              ...row,
-                              roughPrice: value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="0"
-                      />
-                    </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20 text-right"
-                        name="roughTotal"
-                        type="number"
-                        value={row.roughTotal || ""}
-                        step={0.01}
-                        onChange={(e) => {
-                          const value = e.target.value
-                            ? parseFloat(e.target.value)
-                            : 0;
-                          handleValueChange(
-                            {
-                              ...row,
-                              roughTotal: value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="0"
-                      />
-                    </TableCell> */}
                     <TableCell className="border-collapse border border-gray-300">
                       <AutoCompleteInput
                         data={colors}
@@ -738,28 +670,6 @@ export function SingleTenderDataTable({
                         placeholder="0"
                       />
                     </TableCell>
-                    {/* <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20 text-right"
-                        name="costAmount"
-                        type="number"
-                        value={row.costAmount || ""}
-                        step={0.01}
-                        onChange={(e) => {
-                          const value = e.target.value
-                            ? parseFloat(e.target.value)
-                            : 0;
-                          handleValueChange(
-                            {
-                              ...row,
-                              costAmount: value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="0"
-                      />
-                    </TableCell> */}
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
@@ -877,7 +787,7 @@ export function SingleTenderDataTable({
                             value,
                             row.roughCts
                           );
-                          
+
                           const resultCost = calculateResultCost(
                             resultPerCarat,
                             labourValue,

@@ -7,24 +7,26 @@ import { PageWrapper } from "../common/page-wrapper";
 import { PageHeader } from "../common/page-header";
 import { TenderDataTable } from "../ui/tender-data-table";
 import { Pagination } from "../common/pagination";
+import { columns, RoughLotColumns } from "@/app/(protected)/tenders/rough-lot/columns";
+import { getRoughLots } from "@/services/rough-lot";
 
-export function RoughLotTendersPage() {
+export function RoughLotTendersPage({ roughLotTenders, totalCount }: { roughLotTenders: RoughLotColumns[], totalCount: number }) {
   const [page, setPage] = useState(1);
 
   const searchParams = useSearchParams();
-  const id = searchParams.get("tenderId");
+  const id = searchParams.get("baseTenderId") as string;
 
   const queryKey = "rought-lot-tenders";
 
   const { data: roughLotResponse } = useQuery({
     queryKey: [queryKey, id, page],
-    // queryFn: () => getTenders(page),
+    queryFn: () => getRoughLots(parseInt(id), page),
     initialData: {
-      // data: tenders,
+      data: roughLotTenders,
       success: true,
       message: "Success",
-      nextPage: 2,
-      totalCount: 20,
+      nextPage: totalCount > 10 ? 2 : null,
+      totalCount,
     },
   });
 
@@ -34,15 +36,17 @@ export function RoughLotTendersPage() {
     <PageWrapper>
       <PageHeader
         title="Rough Lot Tenders"
-        createPath={`/tenders/rough-lot/create?tenderId=${id}`}
+        createPath={`/tenders/rough-lot/create?baseTenderId=${id}`}
       />
       <TenderDataTable
-        columns={[]}
-        data={[]}
-        isDialog={true}
+        columns={columns}
+        data={roughLotResponse?.data || []}
+        isDialog={false}
+        editPath={`/tenders/rough-lot/create?baseTenderId=${id}`}
         queryKey={queryKey}
+        deleteEndpoint="other-tender"
       />
-      <Pagination setPage={setPage} nextPage={2} page={page} />
+      <Pagination setPage={setPage} nextPage={roughLotResponse?.nextPage} page={page} />
     </PageWrapper>
   );
 }

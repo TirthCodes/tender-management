@@ -14,7 +14,7 @@ import { PlusCircle, Trash2 } from "lucide-react";
 import React, { useEffect } from "react";
 import AutoCompleteInput from "@/components/ui/auto-complete-input";
 import ColorDialog from "@/components/dialog/color-dialog";
-import { RoughLotTenderDetails, TotalValues } from "@/lib/types/tender";
+import { MixLotTenderDetails, TotalValues } from "@/lib/types/tender";
 import { Option } from "@/lib/types/common";
 import ClarityDialog from "@/components/dialog/clarity-dialog";
 import FlrDialog from "@/components/dialog/flr-dialog";
@@ -38,18 +38,15 @@ const columns = [
   "Ratio",
   "Sale Price",
   "Sale Amnt",
-  "Labour",
-  "Cost Price",
-  "Cost Amnt",
   <Button key={1} className="p-0" variant="ghost" type="button">
     <PlusCircle className="h-4 w-4" />
   </Button>,
 ];
 
-interface RoughLotDetailsProps {
-  data: RoughLotTenderDetails[];
+interface MixLotDetailsProps {
+  data: MixLotTenderDetails[];
   handleValueChange: (
-    value: RoughLotTenderDetails,
+    value: MixLotTenderDetails,
     index: number,
     action?: string
   ) => void;
@@ -64,7 +61,7 @@ interface RoughLotDetailsProps {
   setTotalValues: React.Dispatch<React.SetStateAction<TotalValues>>;
 }
 
-export function RoughLotDetails({
+export function MixLotDetails({
   data,
   handleValueChange,
   colors,
@@ -74,7 +71,7 @@ export function RoughLotDetails({
   setTotalValues,
   shapes,
   lotNo,
-}: RoughLotDetailsProps) {
+}: MixLotDetailsProps) {
   useEffect(() => {
     const totals = data.reduce(
       (acc, row) => ({
@@ -83,7 +80,7 @@ export function RoughLotDetails({
         polCts: acc.polCts + (row.dcPolCts || 0),
         polPercent: acc.polPercent + (row.dcPolPer || 0),
         salePrice: acc.salePrice + (row.dcSalePrice || 0),
-        costPrice: acc.costPrice + (row.dcCostPrice || 0),
+        costPrice: 0,
       }),
       {
         pcs: 0,
@@ -142,7 +139,7 @@ export function RoughLotDetails({
                         className="w-20 text-center"
                         name="pcs"
                         type="number"
-                        value={row.inRoughPcs || ""}
+                        value={row.inRoughPcs}
                         step={0.01}
                         onChange={(e) => {
                           const value = e.target.value
@@ -164,7 +161,7 @@ export function RoughLotDetails({
                         className="w-20 text-right"
                         name="carats"
                         type="number"
-                        value={row.dcRoughCts || ""}
+                        value={row.dcRoughCts}
                         step={0.01}
                         onChange={(e) => {
                           const value = e.target.value
@@ -207,7 +204,7 @@ export function RoughLotDetails({
                         className="w-20 text-right"
                         name="colorGrade"
                         type="number"
-                        value={row.inColorGrade || ""}
+                        value={row.inColorGrade}
                         step={0.01}
                         onChange={(e) => {
                           const value = e.target.value
@@ -292,7 +289,7 @@ export function RoughLotDetails({
                         className="w-22"
                         name="remark"
                         type="text"
-                        value={row.stRemark || ""}
+                        value={row.stRemark}
                         onChange={(e) => {
                           handleValueChange(
                             {
@@ -332,7 +329,7 @@ export function RoughLotDetails({
                         className="w-20 text-right"
                         name="polPercent"
                         type="number"
-                        value={row.dcPolPer || ""}
+                        value={row.dcPolPer}
                         step={0.01}
                         onChange={(e) => {
                           const value = e.target.value
@@ -354,7 +351,7 @@ export function RoughLotDetails({
                         className="w-20 text-right"
                         name="depth"
                         type="number"
-                        value={row.dcDepth || ""}
+                        value={row.dcDepth}
                         step={0.01}
                         onChange={(e) => {
                           const value = e.target.value
@@ -376,7 +373,7 @@ export function RoughLotDetails({
                         className="w-20 text-right"
                         name="table"
                         type="number"
-                        value={row.dcTable || ""}
+                        value={row.dcTable}
                         step={0.01}
                         onChange={(e) => {
                           const value = e.target.value
@@ -398,7 +395,7 @@ export function RoughLotDetails({
                         className="w-20 text-right"
                         name="ratio"
                         type="number"
-                        value={row.dcRatio || ""}
+                        value={row.dcRatio}
                         step={0.01}
                         onChange={(e) => {
                           const value = e.target.value
@@ -420,7 +417,7 @@ export function RoughLotDetails({
                         className="w-20 text-right"
                         name="salePrice"
                         type="number"
-                        value={row.dcSalePrice || ""}
+                        value={row.dcSalePrice}
                         step={0.01}
                         onChange={(e) => {
                           const value = e.target.value
@@ -452,72 +449,6 @@ export function RoughLotDetails({
                             {
                               ...row,
                               dcSaleAmount: value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="0"
-                      />
-                    </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20 text-right"
-                        name="labour"
-                        type="number"
-                        value={row.dcLabour}
-                        step={0.01}
-                        onChange={(e) => {
-                          const value = e.target.value
-                            ? parseFloat(e.target.value)
-                            : 0;
-                          handleValueChange(
-                            {
-                              ...row,
-                              dcLabour: value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="0"
-                      />
-                    </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20 text-right"
-                        name="costPrice"
-                        type="number"
-                        value={row.dcCostPrice}
-                        step={0.01}
-                        onChange={(e) => {
-                          const value = e.target.value
-                            ? parseFloat(e.target.value)
-                            : 0;
-                          handleValueChange(
-                            {
-                              ...row,
-                              dcCostPrice: value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="0"
-                      />
-                    </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20 text-right"
-                        name="costAmount"
-                        type="number"
-                        value={row.dcCostAmount}
-                        step={0.01}
-                        onChange={(e) => {
-                          const value = e.target.value
-                            ? parseFloat(e.target.value)
-                            : 0;
-                          handleValueChange(
-                            {
-                              ...row,
-                              dcCostAmount: value,
                             },
                             index
                           );
@@ -566,9 +497,6 @@ export function RoughLotDetails({
         </p>
         <p className="text-gray-600 w-36 text-sm font-semibold">
           Sale Price: {totalValues.salePrice}
-        </p>
-        <p className="text-gray-600 w-36 text-sm font-semibold">
-          Cost Price: {totalValues.costPrice}
         </p>
       </div>
     </>
