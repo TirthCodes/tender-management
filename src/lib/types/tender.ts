@@ -21,6 +21,31 @@ export interface TotalValues {
   topsAmount?: number;
 }
 
+// type BasePayload = {
+//   labour: number;
+//   netPercent: number;
+//   remark?: string;
+// }
+
+type OtherTednerBasePayload = {
+  id?: number;
+  baseTenderId: number;
+  labour: number;
+  netPercent: number;
+  remark?: string;
+  lotNo: string;
+  roughPcs: number;
+  roughCts: number;
+  lotSize: number;
+  rate: number;
+  amount: number;
+  bidPrice: number;
+  totalAmount: number; // Bid Amount
+  resultPerCarat: number;
+  resultTotal: number;
+  tenderDetails: string; // RoughLotTenderDetails[] || MixLotTenderDetails[]
+}
+
 export interface TenderDetails {
   pcs: number;
   carats: number;
@@ -43,6 +68,7 @@ export interface TenderDetails {
 }
 
 export interface RoughLotTenderDetails {
+  id?: number;
   inRoughPcs: number;
   dcRoughCts: number;
   color: Option;
@@ -80,6 +106,12 @@ export interface MixLotTenderDetails {
   dcSalePrice: number;
   dcSaleAmount: number;
 }
+
+export type RoughLotPaylod = OtherTednerBasePayload
+
+export type MixLotPaylod = OtherTednerBasePayload & {
+  resultCost: number;
+};
 
 export interface SingleStoneTenderDetails {
   lotNo: string;

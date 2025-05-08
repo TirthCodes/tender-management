@@ -183,7 +183,7 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
                 focusedIndex === index ? "bg-gray-100" : ""
               }`}
             >
-              <span className="font-semibold text-base">
+              <span className="font-semibold text-base truncate text-nowrap">
                 {item.stShortName}
               </span>
             </li>

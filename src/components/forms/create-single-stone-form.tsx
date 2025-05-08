@@ -21,7 +21,7 @@ import { SingleStoneTenderDetails, TotalValues } from "@/lib/types/tender";
 import Link from "next/link";
 import { SingleTenderDataTable } from "../pages/create-tender/single-tender-data-table";
 import useKeyPress from "@/hooks/useKeyPress";
-import { createSingleTender } from "@/services/tender";
+import { createSingleTender } from "@/services/single-stone";
 import { toast } from "react-toastify";
 import { redirect } from "next/navigation";
 import { getSingleStoneTender } from "@/services/single-stone";

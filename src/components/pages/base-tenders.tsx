@@ -63,7 +63,7 @@ export function BaseTendersPage({
         setEditDialogOpen={setDialogOpen}
         setEditData={setEditData}
         queryKey={queryKey}
-        deleteEndpoint="/api/tender"
+        deleteEndpoint="base-tender"
       />
       <Pagination
         setPage={setPage}

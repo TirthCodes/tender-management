@@ -17,11 +17,14 @@ import {
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 import { Option } from "@/lib/types/common";
-import { RoughLotTenderDetails, TotalValues } from "@/lib/types/tender";
+import { RoughLotPaylod, RoughLotTenderDetails, TotalValues } from "@/lib/types/tender";
 import Link from "next/link";
 import { RoughLotDetails } from "../data-table/rough-lot-detail";
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { getBaseTenderById } from "@/services/base-tender";
+import { createRoughLot, getRoughLotById } from "@/services/rough-lot";
+import { toast } from "react-toastify";
+import useEffectAfterMount from "@/hooks/useEffectAfterMount";
 
 export const initialRow: RoughLotTenderDetails = {
   inRoughPcs: 0,
@@ -87,7 +90,6 @@ const createRoughLotSchema = z.object({
     (val) => Number(val),
     z.number().min(0, { message: "Amount is required!" })
   ),
-  // bidPrice: z.number().min(1, { message: "Bid price is required!" }),
   bidPrice: z.preprocess(
     (val) => Number(val),
     z.number().min(0, "Bid price is required!")
@@ -155,19 +157,26 @@ export function RoughLotForm({
   });
 
   const searchParams = useSearchParams();
-  const tenderId = searchParams.get("tenderId") as string;
+  const baseTenderId = searchParams.get("baseTenderId") as string;
+  const roughLotId = searchParams.get("id") as string; //otherTenderId
 
   const { data: baseTender, isLoading: lodingBaseTender } = useQuery({
     queryKey: ["base-tender"],
-    queryFn: () => getBaseTenderById(parseInt(tenderId)),
-    enabled: !!tenderId,
+    queryFn: () => getBaseTenderById(parseInt(baseTenderId)),
+    enabled: !!baseTenderId,
+  });
+
+  const { data: roughLotTender, isLoading: loadingRoughLot } = useQuery({
+    queryKey: ["rough-lot-tender"],
+    queryFn: () => getRoughLotById(parseInt(roughLotId)),
+    enabled: !!roughLotId,
   });
 
   const {
     register,
     handleSubmit,
     watch,
-    // reset,
+    reset,
     formState: { errors },
     setValue,
   } = useForm<CreateRoughLotFormValues>({
@@ -189,6 +198,27 @@ export function RoughLotForm({
     topsAmount: 0,
   });
 
+  useEffect(() => {
+    if(roughLotTender && roughLotTender.data && !loadingRoughLot) {
+      const { inRoughPcs, dcRoughCts, dcRate, dcAmount, dcLabour, dcNetPercentage, dcBidPrice, dcLotSize, dcTotalAmount, dcResultPerCt, dcResultTotal, stLotNo, otherTenderDetails } = roughLotTender.data;
+      reset({
+        roughPcs: inRoughPcs,
+        roughCts: dcRoughCts,
+        rate: dcRate,
+        amount: dcAmount,
+        labour: dcLabour,
+        netPercent: dcNetPercentage,
+        bidPrice: dcBidPrice,
+        lotSize: dcLotSize,
+        totalAmount: dcTotalAmount,
+        resultPerCarat: dcResultPerCt,
+        resultTotal: dcResultTotal,
+        lotNo: stLotNo,
+      })
+      setTenderDetails(otherTenderDetails);
+    }
+  }, [roughLotTender, loadingRoughLot, reset])
+
   const netPercent = watch("netPercent");
   const resultTotal = watch("resultTotal");
   const roughCts = watch("roughCts");
@@ -201,7 +231,7 @@ export function RoughLotForm({
     }
   }, [baseTender, lodingBaseTender, setValue])
 
-  useEffect(() => {
+  useEffectAfterMount(() => {
     if (netPercent && labour) {
       // const netPercentValue = parseFloat(netPercent);
 
@@ -215,7 +245,6 @@ export function RoughLotForm({
         setValue("bidPrice", calculatedBidPrice);
         let totalAmount = 0;
         if (roughCts) {
-          // const roughCtsValue = parseFloat(roughCts);
           if (!isNaN(roughCts)) {
             totalAmount = parseFloat(
               (calculatedBidPrice * roughCts).toFixed(2)
@@ -226,8 +255,6 @@ export function RoughLotForm({
       }
 
       if (resultTotal) {
-        // const resultTotalValue = parseFloat(resultTotal);
-
         if (!isNaN(resultTotal)) {
           let resultPerCarat = 0;
           if (roughCts) {
@@ -249,11 +276,8 @@ export function RoughLotForm({
 
   const roughPcs = watch("roughPcs");
 
-  useEffect(() => {
+  useEffectAfterMount(() => {
     if (roughPcs) {
-      // const roughPcsValue = parseFloat(roughPcs);
-      // const roughCtsValue = parseFloat(roughCts);
-
       if (!isNaN(roughPcs)) {
         const roughSize = parseFloat(
           (roughCts / roughPcs).toFixed(2)
@@ -290,24 +314,30 @@ export function RoughLotForm({
   async function onSubmit(data: CreateRoughLotFormValues) {
     setIsPending(true);
 
-    const payload = {
+    const payload: RoughLotPaylod = {
       ...data,
+      baseTenderId: parseInt(baseTenderId),
       tenderDetails: JSON.stringify(tenderDetails),
     };
 
+    if(roughLotTender?.data?.id) {
+      payload.id = parseInt(roughLotTender.data.id);
+    }
+
     console.log(payload, "payload");
 
-    // const response = await createTender(payload);
-    // if (response.success) {
-    //   toast.success(response.message);
-    //   redirect("/tenders");
-    // } else {
-    //   toast.error(response.message);
-    // }
+    const response = await createRoughLot(payload);
+    if (response.success) {
+      toast.success(response.message);
+      reset();
+      redirect("/tenders/rough-lot?baseTenderId=" + baseTenderId);
+    } else {
+      toast.error(response.message);
+    }
     setIsPending(false);
   }
 
-  if(lodingBaseTender) {
+  if(lodingBaseTender || loadingRoughLot) {
     return <div className="flex justify-center items-center h-[90dvh]">
       <Loader2 className="h-20 w-20 animate-spin" />
     </div>
@@ -320,10 +350,10 @@ export function RoughLotForm({
           <h1 className="text-lg font-semibold">Rough Lot Tender</h1>
           <div className="flex items-center gap-2 text-neutral-700">
             <p className="pr-2 border-r-2">
-              {new Date(baseTender?.data.dtVoucherDate).toDateString()}
+              {new Date(baseTender?.data?.dtVoucherDate).toDateString()}
             </p>
-            <p className="pr-2 border-r-2">{baseTender?.data.stTenderName}</p>
-            <p>{baseTender?.data.stPersonName}</p>
+            <p className="pr-2 border-r-2">{baseTender?.data?.stTenderName}</p>
+            <p>{baseTender?.data?.stPersonName}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -369,7 +399,6 @@ export function RoughLotForm({
       </div>
 
       <div className="p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
-        {/* <h1 className="text-base font-semibold mb-2">Rough Details</h1> */}
         <div className="grid grid-cols-6 gap-x-3 gap-y-4">
         <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Lot No.</Label>
@@ -383,18 +412,6 @@ export function RoughLotForm({
               )}
             />
           </div>
-          {/* <div className="flex w-full items-center col-span-2">
-            <Label className="w-[94px] shrink-0">Rough Name</Label>
-            <Input
-              type="text"
-              {...register("roughName")}
-              placeholder="Name"
-              className={cn(
-                errors.roughName?.message &&
-                  "border border-red-500 placeholder:text-red-500"
-              )}
-            />
-          </div> */}
           <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Rough Pcs.</Label>
             <Input
@@ -526,8 +543,3 @@ export function RoughLotForm({
     </form>
   );
 }
-
-// Pol % - (polcts / cts) * 100
-// PolCts - (pol% * cts) / 100
-// Sale Amount - (PolCts * salePricr)
-// Sale Price - (Sale Amount / polcts)

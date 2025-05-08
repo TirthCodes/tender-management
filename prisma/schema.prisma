@@ -109,6 +109,7 @@ model OtherTender {
   id                   Int                    @id @default(autoincrement())
   baseTender           BaseTender             @relation(fields: [baseTenderId], references: [id])
   baseTenderId         Int
+  stTenderType           String
   mainLot              MainLot?               @relation(fields: [mainLotId], references: [id])
   mainLotId            Int?
 	stLotNo              String

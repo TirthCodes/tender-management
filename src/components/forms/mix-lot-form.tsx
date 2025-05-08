@@ -17,11 +17,14 @@ import {
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 import { Option } from "@/lib/types/common";
-import { MixLotTenderDetails, TotalValues } from "@/lib/types/tender";
+import { MixLotPaylod, MixLotTenderDetails, TotalValues } from "@/lib/types/tender";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { getBaseTenderById } from "@/services/base-tender";
 import { MixLotDetails } from "../data-table/mix-lot-details";
+import { createMixLot, getMixLotById } from "@/services/mix-lot";
+import { toast } from "react-toastify";
+import useEffectAfterMount from "@/hooks/useEffectAfterMount";
 
 export const initialRow: MixLotTenderDetails = {
   inRoughPcs: 0,
@@ -156,19 +159,26 @@ export function MixLotForm({
   });
 
   const searchParams = useSearchParams();
-  const tenderId = searchParams.get("tenderId") as string;
+  const baseTenderId = searchParams.get("baseTenderId") as string;
+  const mixLotId = searchParams.get("id") as string; //otherTenderId
 
   const { data: baseTender, isLoading: lodingBaseTender } = useQuery({
     queryKey: ["base-tender"],
-    queryFn: () => getBaseTenderById(parseInt(tenderId)),
-    enabled: !!tenderId,
+    queryFn: () => getBaseTenderById(parseInt(baseTenderId)),
+    enabled: !!baseTenderId,
+  });
+
+  const { data: mixLotTender, isLoading: loadingMixLot } = useQuery({
+    queryKey: ["mix-lot-tender"],
+    queryFn: () => getMixLotById(parseInt(mixLotId)),
+    enabled: !!mixLotId,
   });
 
   const {
     register,
     handleSubmit,
     watch,
-    // reset,
+    reset,
     formState: { errors },
     setValue,
   } = useForm<MixLotFormValues>({
@@ -190,6 +200,28 @@ export function MixLotForm({
     topsAmount: 0,
   });
 
+  useEffect(() => {
+    if(mixLotTender && mixLotTender.data && !loadingMixLot) {
+      const { inRoughPcs, dcRoughCts, dcRate, dcAmount, dcLabour, dcNetPercentage, dcBidPrice, dcLotSize, dcTotalAmount, dcResultPerCt, dcResultTotal, dcResultCost, stLotNo, otherTenderDetails } = mixLotTender.data;
+      reset({
+        roughPcs: inRoughPcs,
+        roughCts: dcRoughCts,
+        rate: dcRate,
+        amount: dcAmount,
+        labour: dcLabour,
+        netPercent: dcNetPercentage,
+        bidPrice: dcBidPrice,
+        lotSize: dcLotSize,
+        totalAmount: dcTotalAmount,
+        resultPerCarat: dcResultPerCt,
+        resultTotal: dcResultTotal,
+        resultCost: dcResultCost,
+        lotNo: stLotNo,
+      })
+      setTenderDetails(otherTenderDetails);
+    }
+  }, [mixLotTender, loadingMixLot, reset])
+
   const netPercent = watch("netPercent");
   const resultTotal = watch("resultTotal");
   const roughCts = watch("roughCts");
@@ -202,11 +234,8 @@ export function MixLotForm({
     }
   }, [baseTender, lodingBaseTender, setValue])
 
-  useEffect(() => {
+  useEffectAfterMount(() => {
     if (netPercent && labour) {
-      // const netPercentValue = parseFloat(netPercent.toFixed(2));
-      // const labourValue = parseFloat(labour.toFixed(2));
-
       const netPercentage = netPercent / 100;
 
       const calculatedBidPrice = parseFloat(
@@ -222,7 +251,6 @@ export function MixLotForm({
         setValue("bidPrice", calculatedBidPrice);
         let totalAmount = 0;
         if(roughCts) {
-          // const roughCtsValue = parseFloat(roughCts.toFixed(2));
           if (!isNaN(roughCts)) {
             totalAmount = parseFloat(
               (calculatedBidPrice * roughCts).toFixed(2)
@@ -233,11 +261,9 @@ export function MixLotForm({
       }
 
       if (resultTotal) {
-        // const resultTotalValue = parseFloat(resultTotal.toFixed(2));
         if (!isNaN(resultTotal)) {
           let resultPerCarat = 0;
           if(roughCts) {
-            // const roughCtsValue = parseFloat(roughCts.toFixed(2));
             if (!isNaN(roughCts)) {
               resultPerCarat = parseFloat(
                 (resultTotal / roughCts).toFixed(2)
@@ -277,11 +303,8 @@ export function MixLotForm({
 
   const roughPcs = watch("roughPcs");
 
-  useEffect(() => {
+  useEffectAfterMount(() => {
     if (roughPcs) {
-      // const roughPcsValue = parseFloat(roughPcs.toFixed(2));
-      // const roughCtsValue = parseFloat(roughCts.toFixed(2));
-
       if (!isNaN(roughPcs)) {
         const roughSize = parseFloat(
           (roughPcs / roughCts).toFixed(2)
@@ -318,24 +341,28 @@ export function MixLotForm({
   async function onSubmit(data: MixLotFormValues) {
     setIsPending(true);
 
-    const payload = {
+    const payload: MixLotPaylod = {
       ...data,
+      baseTenderId: parseInt(baseTenderId),
       tenderDetails: JSON.stringify(tenderDetails),
     };
 
+    if(mixLotTender?.data?.id) {
+      payload.id = parseInt(mixLotTender.data.id);
+    }
     console.log(payload, "payload");
 
-    // const response = await createTender(payload);
-    // if (response.success) {
-    //   toast.success(response.message);
-    //   redirect("/tenders");
-    // } else {
-    //   toast.error(response.message);
-    // }
+    const response = await createMixLot(payload);
+    if (response.success) {
+      toast.success(response.message);
+      redirect("/tenders/mix-lot?baseTenderId=" + baseTenderId);
+    } else {
+      toast.error(response.message);
+    }
     setIsPending(false);
   }
 
-  if(lodingBaseTender) {
+  if(lodingBaseTender || loadingMixLot) {
     return <div className="flex justify-center items-center h-[90dvh]">
       <Loader2 className="h-20 w-20 animate-spin" />
     </div>
@@ -345,13 +372,13 @@ export function MixLotForm({
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex items-center flex-col md:flex-row md:justify-between p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
         <div className="flex flex-col gap-2">
-          <h1 className="text-lg font-semibold">Rough Lot Tender</h1>
+          <h1 className="text-lg font-semibold">Mix Lot Tender</h1>
           <div className="flex items-center gap-2 text-neutral-700">
             <p className="pr-2 border-r-2">
-              {new Date(baseTender?.data.dtVoucherDate).toDateString()}
+              {new Date(baseTender?.data?.dtVoucherDate).toDateString()}
             </p>
-            <p className="pr-2 border-r-2">{baseTender?.data.stTenderName}</p>
-            <p>{baseTender?.data.stPersonName}</p>
+            <p className="pr-2 border-r-2">{baseTender?.data?.stTenderName}</p>
+            <p>{baseTender?.data?.stPersonName}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -397,7 +424,6 @@ export function MixLotForm({
       </div>
 
       <div className="p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
-        {/* <h1 className="text-base font-semibold mb-2">Rough Details</h1> */}
         <div className="grid grid-cols-6 gap-x-3 gap-y-4">
         <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Lot No.</Label>
@@ -551,8 +577,3 @@ export function MixLotForm({
     </form>
   );
 }
-
-// Pol % - (polcts / cts) * 100
-// PolCts - (pol% * cts) / 100
-// Sale Amount - (PolCts * salePricr)
-// Sale Price - (Sale Amount / polcts)

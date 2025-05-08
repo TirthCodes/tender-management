@@ -52,7 +52,7 @@ export const columns: ColumnDef<TenderColumns>[] = [
           {tenderTypes.map((tenderType) => {
 
             // let url = `/tenders/tender-details/create?tenderId=${id}`;
-            let url = `/tenders/${tenderType.value}?tenderId=${id}`
+            let url = `/tenders/${tenderType.value}?baseTenderId=${id}`
             if(tenderType.value === "single-stone") {
               url = `/tenders/single-stone/create?tenderId=${id}`;
             }
