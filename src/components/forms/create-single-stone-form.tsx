@@ -28,12 +28,9 @@ import { getSingleStoneTender } from "@/services/single-stone";
 
 export const singleInitialRow: SingleStoneTenderDetails = {
   lotNo: "",
-  roughName: "",
   roughPcs: 0,
   roughCts: 0,
   roughSize: 0,
-  roughPrice: 0,
-  roughTotal: 0,
   color: { id: 0, stShortName: "" },
   colorGrade: 0,
   clarity: { id: 0, stShortName: "" },
@@ -47,7 +44,6 @@ export const singleInitialRow: SingleStoneTenderDetails = {
   salePrice: 0,
   saleAmount: 0,
   costPrice: 0,
-  costAmount: 0,
   topsAmount: 0,
   incription: "",
   bidPrice: 0,
@@ -55,7 +51,6 @@ export const singleInitialRow: SingleStoneTenderDetails = {
   resultCost: 0,
   resultPerCarat: 0,
   resultTotal: 0,
-  // finalBidPrice: 0,
 };
 
 interface CreateTenderFormProps {
@@ -232,7 +227,7 @@ export function CreateSingleStoneTenderForm({
       roughCts: totalValues.carats,
       rate: 0,
       amount: 0,
-      tenderDetails: tenderDetails, //array of singleTenderDetails
+      tenderDetails: JSON.stringify(tenderDetails), //array of singleTenderDetails
     };
 
     console.log({ payload });
@@ -319,7 +314,7 @@ export function CreateSingleStoneTenderForm({
         />
       </div>
 
-      <div className="flex justify-end gap-2 items-center">
+      <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 items-center">
         <Button className="mt-4" type="button">
           <Link href={"/tenders"}>Cancel</Link>
         </Button>

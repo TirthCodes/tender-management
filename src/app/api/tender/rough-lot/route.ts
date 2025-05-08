@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       resultPerCarat,
       resultTotal,
       tenderDetails,
-    } = await req.json() as RoughLotPaylod;
+    } = (await req.json()) as RoughLotPaylod;
 
     if (!baseTenderId || !roughPcs || !roughCts || !labour || !netPercent) {
       return Response.json(
@@ -45,13 +45,13 @@ export async function POST(req: Request) {
       );
     }
 
+    const parsedTenderDetails: Array<RoughLotTenderDetails> =
+      typeof tenderDetails === "string"
+        ? JSON.parse(tenderDetails)
+        : tenderDetails;
+
     if (id) {
-      const parsedTenderDetails: Array<RoughLotTenderDetails & { id?: number }> = 
-        typeof tenderDetails === 'string' 
-          ? JSON.parse(tenderDetails) 
-          : tenderDetails;
-      
-      const updatedTender = await prisma.otherTender.update({
+      await prisma.otherTender.update({
         where: { id },
         data: {
           baseTenderId,
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
           stCertId: "",
         },
       });
-      
+
       // Then handle the tender details
       if (parsedTenderDetails && parsedTenderDetails.length > 0) {
         // Process each detail in the array
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
                 dcLabour: detail.dcLabour,
                 dcCostPrice: detail.dcCostPrice,
                 dcCostAmount: detail.dcCostAmount,
-              }
+              },
             });
           } else {
             // Create new detail for this tender
@@ -118,51 +118,50 @@ export async function POST(req: Request) {
                 dcLabour: detail.dcLabour,
                 dcCostPrice: detail.dcCostPrice,
                 dcCostAmount: detail.dcCostAmount,
-              }
+              },
             });
           }
         }
-        
+
         // Optional: Handle deletion of details that are no longer in the array
         // First get all existing detail IDs for this tender
         const existingDetails = await prisma.otherTenderDetails.findMany({
           where: { otherTenderId: id },
-          select: { id: true }
+          select: { id: true },
         });
-        
+
         // Find IDs that exist in the database but not in the incoming details
-        const existingIds = existingDetails.map(d => d.id);
+        const existingIds = existingDetails.map((d) => d.id);
         const incomingIds = parsedTenderDetails
-          .filter(d => d.id)
-          .map(d => d.id as number);
-        
-        const detailsToDelete = existingIds.filter(id => !incomingIds.includes(id));
-        
+          .filter((d) => d.id)
+          .map((d) => d.id as number);
+
+        const detailsToDelete = existingIds.filter(
+          (id) => !incomingIds.includes(id)
+        );
+
         // Delete details that are no longer needed
         if (detailsToDelete.length > 0) {
           await prisma.otherTenderDetails.deleteMany({
             where: {
               id: {
-                in: detailsToDelete
-              }
-            }
+                in: detailsToDelete,
+              },
+            },
           });
         }
       }
-      
+
       return Response.json(
         {
           success: true,
           message: "Rough Lot Tender updated successfully",
-          data: updatedTender,
         },
         { status: 200 }
       );
     }
 
-    const parseTenderDetails: RoughLotTenderDetails[] = JSON.parse(tenderDetails as string);
-
-    const newTender = await prisma.otherTender.create({
+    await prisma.otherTender.create({
       data: {
         baseTenderId,
         stTenderType: "rough-lot",
@@ -182,7 +181,7 @@ export async function POST(req: Request) {
         dcNetPercentage: netPercent,
         otherTenderDetails: {
           createMany: {
-            data: parseTenderDetails.map((detail: RoughLotTenderDetails) => ({
+            data: parsedTenderDetails.map((detail) => ({
               inRoughPcs: detail.inRoughPcs,
               dcRoughCts: detail.dcRoughCts,
               colorId: detail.color.id,
@@ -201,9 +200,9 @@ export async function POST(req: Request) {
               dcLabour: detail.dcLabour,
               dcCostPrice: detail.dcCostPrice,
               dcCostAmount: detail.dcCostAmount,
-            }))
-          }
-        }
+            })),
+          },
+        },
       },
     });
 
@@ -211,7 +210,6 @@ export async function POST(req: Request) {
       {
         success: true,
         message: "Rough Lot Tender created successfully",
-        data: newTender,
       },
       { status: 201 }
     );
@@ -245,8 +243,8 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const page = url.searchParams.get("page");
   const baseTenderId = url.searchParams.get("baseTenderId") as string;
-  
-  if(!baseTenderId) {
+
+  if (!baseTenderId) {
     return Response.json(
       {
         success: false,
@@ -264,7 +262,7 @@ export async function GET(req: Request) {
     const roughtLotTenders = await prisma.otherTender.findMany({
       where: {
         baseTenderId: parseInt(baseTenderId),
-        stTenderType: "rough-lot"
+        stTenderType: "rough-lot",
       },
       take: limit,
       skip: offset,
@@ -287,14 +285,14 @@ export async function GET(req: Request) {
       },
       orderBy: {
         createdAt: "desc",
-      }
-    })
+      },
+    });
 
     const totalCount = await prisma.otherTender.count({
       where: {
         baseTenderId: parseInt(baseTenderId),
-        stTenderType: "rough-lot"
-      }
+        stTenderType: "rough-lot",
+      },
     });
 
     const hasNextPage = limit * pageNumber < totalCount;

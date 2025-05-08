@@ -45,12 +45,12 @@ export async function POST(req: Request) {
       );
     }
 
+    const parsedTenderDetails: Array<MixLotTenderDetails> = 
+      typeof tenderDetails === 'string' 
+        ? JSON.parse(tenderDetails) 
+        : tenderDetails;
+
     if (id) {
-      const parsedTenderDetails: Array<MixLotTenderDetails & { id?: number }> = 
-        typeof tenderDetails === 'string' 
-          ? JSON.parse(tenderDetails) 
-          : tenderDetails;
-      
       const updatedTender = await prisma.otherTender.update({
         where: { id },
         data: {
@@ -154,9 +154,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const parseTenderDetails: MixLotTenderDetails[] = JSON.parse(tenderDetails as string);
-
-    const newTender = await prisma.otherTender.create({
+    await prisma.otherTender.create({
       data: {
         baseTenderId,
         stTenderType: "mix-lot",
@@ -176,7 +174,7 @@ export async function POST(req: Request) {
         dcNetPercentage: netPercent,
         otherTenderDetails: {
           createMany: {
-            data: parseTenderDetails.map((detail: MixLotTenderDetails) => ({
+            data: parsedTenderDetails.map((detail: MixLotTenderDetails) => ({
               inRoughPcs: detail.inRoughPcs,
               dcRoughCts: detail.dcRoughCts,
               colorId: detail.color.id,
@@ -202,7 +200,6 @@ export async function POST(req: Request) {
       {
         success: true,
         message: "Mix Lot Tender created successfully",
-        data: newTender,
       },
       { status: 201 }
     );
