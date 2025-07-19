@@ -170,25 +170,149 @@ export async function POST(req: Request) {
       );
     }
 
+    const parsedTenderDetails: Array<SingleStoneTenderDetails> =
+      typeof tenderDetails === "string"
+        ? JSON.parse(tenderDetails)
+        : tenderDetails;
+
     if (id) {
       // Update existing tender
-      const updatedTender = await prisma.singleTender.update({
-        where: { id: Number(id) },
+      await prisma.singleTender.update({
+        where: { id },
         data: {
           baseTenderId,
           inRoughPcs: roughPcs,
           dcRoughCts: roughCts,
-          dcRate: rate || null,
-          dcAmount: amount || null,
+          dcRate: rate ?? 0,
+          dcAmount: amount ?? 0,
           stRemark: remark || null,
           dcLabour: labour,
           dcNetPercentage: netPercent,
           stCertId: certId || null,
-          updatedAt: new Date(),
-          singleTenderDetails: {
-            // Delete existing details and create new ones
-            deleteMany: {},
-            create: tenderDetails.map((detail: SingleStoneTenderDetails) => ({
+        },
+      });
+
+      if (parsedTenderDetails && parsedTenderDetails.length > 0) {
+        // Process each detail in the array
+        for (const detail of parsedTenderDetails) {
+          if (detail.id) {
+            // Update existing detail
+            await prisma.singleTenderDetails.update({
+              where: { id: detail.id },
+              data: {
+                singleTenderId: id,
+                inRoughPcs: detail.roughPcs,
+                dcRoughCts: detail.roughCts,
+                colorId: detail.color.id,
+                clarityId: detail.clarity.id,
+                flrId: detail.flr.id,
+                shapeId: detail.shape.id,
+                inColorGrade: detail.colorGrade,
+                dcPolCts: detail.polCts,
+                dcPolPercent: detail.polPercent,
+                dcDepth: detail.depth,
+                dcTable: detail.table,
+                dcRatio: detail.ratio,
+                dcSalePrice: detail.salePrice,
+                dcSaleAmount: detail.saleAmount,
+                dcCostPrice: detail.costPrice,
+                dcSize: detail.roughSize,
+                dcTopsAmount: detail.topsAmount,
+                stIncription: detail.incription,
+                dcBidPrice: detail.bidPrice,
+                dcTotalAmount: detail.totalAmount,
+                dcResultCost: detail.resultCost,
+                dcResultPerCt: detail.resultPerCarat,
+                dcResultTotal: detail.resultTotal,
+                stLotNo: detail.lotNo,
+              },
+            });
+          } else {
+            // Create new detail for this tender
+            await prisma.singleTenderDetails.create({
+              data: {
+                singleTenderId: id,
+                inRoughPcs: detail.roughPcs,
+                dcRoughCts: detail.roughCts,
+                colorId: detail.color.id,
+                clarityId: detail.clarity.id,
+                flrId: detail.flr.id,
+                shapeId: detail.shape.id,
+                inColorGrade: detail.colorGrade,
+                dcPolCts: detail.polCts,
+                dcPolPercent: detail.polPercent,
+                dcDepth: detail.depth,
+                dcTable: detail.table,
+                dcRatio: detail.ratio,
+                dcSalePrice: detail.salePrice,
+                dcSaleAmount: detail.saleAmount,
+                dcCostPrice: detail.costPrice,
+                dcSize: detail.roughSize,
+                dcTopsAmount: detail.topsAmount,
+                stIncription: detail.incription,
+                dcBidPrice: detail.bidPrice,
+                dcTotalAmount: detail.totalAmount,
+                dcResultCost: detail.resultCost,
+                dcResultPerCt: detail.resultPerCarat,
+                dcResultTotal: detail.resultTotal,
+                stLotNo: detail.lotNo,
+              },
+            });
+          }
+        }
+
+        // Optional: Handle deletion of details that are no longer in the array
+        // First get all existing detail IDs for this tender
+        const existingDetails = await prisma.singleTenderDetails.findMany({
+          where: { singleTenderId: id },
+          select: { id: true },
+        });
+
+        // Find IDs that exist in the database but not in the incoming details
+        const existingIds = existingDetails.map((d) => d.id);
+        const incomingIds = parsedTenderDetails
+          .filter((d) => d.id)
+          .map((d) => d.id as number);
+
+        const detailsToDelete = existingIds.filter(
+          (id) => !incomingIds.includes(id)
+        );
+
+        // Delete details that are no longer needed
+        if (detailsToDelete.length > 0) {
+          await prisma.singleTenderDetails.deleteMany({
+            where: {
+              id: {
+                in: detailsToDelete,
+              },
+            },
+          });
+        }
+      }
+
+      return Response.json(
+        {
+          success: true,
+          message: "Single Stone Tender updated successfully",
+        },
+        { status: 200 }
+      );
+    }
+
+    await prisma.singleTender.create({
+      data: {
+        baseTenderId,
+        inRoughPcs: roughPcs,
+        dcRoughCts: roughCts,
+        dcRate: rate ?? 0,
+        dcAmount: amount ?? 0,
+        stRemark: remark || null,
+        dcLabour: labour,
+        dcNetPercentage: netPercent,
+        stCertId: certId || null,
+        singleTenderDetails: {
+          create: parsedTenderDetails.map(
+            (detail: SingleStoneTenderDetails) => ({
               stLotNo: detail.lotNo,
               inRoughPcs: detail.roughPcs,
               dcRoughCts: detail.roughCts,
@@ -206,66 +330,15 @@ export async function POST(req: Request) {
               dcSalePrice: detail.salePrice || null,
               dcSaleAmount: detail.saleAmount || null,
               dcCostPrice: detail.costPrice || null,
-              dcTopsAmount: detail.topsAmount || 0,
+              dcTopsAmount: detail.topsAmount || null,
               stIncription: detail.incription || null,
               dcBidPrice: detail.bidPrice || null,
               dcTotalAmount: detail.totalAmount || null,
               dcResultCost: detail.resultCost || null,
               dcResultPerCt: detail.resultPerCarat || null,
               dcResultTotal: detail.resultTotal || null,
-            })),
-          },
-        },
-      });
-
-      return Response.json(
-        {
-          success: true,
-          message: "Single Stone Tender updated successfully",
-          data: updatedTender,
-        },
-        { status: 200 }
-      );
-    }
-
-    const newTender = await prisma.singleTender.create({
-      data: {
-        baseTenderId,
-        inRoughPcs: roughPcs,
-        dcRoughCts: roughCts,
-        dcRate: rate || null,
-        dcAmount: amount || null,
-        stRemark: remark || null,
-        dcLabour: labour,
-        dcNetPercentage: netPercent,
-        stCertId: certId || null,
-        singleTenderDetails: {
-          create: tenderDetails.map((detail: SingleStoneTenderDetails) => ({
-            stLotNo: detail.lotNo,
-            inRoughPcs: detail.roughPcs,
-            dcRoughCts: detail.roughCts,
-            dcSize: detail.roughSize,
-            colorId: detail.color.id,
-            clarityId: detail.clarity.id,
-            flrId: detail.flr.id,
-            shapeId: detail.shape.id,
-            inColorGrade: detail.colorGrade,
-            dcPolCts: detail.polCts,
-            dcPolPercent: detail.polPercent,
-            dcDepth: detail.depth || null,
-            dcTable: detail.table || null,
-            dcRatio: detail.ratio || null,
-            dcSalePrice: detail.salePrice || null,
-            dcSaleAmount: detail.saleAmount || null,
-            dcCostPrice: detail.costPrice || null,
-            dcTopsAmount: detail.topsAmount || null,
-            stIncription: detail.incription || null,
-            dcBidPrice: detail.bidPrice || null,
-            dcTotalAmount: detail.totalAmount || null,
-            dcResultCost: detail.resultCost || null,
-            dcResultPerCt: detail.resultPerCarat || null,
-            dcResultTotal: detail.resultTotal || null,
-          })),
+            })
+          ),
         },
       },
     });
@@ -274,7 +347,6 @@ export async function POST(req: Request) {
       {
         success: true,
         message: "Single Stone Tender created successfully",
-        data: newTender,
       },
       { status: 201 }
     );
@@ -318,48 +390,14 @@ export async function GET(req: Request) {
     );
   }
 
-  function mapToSingleStoneTenderDetails(
-    //
-    details: any
-  ): SingleStoneTenderDetails {
-    // Helper to convert Decimal to number
-    function decimalToNumber(val: Decimal): number {
-      return typeof val === "object" && val !== null && "toNumber" in val
-        ? val.toNumber()
-        : Number(val);
+  function decimalToNumber(val: Decimal | null): number {
+    if (!val) {
+      return 0;
     }
 
-    return {
-      lotNo: details.stLotNo,
-      roughName: details.roughName ?? "", // Provide default if missing
-      roughPcs: details.inRoughPcs,
-      roughCts: decimalToNumber(details.dcRoughCts),
-      roughSize: decimalToNumber(details.dcSize),
-      roughPrice: decimalToNumber(details.dcRoughPrice ?? 0),
-      roughTotal: decimalToNumber(details.dcRoughTotal ?? 0),
-      color: details.color as Option,
-      colorGrade: details.inColorGrade,
-      clarity: details.clarity as Option,
-      flr: details.flr as Option,
-      shape: details.shape as Option,
-      polCts: decimalToNumber(details.dcPolCts),
-      polPercent: decimalToNumber(details.dcPolPercent ?? 0),
-      depth: decimalToNumber(details.dcDepth ?? 0),
-      table: decimalToNumber(details.dcTable ?? 0),
-      ratio: decimalToNumber(details.dcRatio ?? 0),
-      salePrice: decimalToNumber(details.dcSalePrice ?? 0),
-      saleAmount: decimalToNumber(details.dcSaleAmount ?? 0),
-      costPrice: decimalToNumber(details.dcCostPrice ?? 0),
-      costAmount: decimalToNumber(details.dcCostAmount ?? 0),
-      topsAmount: decimalToNumber(details.dcTopsAmount ?? 0),
-      incription: details.stIncription ?? "",
-      bidPrice: decimalToNumber(details.dcBidPrice ?? 0),
-      totalAmount: decimalToNumber(details.dcTotalAmount ?? 0),
-      resultCost: decimalToNumber(details.dcResultCost ?? 0),
-      resultPerCarat: decimalToNumber(details.dcResultPerCt ?? 0),
-      resultTotal: decimalToNumber(details.dcResultTotal ?? 0),
-      // finalBidPrice: decimalToNumber(details.dcFinalBidPrice ?? 0),
-    };
+    return typeof val === "object" && val !== null && "toNumber" in val
+      ? val.toNumber()
+      : Number(val);
   }
 
   try {
@@ -432,22 +470,55 @@ export async function GET(req: Request) {
       orderBy: { id: "desc" },
     });
 
-    console.log("tender", tender?.singleTenderDetails[0].color);
+    if (!tender) {
+      return Response.json(
+        {
+          success: false,
+          message: "Tender not found",
+        },
+        { status: 404 }
+      );
+    }
 
-    const transformedTenders = tender
-      ? {
-          ...tender,
-          singleTenderDetails: Array.isArray(tender.singleTenderDetails)
-            ? tender.singleTenderDetails.map(mapToSingleStoneTenderDetails)
-            : [],
-        }
-      : null;
+    const transformedTenders = {
+      ...tender,
+      singleTenderDetails: tender.singleTenderDetails.map((details) => ({
+        id: details.id,
+        lotNo: details.stLotNo,
+        roughPcs: details.inRoughPcs,
+        roughCts: decimalToNumber(details.dcRoughCts),
+        roughSize: decimalToNumber(details.dcSize),
+        color: details.color as Option,
+        colorGrade: details.inColorGrade,
+        clarity: details.clarity as Option,
+        flr: details.flr as Option,
+        shape: details.shape as Option,
+        polCts: decimalToNumber(details.dcPolCts),
+        polPercent: decimalToNumber(details.dcPolPercent),
+        depth: decimalToNumber(details.dcDepth),
+        table: decimalToNumber(details.dcTable),
+        ratio: decimalToNumber(details.dcRatio),
+        salePrice: decimalToNumber(details.dcSalePrice),
+        saleAmount: decimalToNumber(details.dcSaleAmount),
+        costPrice: decimalToNumber(details.dcCostPrice),
+        topsAmount: decimalToNumber(details.dcTopsAmount),
+        incription: details.stIncription ?? "",
+        bidPrice: decimalToNumber(details.dcBidPrice),
+        totalAmount: decimalToNumber(details.dcTotalAmount),
+        resultCost: decimalToNumber(details.dcResultCost),
+        resultPerCarat: decimalToNumber(details.dcResultPerCt),
+        resultTotal: decimalToNumber(details.dcResultTotal),
+      })) as SingleStoneTenderDetails[],
+    };
 
-    return Response.json({
-      data: transformedTenders,
-      success: true,
-      message: "Success",
-    });
+    return Response.json(
+      {
+        data: transformedTenders,
+        success: true,
+        message: "Success",
+      },
+      { status: 200 }
+    );
   } catch (error) {
     return Response.json(
       {

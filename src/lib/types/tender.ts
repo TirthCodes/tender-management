@@ -90,6 +90,7 @@ export interface RoughLotTenderDetails {
 }
 
 export interface MixLotTenderDetails {
+  id?: number;
   inRoughPcs: number;
   dcRoughCts: number;
   color: Option;
@@ -114,13 +115,11 @@ export type MixLotPaylod = OtherTednerBasePayload & {
 };
 
 export interface SingleStoneTenderDetails {
+  id?: number;
   lotNo: string;
-  roughName: string;
   roughPcs: number;
   roughCts: number;
   roughSize: number;
-  roughPrice: number;
-  roughTotal: number;
   color: Option;
   colorGrade: number;
   clarity: Option;
@@ -134,7 +133,6 @@ export interface SingleStoneTenderDetails {
   salePrice: number;
   saleAmount: number;
   costPrice: number;
-  costAmount: number;
   topsAmount: number;
   incription: string;
   bidPrice: number;
@@ -142,5 +140,4 @@ export interface SingleStoneTenderDetails {
   resultCost: number;
   resultPerCarat: number;
   resultTotal: number;
-  // finalBidPrice: number;
 }
