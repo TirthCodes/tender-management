@@ -162,11 +162,11 @@ export function CreateSingleStoneTenderForm({
 
   useEffect(() => {
     if (tenderRowsData && !isRowsLoading) {
-      setTenderDetails(tenderRowsData.data.singleTenderDetails);
+      setTenderDetails(tenderRowsData?.data?.singleTenderDetails);
       reset({
-        remark: tenderRowsData.data.stRemark,
-        netPercent: tenderRowsData.data.dcNetPercentage,
-        labour: tenderRowsData.data.dcLabour,
+        remark: tenderRowsData?.data?.stRemark,
+        netPercent: tenderRowsData?.data?.dcNetPercentage,
+        labour: tenderRowsData?.data?.dcLabour,
       });
     } else {
       setTenderDetails([singleInitialRow]);

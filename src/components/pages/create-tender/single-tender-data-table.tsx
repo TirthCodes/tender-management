@@ -89,7 +89,7 @@ export function SingleTenderDataTable({
   netPercernt,
 }: SingleTenderDataTableProps) {
   useEffect(() => {
-    const totals = data.reduce(
+    const totals = data?.reduce(
       (acc, row) => ({
         pcs: acc.pcs + (row.roughPcs || 0),
         carats: acc.carats + (row.roughCts || 0),
@@ -148,8 +148,8 @@ export function SingleTenderDataTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.length > 0 ? (
-                data.map((row, index) => (
+              {data?.length > 0 ? (
+                data?.map((row, index) => (
                   <TableRow key={index}>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
@@ -868,7 +868,7 @@ export function SingleTenderDataTable({
                         type="button"
                         className="p-0"
                         onClick={() => {
-                          if (data.length !== 1) {
+                          if (data?.length !== 1) {
                             handleValueChange(row, index, "delete");
                           }
                         }}
@@ -894,25 +894,25 @@ export function SingleTenderDataTable({
       </div>
       <div className="px-10 flex items-center gap-10 h-10 bg-gray-100 border-t">
         <p className="text-gray-600 w-28 text-sm font-semibold">
-          Pcs: {totalValues.pcs}
+          Pcs: {totalValues?.pcs}
         </p>
         <p className="text-gray-600 w-28 text-sm font-semibold">
-          Cts: {totalValues.carats}
+          Cts: {totalValues?.carats}
         </p>
         <p className="text-gray-600 w-28 text-sm font-semibold">
-          Pol Cts: {totalValues.polCts}
+          Pol Cts: {totalValues?.polCts}
         </p>
         <p className="text-gray-600 w-28 text-sm font-semibold">
-          Pol %: {totalValues.polPercent}%
+          Pol %: {totalValues?.polPercent}%
         </p>
         <p className="text-gray-600 w-36 text-sm font-semibold">
-          Sale Price: {totalValues.salePrice}
+          Sale Price: {totalValues?.salePrice}
         </p>
         <p className="text-gray-600 w-36 text-sm font-semibold">
-          Cost Price: {totalValues.costPrice}
+          Cost Price: {totalValues?.costPrice}
         </p>
         <p className="text-gray-600 w-28 text-sm font-semibold">
-          Tops Amount: {totalValues.topsAmount}
+          Tops Amount: {totalValues?.topsAmount}
         </p>
       </div>
     </>
