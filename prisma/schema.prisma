@@ -176,13 +176,17 @@ model MainLot {
   id                Int               @id @default(autoincrement())
   stName            String
   stRemarks         String?           @db.Text
-  inPcs             Int
-  stCts             String
-  dcRate            Decimal           @db.Decimal(10, 2) 
-  dcAmount          Decimal           @db.Decimal(10, 2) 
+  stLotNo           String            @unique
+  inPcs             Int               @default(0)
+  inRemainingPcs    Int               @default(0)
+  dcPcs             Decimal           @default(0) @db.Decimal(10, 2)
+  dcCts             Decimal           @default(0) @db.Decimal(10, 2)
+  dcRemainingCts    Decimal           @default(0) @db.Decimal(10, 2)
+  dcRate            Decimal?           @db.Decimal(10, 2) 
+  dcAmount          Decimal?           @db.Decimal(10, 2) 
   tender            OtherTender[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
 
 model Color {

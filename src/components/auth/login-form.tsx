@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 const initialState = {
   message: "",
@@ -25,7 +26,7 @@ export default function LoginForm() {
           <Input id="password" type="password" name="password" required />
         </div>
         <Button disabled={pending} type="submit" className="w-full">
-          Login
+          {pending ? <Loader2 className="animate-spin" /> : "Login"}
         </Button>
         <p className="text-red-500 text-sm">{state.message}</p>
       </div>
