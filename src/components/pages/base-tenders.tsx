@@ -52,7 +52,7 @@ export function BaseTendersPage({
         setOpen={setDialogOpen}
         action={editData ? "Edit" : "Add"}
         title={editData ? editData.stTenderName : "Tender"}
-        widthClass="md:max-w-[30dvw] md:w-[30dvw]"
+        widthClass="md:max-w-[35dvw] md:w-[35dvw]"
       >
         <BaseTenderForm editData={editData} setDialogOpen={setDialogOpen} />
       </FormDialog>

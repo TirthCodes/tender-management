@@ -94,9 +94,9 @@ export async function loginAction(
   const session = await createSession(sessionToken, user.id);
   await setSessionTokenCookie(sessionToken, session.expiresAt);
 
-  if (user.stRole === "ADMIN") {
-    return redirect("/admin");
-  }
+  // if (user.stRole === "ADMIN") {
+  //   return redirect("/admin");
+  // }
 
   return redirect("/tenders");
 }
