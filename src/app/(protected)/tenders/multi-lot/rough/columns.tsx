@@ -1,6 +1,8 @@
 "use client";
 
+import { buttonVariants } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
 
 export type MultiLotColumns = {
   id: number;
@@ -37,6 +39,21 @@ export const columns: ColumnDef<MultiLotColumns>[] = [
   {
     accessorKey: "dcRemainingCts",
     header: "Remaining Cts",
+  },
+  {
+    id: "create",
+    header: "Create",
+    cell: ({ row }) => {
+      const id = row.original.id as number;
+      return (
+        <Link
+          className={buttonVariants({ variant: "outline" })}
+          href={`/tenders/rough-lot?mainLotId=${id}`}
+        >
+          Create
+        </Link>
+      );
+    },
   },
   {
     id: "actions",

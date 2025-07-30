@@ -81,5 +81,6 @@ const tenderTypes = [
   { value: "single-stone", label: "Single Stone" },
   { value: "rough-lot", label: "Rough Lot" },
   { value: "mix-lot", label: "Mix Lot" },
-  { value: "multi-lot", label: "Multi Lot" },
+  { value: "multi-lot/rough", label: "Rough Multi" },
+  { value: "multi-lot/mix", label: "Mix Multi" },
 ];

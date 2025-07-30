@@ -5,8 +5,8 @@ export async function createMultiLotTender(data: unknown) {
   return response;
 }
 
-export async function getMultiLotTenders(page: number) {
-  const response = await fetchData(`/multi-lot-tender?page=${page}`);
+export async function getMultiLotTenders(page: number, tenderType: string) {
+  const response = await fetchData(`/multi-lot-tender?page=${page}&tenderType=${tenderType}`);
   return response;
 }
 

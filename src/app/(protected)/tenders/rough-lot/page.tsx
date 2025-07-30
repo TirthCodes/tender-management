@@ -2,16 +2,30 @@ import { RoughLotTendersPage } from '@/components/pages/rough-lot-tenders'
 import { prisma } from '@/lib/prisma'
 import React from 'react'
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ baseTenderId: string }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ baseTenderId?: string, mainLotId?: string }> }) {
 
-  const { baseTenderId } = await searchParams;
+  const { baseTenderId, mainLotId } = await searchParams;
+
+  const whereCondition: {
+    baseTenderId?: number;
+    mainLotId?: number;
+    stTenderType: "rough-lot";
+  } = {
+    stTenderType: "rough-lot"
+  }
+
+  if(baseTenderId) {
+    whereCondition.baseTenderId = parseInt(baseTenderId);
+  }
+
+  if(mainLotId) {
+    whereCondition.mainLotId = parseInt(mainLotId);
+  }
+  
 
   const [roughLotTenders, totalCount] = await Promise.all([
     prisma.otherTender.findMany({
-      where: {
-        baseTenderId: parseInt(baseTenderId),
-        stTenderType: "rough-lot"
-      },
+      where: whereCondition,
       take: 10,
       select: {
         id: true,
@@ -35,10 +49,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
       }
     }),
     prisma.otherTender.count({
-      where: {
-        baseTenderId: parseInt(baseTenderId),
-        stTenderType: "rough-lot"
-      }
+      where: whereCondition
     })
   ])
 

@@ -177,6 +177,7 @@ model MainLot {
   stName            String
   stRemarks         String?           @db.Text
   stLotNo           String            @unique
+  stTenderType      String
   inPcs             Int               @default(0)
   inRemainingPcs    Int               @default(0)
   dcPcs             Decimal           @default(0) @db.Decimal(10, 2)
