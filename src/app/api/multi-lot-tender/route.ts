@@ -8,6 +8,7 @@ export type MultiLotTender = {
   stRemarks?: string;
   inPcs: number;
   dcCts: number;
+  stTenderType: string;
 };
 
 export async function POST(req: Request) {    
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as MultiLotTender;
 
-    const { id, stLotNo, stName, stRemarks, inPcs, dcCts } =
+    const { id, stLotNo, stName, stRemarks, inPcs, dcCts, stTenderType } =
       body;
 
     if (id) {
@@ -39,6 +40,7 @@ export async function POST(req: Request) {
           stRemarks,
           inPcs,
           dcCts,
+          stTenderType,
         },
       });
     }else{
@@ -53,6 +55,7 @@ export async function POST(req: Request) {
           dcRemainingCts: dcCts,
           dcRate: 0,
           dcAmount: 0,
+          stTenderType,
         }
       });
     }
@@ -91,10 +94,21 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url);
   const page = url.searchParams.get("page");
+  const tenderType = url.searchParams.get("tenderType") as string;
 
   const limit = 10;
   const pageNumber = page ? parseInt(page) : 1;
   const offset = (pageNumber - 1) * limit;
+
+  if (!tenderType) {
+    return Response.json(
+      {
+        success: false,
+        message: "Tender type is required",
+      },
+      { status: 400 }
+    );
+  }
 
   try {
     const [tenders, totalCount] = await Promise.all([
@@ -108,6 +122,9 @@ export async function GET(req: Request) {
           dcCts: true,
           dcRemainingCts: true,
           inRemainingPcs: true,
+        },
+        where: {
+          stTenderType: tenderType,
         },
         orderBy: {
           createdAt: "desc",

@@ -9,7 +9,7 @@ import { Input } from "../ui/input";
 import { toast } from "react-toastify";
 import { FormButtons } from "../common/form-buttons";
 import { invalidateQuery } from "@/lib/invalidate";
-import { MultiLotColumns } from "@/app/(protected)/tenders/multi-lot/columns";
+import { MultiLotColumns } from "@/app/(protected)/tenders/multi-lot/rough/columns";
 import { createMultiLotTender } from "@/services/multi-lot";
 
 const multiLotFormSchema = z.object({
@@ -33,9 +33,11 @@ type TenderFormSchema = z.infer<typeof multiLotFormSchema> & {
 export function MultiLotForm({
   editData,
   setDialogOpen,
+  tenderType,
 }: {
   editData: MultiLotColumns | null;
   setDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  tenderType: string;
 }) {
   const {
     handleSubmit,
@@ -63,7 +65,7 @@ export function MultiLotForm({
     onSuccess: (data) => {
       if (data.success) {
         toast.success(data.message);
-        invalidateQuery("multi-lot-tenders");
+        invalidateQuery(`${tenderType}-multi-lot-tenders`);
         reset();
         if (editData && setDialogOpen) {
           setDialogOpen(false);
@@ -80,9 +82,9 @@ export function MultiLotForm({
   const onSubmit = async (data: TenderFormSchema) => {
     try {
       if (editData?.id) {
-        mutate({ ...data, id: editData.id });
+        mutate({ ...data, stTenderType: "rough", id: editData.id });
       } else {
-        mutate(data);
+        mutate({ ...data, stTenderType: "rough" });
       }
     } catch (error) {
       console.error(

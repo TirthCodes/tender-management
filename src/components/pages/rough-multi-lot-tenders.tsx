@@ -7,12 +7,12 @@ import { PageWrapper } from "../common/page-wrapper";
 import { PageHeader } from "../common/page-header";
 import { TenderDataTable } from "../ui/tender-data-table";
 import { Pagination } from "../common/pagination";
-import { columns, MultiLotColumns } from "@/app/(protected)/tenders/multi-lot/columns";
+import { columns, MultiLotColumns } from "@/app/(protected)/tenders/multi-lot/rough/columns";
 import { FormDialog } from "../common/form-dialog";
 import { MultiLotForm } from "../forms/multi-lot-form";
 import { getMultiLotTenders } from "@/services/multi-lot";
 
-export function MultiLotTendersPage({ tenders, totalCount }: { tenders: MultiLotColumns[], totalCount: number }) {
+export function RoughMultiLotTendersPage({ tenders, totalCount }: { tenders: MultiLotColumns[], totalCount: number }) {
   const [page, setPage] = useState(1);
 
   const searchParams = useSearchParams();
@@ -21,11 +21,11 @@ export function MultiLotTendersPage({ tenders, totalCount }: { tenders: MultiLot
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editData, setEditData] = useState<MultiLotColumns | null>(null);
 
-  const queryKey = "multi-lot-tenders";
+  const queryKey = "rough-multi-lot-tenders";
 
   const { data: multiLotResponse } = useQuery({
     queryKey: [queryKey, id, page],
-    queryFn: () => getMultiLotTenders(page),
+    queryFn: () => getMultiLotTenders(page, "rough"),
     initialData: {
       data: tenders,
       success: true,
@@ -53,7 +53,7 @@ export function MultiLotTendersPage({ tenders, totalCount }: { tenders: MultiLot
         title={editData ? editData.stName : "Tender"}
         widthClass="md:max-w-[35dvw] md:w-[35dvw]"
       >
-        <MultiLotForm editData={editData} setDialogOpen={setDialogOpen} />
+        <MultiLotForm editData={editData} setDialogOpen={setDialogOpen} tenderType="rough" />
       </FormDialog>
       <TenderDataTable
         columns={columns}

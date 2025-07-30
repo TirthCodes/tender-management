@@ -1,4 +1,4 @@
-import { MultiLotTendersPage } from '@/components/pages/multi-lot-tenders'
+import { RoughMultiLotTendersPage } from '@/components/pages/rough-multi-lot-tenders'
 import { prisma } from '@/lib/prisma';
 import React from 'react'
 
@@ -15,6 +15,10 @@ export default async function Page() {
         dcCts: true,
         dcRemainingCts: true,
         inRemainingPcs: true,
+        stTenderType: true,
+      },
+      where: {
+        stTenderType: 'rough',
       },
       orderBy: {
         createdAt: "desc",
@@ -31,6 +35,6 @@ export default async function Page() {
   }));
 
   return (
-    <MultiLotTendersPage tenders={tendersData} totalCount={totalCount} />
+    <RoughMultiLotTendersPage tenders={tendersData} totalCount={totalCount} />
   )
 }
