@@ -125,7 +125,7 @@ export function SingleTenderDataTable({
                     return (
                       <TableHead
                         onClick={() =>
-                          handleValueChange(singleInitialRow, data.length + 1)
+                          handleValueChange(singleInitialRow, data?.length || 0 + 1)
                         }
                         style={{ borderTopWidth: 0 }}
                         className="border-collapse border border-gray-300 border-t-0"

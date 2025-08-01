@@ -160,6 +160,7 @@ export function MixLotForm({
 
   const searchParams = useSearchParams();
   const baseTenderId = searchParams.get("baseTenderId") as string;
+  const mainLotId = searchParams.get("mainLotId") as string;
   const mixLotId = searchParams.get("id") as string; //otherTenderId
 
   const { data: baseTender, isLoading: lodingBaseTender } = useQuery({
@@ -350,12 +351,22 @@ export function MixLotForm({
     if(mixLotTender?.data?.id) {
       payload.id = parseInt(mixLotTender.data.id);
     }
+
+    if(mainLotId) {
+      payload.mainLotId = parseInt(mainLotId);
+    }
+
+  
     console.log(payload, "payload");
 
     const response = await createMixLot(payload);
     if (response.success) {
       toast.success(response.message);
-      redirect("/tenders/mix-lot?baseTenderId=" + baseTenderId);
+      if(mainLotId) {
+        redirect("/tenders/mix-lot?baseTenderId=" + baseTenderId + "&mainLotId=" + mainLotId);
+      } else {
+        redirect("/tenders/mix-lot?baseTenderId=" + baseTenderId);
+      }
     } else {
       toast.error(response.message);
     }

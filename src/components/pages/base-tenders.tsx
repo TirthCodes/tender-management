@@ -46,6 +46,7 @@ export function BaseTendersPage({
       <PageHeader
         title="Base Tenders"
         handleDialog={handleDialog}
+        isBackButton={false}
       />
       <FormDialog
         open={dialogOpen}

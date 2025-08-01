@@ -15,6 +15,7 @@ export function RoughLotTendersPage({ roughLotTenders, totalCount }: { roughLotT
 
   const searchParams = useSearchParams();
   const id = searchParams.get("baseTenderId") as string;
+  const mainLotId = searchParams.get("mainLotId") as string;
 
   const queryKey = "rought-lot-tenders";
 
@@ -30,19 +31,28 @@ export function RoughLotTendersPage({ roughLotTenders, totalCount }: { roughLotT
     },
   });
 
-  console.log(roughLotResponse, "roughLotResponse");
+  let createPath = ``;
+  if(id) {
+    createPath = `/tenders/rough-lot/create?baseTenderId=${id}`;
+  }
+  if(mainLotId) {
+    createPath = `/tenders/rough-lot/create?mainLotId=${mainLotId}`;
+  }
+  if(id && mainLotId) {
+    createPath = `/tenders/rough-lot/create?baseTenderId=${id}&mainLotId=${mainLotId}`;
+  }
 
   return (
     <PageWrapper>
       <PageHeader
         title="Rough Lot Tenders"
-        createPath={`/tenders/rough-lot/create?baseTenderId=${id}`}
+        createPath={createPath}
       />
       <TenderDataTable
         columns={columns}
         data={roughLotResponse?.data || []}
         isDialog={false}
-        editPath={`/tenders/rough-lot/create?baseTenderId=${id}`}
+        editPath={createPath}
         queryKey={queryKey}
         deleteEndpoint="other-tender"
       />
