@@ -9,8 +9,9 @@ import { Input } from "../ui/input";
 import { toast } from "react-toastify";
 import { FormButtons } from "../common/form-buttons";
 import { invalidateQuery } from "@/lib/invalidate";
-import { MultiLotColumns } from "@/app/(protected)/tenders/multi-lot/rough/columns";
+import { RoughMultiLotColumns } from "@/app/(protected)/tenders/multi-lot/rough/columns";
 import { createMultiLotTender } from "@/services/multi-lot";
+import { MixMultiLotColumns } from "@/app/(protected)/tenders/multi-lot/mix/columns";
 
 const multiLotFormSchema = z.object({
   stName: z.string().min(1, "Name is required"),
@@ -35,7 +36,7 @@ export function MultiLotForm({
   setDialogOpen,
   tenderType,
 }: {
-  editData: MultiLotColumns | null;
+  editData: RoughMultiLotColumns | MixMultiLotColumns | null;
   setDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   tenderType: string;
 }) {
@@ -82,9 +83,9 @@ export function MultiLotForm({
   const onSubmit = async (data: TenderFormSchema) => {
     try {
       if (editData?.id) {
-        mutate({ ...data, stTenderType: "rough", id: editData.id });
+        mutate({ ...data, stTenderType: tenderType, id: editData.id });
       } else {
-        mutate({ ...data, stTenderType: "rough" });
+        mutate({ ...data, stTenderType: tenderType });
       }
     } catch (error) {
       console.error(
@@ -100,18 +101,18 @@ export function MultiLotForm({
         <div className="space-y-1 col-span-2">
           <label className="text-sm font-medium">Tender Name</label>
           <Input {...register("stName")} required />
-          {errors.stName && (
+          {errors?.stName && (
             <p className="text-sm text-red-500">
-              {errors.stName.message}
+              {errors?.stName?.message?.toString()}
             </p>
           )}
         </div>
         <div className="space-y-1 col-span-2">
           <label className="text-sm font-medium">Lot No</label>
           <Input {...register("stLotNo")} required />
-          {errors.stLotNo && (
+          {errors?.stLotNo && (
             <p className="text-sm text-red-500">
-              {errors.stLotNo.message}
+              {errors.stLotNo?.message}
             </p>
           )}
         </div>
@@ -120,7 +121,7 @@ export function MultiLotForm({
           <Input {...register("stRemarks")} required />
           {errors.stRemarks && (
             <p className="text-sm text-red-500">
-              {errors.stRemarks.message}
+              {errors?.stRemarks.message}
             </p>
           )}
         </div>
@@ -134,7 +135,7 @@ export function MultiLotForm({
           />
           {errors.inPcs && (
             <p className="text-sm text-red-500">
-              {errors.inPcs.message}
+              {errors?.inPcs.message}
             </p>
           )}
         </div>
@@ -149,7 +150,7 @@ export function MultiLotForm({
           />
           {errors.dcCts && (
             <p className="text-sm text-red-500">
-              {errors.dcCts.message}
+              {errors?.dcCts.message}
             </p>
           )}
         </div>

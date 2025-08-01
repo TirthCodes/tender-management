@@ -1,6 +1,6 @@
 import { RoughMultiLotTendersPage } from '@/components/pages/rough-multi-lot-tenders'
 import { prisma } from '@/lib/prisma';
-import React from 'react'
+import React, { Suspense } from 'react'
 
 export default async function Page() {
 
@@ -35,6 +35,8 @@ export default async function Page() {
   }));
 
   return (
-    <RoughMultiLotTendersPage tenders={tendersData} totalCount={totalCount} />
+    <Suspense>
+      <RoughMultiLotTendersPage tenders={tendersData} totalCount={totalCount} />
+    </Suspense>
   )
 }

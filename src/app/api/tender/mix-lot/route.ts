@@ -33,6 +33,7 @@ export async function POST(req: Request) {
       resultPerCarat,
       resultTotal,
       tenderDetails,
+      mainLotId,
     } = await req.json() as MixLotPaylod;
 
     if (!baseTenderId || !roughPcs || !roughCts || !labour || !netPercent) {
@@ -62,6 +63,7 @@ export async function POST(req: Request) {
           stRemark: remark || "",
           dcLabour: labour,
           dcNetPercentage: netPercent,
+          mainLotId,
           stCertId: "",
         },
       });
@@ -171,6 +173,7 @@ export async function POST(req: Request) {
         dcAmount: amount || 0,
         stRemark: remark,
         dcLabour: labour,
+        mainLotId,
         dcNetPercentage: netPercent,
         otherTenderDetails: {
           createMany: {

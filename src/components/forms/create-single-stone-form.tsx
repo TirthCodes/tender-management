@@ -162,7 +162,7 @@ export function CreateSingleStoneTenderForm({
 
   useEffect(() => {
     if (tenderRowsData && !isRowsLoading) {
-      setTenderDetails(tenderRowsData?.data?.singleTenderDetails);
+      setTenderDetails(tenderRowsData?.data?.singleTenderDetails || [singleInitialRow]);
       reset({
         remark: tenderRowsData?.data?.stRemark,
         netPercent: tenderRowsData?.data?.dcNetPercentage,
@@ -191,17 +191,18 @@ export function CreateSingleStoneTenderForm({
     index: number,
     action?: string
   ) => {
+    console.log(index, tenderDetails?.length)
     if (action === "delete") {
-      setTenderDetails(tenderDetails.filter((_i, idx) => idx !== index));
+      setTenderDetails(tenderDetails?.filter((_i, idx) => idx !== index));
       return;
     }
-    if (index > tenderDetails.length) {
+    if (index > tenderDetails?.length) {
       setTenderDetails([...tenderDetails, value]);
       return;
     }
-    const indexToUpdate = tenderDetails.findIndex((_i, idx) => idx === index);
+    const indexToUpdate = tenderDetails?.findIndex((_i, idx) => idx === index);
     setTenderDetails(
-      tenderDetails.map((item, i) => {
+      tenderDetails?.map((item, i) => {
         if (i === indexToUpdate) {
           return value;
         }

@@ -158,6 +158,7 @@ export function RoughLotForm({
 
   const searchParams = useSearchParams();
   const baseTenderId = searchParams.get("baseTenderId") as string;
+  const mainLotId = searchParams.get("mainLotId") as string;
   const roughLotId = searchParams.get("id") as string; //otherTenderId
 
   const { data: baseTender, isLoading: lodingBaseTender } = useQuery({
@@ -324,13 +325,22 @@ export function RoughLotForm({
       payload.id = parseInt(roughLotTender.data.id);
     }
 
+    if(mainLotId) {
+      payload.mainLotId = parseInt(mainLotId);
+    }
+
     console.log(payload, "payload");
 
     const response = await createRoughLot(payload);
     if (response.success) {
       toast.success(response.message);
       reset();
-      redirect("/tenders/rough-lot?baseTenderId=" + baseTenderId);
+      
+      if(mainLotId) {
+        redirect("/tenders/rough-lot?baseTenderId=" + baseTenderId + "&mainLotId=" + mainLotId);
+      } else {
+        redirect("/tenders/rough-lot?baseTenderId=" + baseTenderId);
+      }
     } else {
       toast.error(response.message);
     }

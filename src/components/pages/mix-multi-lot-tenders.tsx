@@ -7,25 +7,25 @@ import { PageWrapper } from "../common/page-wrapper";
 import { PageHeader } from "../common/page-header";
 import { TenderDataTable } from "../ui/tender-data-table";
 import { Pagination } from "../common/pagination";
-import { columns, RoughMultiLotColumns } from "@/app/(protected)/tenders/multi-lot/rough/columns";
+import { columns, MixMultiLotColumns } from "@/app/(protected)/tenders/multi-lot/mix/columns";
 import { FormDialog } from "../common/form-dialog";
 import { MultiLotForm } from "../forms/multi-lot-form";
 import { getMultiLotTenders } from "@/services/multi-lot";
 
-export function RoughMultiLotTendersPage({ tenders, totalCount }: { tenders: RoughMultiLotColumns[], totalCount: number }) {
+export function MixMultiLotTendersPage({ tenders, totalCount }: { tenders: MixMultiLotColumns[], totalCount: number }) {
   const [page, setPage] = useState(1);
 
   const searchParams = useSearchParams();
   const id = searchParams.get("tenderId");
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editData, setEditData] = useState<RoughMultiLotColumns | null>(null);
+  const [editData, setEditData] = useState<MixMultiLotColumns | null>(null);
 
-  const queryKey = "rough-multi-lot-tenders";
+  const queryKey = "mix-multi-lot-tenders";
 
   const { data: multiLotResponse } = useQuery({
     queryKey: [queryKey, id, page],
-    queryFn: () => getMultiLotTenders(page, "rough"),
+    queryFn: () => getMultiLotTenders(page, "mix"),
     initialData: {
       data: tenders,
       success: true,
@@ -43,7 +43,7 @@ export function RoughMultiLotTendersPage({ tenders, totalCount }: { tenders: Rou
   return (
     <PageWrapper>
       <PageHeader
-        title="Rough Multi Lot Tenders"
+        title="Mix Multi Lot Tenders"
         handleDialog={handleDialog}
       />
       <FormDialog
@@ -53,7 +53,7 @@ export function RoughMultiLotTendersPage({ tenders, totalCount }: { tenders: Rou
         title={editData ? editData.stName : "Tender"}
         widthClass="md:max-w-[35dvw] md:w-[35dvw]"
       >
-        <MultiLotForm editData={editData} setDialogOpen={setDialogOpen} tenderType="rough" />
+        <MultiLotForm editData={editData} setDialogOpen={setDialogOpen} tenderType="mix" />
       </FormDialog>
       <TenderDataTable
         columns={columns}

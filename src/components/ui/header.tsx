@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { User } from "@prisma/client";
+// import { User } from "@prisma/client";
 import Link from "next/link";
 import { Button } from "./button";
 import { LogoutButton } from "./logout-button";
@@ -17,7 +17,7 @@ const navigation = [
   // { name: "Main Lot", href: "/main-lot" },
 ];
 
-export default function Header({ user }: { user: User | null }) {
+export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -55,9 +55,9 @@ export default function Header({ user }: { user: User | null }) {
         </div>
 
         <div className="hidden lg:flex">
-          {user?.stRole === "ADMIN" && (
+          {/* {user?.stRole === "ADMIN" && (
             <Button className="mr-4">Manage Users</Button>
-          )}
+          )} */}
           <LogoutButton />
         </div>
       </nav>

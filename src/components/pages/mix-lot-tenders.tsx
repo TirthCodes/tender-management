@@ -15,6 +15,7 @@ export function MixLotTendersPage({ mixLotTenders, totalCount }: { mixLotTenders
 
   const searchParams = useSearchParams();
   const id = searchParams.get("baseTenderId") as string;
+  const mainLotId = searchParams.get("mainLotId") as string;
 
   const queryKey = "mix-lot-tenders";
 
@@ -30,20 +31,31 @@ export function MixLotTendersPage({ mixLotTenders, totalCount }: { mixLotTenders
     },
   });
 
-  console.log(mixLotResponse, "mixLotResponse");
+  let createPath = ``;
+  if(id) {
+    createPath = `/tenders/rough-lot/create?baseTenderId=${id}`;
+  }
+  if(mainLotId) {
+    createPath = `/tenders/rough-lot/create?mainLotId=${mainLotId}`;
+  }
+  if(id && mainLotId) {
+    createPath = `/tenders/rough-lot/create?baseTenderId=${id}&mainLotId=${mainLotId}`;
+  }
+
+  // console.log(mixLotResponse, "mixLotResponse");
 
   return (
     <PageWrapper>
       <PageHeader
         title="Mix Lot Tenders"
-        createPath={`/tenders/mix-lot/create?baseTenderId=${id}`}
+        createPath={createPath}
       />
       <TenderDataTable
         columns={columns}
         data={mixLotResponse?.data || []}
         isDialog={false}
         queryKey={queryKey}
-        editPath={`/tenders/mix-lot/create?baseTenderId=${id}`}
+        editPath={createPath}
         deleteEndpoint="other-tender"
       />
       <Pagination setPage={setPage} nextPage={mixLotResponse?.nextPage} page={page} />

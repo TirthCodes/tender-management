@@ -4,7 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 
-export type RoughMultiLotColumns = {
+export type MixMultiLotColumns = {
   id: number;
   stName: string;
   stLotNo: string;
@@ -15,7 +15,7 @@ export type RoughMultiLotColumns = {
   dcRemainingCts: number;
 };
 
-export const columns: ColumnDef<RoughMultiLotColumns>[] = [
+export const columns: ColumnDef<MixMultiLotColumns>[] = [
   {
     accessorKey: "stLotNo",
     header: "Lot No",
@@ -48,11 +48,11 @@ export const columns: ColumnDef<RoughMultiLotColumns>[] = [
       const searchParams = typeof window !== 'undefined' ? window?.location?.search : '';
       const urlParams = new URLSearchParams(searchParams);
       const baseTenderId = urlParams.get("baseTenderId");
-      
+
       return (
         <Link
           className={buttonVariants({ variant: "outline" })}
-          href={`/tenders/rough-lot?baseTenderId=${baseTenderId}&mainLotId=${id}`}
+          href={`/tenders/mix-lot?baseTenderId=${baseTenderId}&mainLotId=${id}`}
         >
           Create
         </Link>
