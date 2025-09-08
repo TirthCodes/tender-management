@@ -89,7 +89,6 @@ export function CreateSingleStoneTenderForm({
   shapeOptions,
   baseTenderData,
 }: CreateTenderFormProps) {
-  
   const { data: tenderRowsData, isLoading: isRowsLoading } = useQuery({
     queryKey: ["single-stone-tender-rows", baseTenderData.id],
     queryFn: () => getSingleStoneTender(baseTenderData.id),
@@ -162,7 +161,9 @@ export function CreateSingleStoneTenderForm({
 
   useEffect(() => {
     if (tenderRowsData && !isRowsLoading) {
-      setTenderDetails(tenderRowsData?.data?.singleTenderDetails || [singleInitialRow]);
+      setTenderDetails(
+        tenderRowsData?.data?.singleTenderDetails || [singleInitialRow]
+      );
       reset({
         remark: tenderRowsData?.data?.stRemark,
         netPercent: tenderRowsData?.data?.dcNetPercentage,
@@ -179,6 +180,7 @@ export function CreateSingleStoneTenderForm({
     polCts: 0,
     polPercent: 0,
     salePrice: 0,
+    saleAmount: 0,
     costPrice: 0,
     topsAmount: 0,
   });
@@ -191,7 +193,6 @@ export function CreateSingleStoneTenderForm({
     index: number,
     action?: string
   ) => {
-    console.log(index, tenderDetails?.length)
     if (action === "delete") {
       setTenderDetails(tenderDetails?.filter((_i, idx) => idx !== index));
       return;
@@ -212,6 +213,19 @@ export function CreateSingleStoneTenderForm({
   };
 
   useKeyPress({ backPath: "/tenders", ref: formRef });
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    // Prevent normal Enter from submitting
+    if (e.key === "Enter" && !e.ctrlKey) {
+      e.preventDefault();
+    }
+
+    // Submit on Ctrl+Enter
+    if (e.key === "Enter" && e.ctrlKey) {
+      e.preventDefault();
+      onSubmit(watch());
+    }
+  };
 
   async function onSubmit(data: CreateTenderFormValues) {
     if (totalValues.pcs <= 0) {
@@ -243,9 +257,15 @@ export function CreateSingleStoneTenderForm({
     setIsPending(false);
   }
 
-  // ( ( ( ( ( ( ( ( Res. Per Carat * 6 % ) + Res. Per Carat ) + 50 ) * Rou. Wt. ) / Pol. Wt.) + 180 ) / 97 % ) - Top Amount )
   return (
-    <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
+    <form
+      ref={formRef}
+      onSubmit={(e) => {
+        e.preventDefault()
+        handleSubmit(onSubmit);
+      }}
+      onKeyDown={handleKeyDown}
+    >
       <div className="flex items-center flex-col md:flex-row md:justify-between px-4 py-2 border border-neutral-300 rounded-lg shadow-sm">
         <div className="flex flex-col gap-2">
           <h1 className="text-lg font-semibold">Single Stone Tender</h1>
@@ -263,7 +283,7 @@ export function CreateSingleStoneTenderForm({
             <Input
               type="number"
               step="0.01"
-              {...register("labour")}
+              {...register("labour", { valueAsNumber: true })}
               className={cn(
                 errors.labour?.message &&
                   "border border-red-500 placeholder:text-red-500"
@@ -277,7 +297,7 @@ export function CreateSingleStoneTenderForm({
             <Input
               type="number"
               step="0.01"
-              {...register("netPercent")}
+              {...register("netPercent", { valueAsNumber: true })}
               className={cn(
                 errors.netPercent?.message &&
                   "border border-red-500 placeholder:text-red-500"

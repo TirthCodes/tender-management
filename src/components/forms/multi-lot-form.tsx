@@ -43,6 +43,7 @@ export function MultiLotForm({
   const {
     handleSubmit,
     register,
+    watch,
     formState: { errors },
     reset,
   } = useForm({
@@ -80,6 +81,19 @@ export function MultiLotForm({
     },
   });
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    // Prevent normal Enter from submitting
+    if (e.key === "Enter" && !e.ctrlKey) {
+      e.preventDefault();
+    }
+
+    // Submit on Ctrl+Enter
+    if (e.key === "Enter" && e.ctrlKey) {
+      e.preventDefault();
+      onSubmit(watch());
+    }
+  };
+
   const onSubmit = async (data: TenderFormSchema) => {
     try {
       if (editData?.id) {
@@ -96,7 +110,14 @@ export function MultiLotForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form
+      onKeyDown={handleKeyDown}
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit(onSubmit);
+      }}
+      className="space-y-4"
+    >
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1 col-span-2">
           <label className="text-sm font-medium">Tender Name</label>
@@ -111,47 +132,30 @@ export function MultiLotForm({
           <label className="text-sm font-medium">Lot No</label>
           <Input {...register("stLotNo")} required />
           {errors?.stLotNo && (
-            <p className="text-sm text-red-500">
-              {errors.stLotNo?.message}
-            </p>
+            <p className="text-sm text-red-500">{errors.stLotNo?.message}</p>
           )}
         </div>
         <div className="space-y-1 col-span-2">
           <label className="text-sm font-medium">Tender Remark</label>
           <Input {...register("stRemarks")} required />
           {errors.stRemarks && (
-            <p className="text-sm text-red-500">
-              {errors?.stRemarks.message}
-            </p>
+            <p className="text-sm text-red-500">{errors?.stRemarks.message}</p>
           )}
         </div>
 
         <div className="space-y-1">
           <label className="text-sm font-medium">Pcs</label>
-          <Input
-            type="number"
-            {...register("inPcs")}
-            required
-          />
+          <Input type="number" {...register("inPcs")} required />
           {errors.inPcs && (
-            <p className="text-sm text-red-500">
-              {errors?.inPcs.message}
-            </p>
+            <p className="text-sm text-red-500">{errors?.inPcs.message}</p>
           )}
         </div>
 
         <div className="space-y-1">
           <label className="text-sm font-medium">Carats</label>
-          <Input
-            type="number"
-            step="0.01"
-            {...register("dcCts")}
-            required
-          />
+          <Input type="number" step="0.01" {...register("dcCts")} required />
           {errors.dcCts && (
-            <p className="text-sm text-red-500">
-              {errors?.dcCts.message}
-            </p>
+            <p className="text-sm text-red-500">{errors?.dcCts.message}</p>
           )}
         </div>
       </div>

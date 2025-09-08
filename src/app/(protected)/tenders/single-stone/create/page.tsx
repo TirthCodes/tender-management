@@ -69,7 +69,6 @@ export default async function CreateTenderPage({ searchParams }: { searchParams:
   if(!baseTender) {
     redirect("/tenders")
   }
-  console.log({baseTender})
 
   const baseTenderData = {
     ...baseTender,

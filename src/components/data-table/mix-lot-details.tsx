@@ -80,6 +80,7 @@ export function MixLotDetails({
         polCts: acc.polCts + (row.dcPolCts || 0),
         polPercent: acc.polPercent + (row.dcPolPer || 0),
         salePrice: acc.salePrice + (row.dcSalePrice || 0),
+        saleAmount: acc.saleAmount + (row.dcSaleAmount || 0),
         costPrice: 0,
       }),
       {
@@ -88,6 +89,7 @@ export function MixLotDetails({
         polCts: 0,
         polPercent: 0,
         salePrice: 0,
+        saleAmount: 0,
         costPrice: 0,
       }
     );
@@ -335,9 +337,13 @@ export function MixLotDetails({
                           const value = e.target.value
                             ? parseFloat(e.target.value)
                             : 0;
+
+                          const polCts = parseFloat(((value * row.dcRoughCts) / 100).toFixed(2))
+
                           handleValueChange(
                             {
                               ...row,
+                              dcPolCts: polCts,
                               dcPolPer: value,
                             },
                             index
@@ -445,9 +451,12 @@ export function MixLotDetails({
                           const value = e.target.value
                             ? parseFloat(e.target.value)
                             : 0;
+
+                          const salePrice = parseFloat((value / row.dcPolCts).toFixed(2))
                           handleValueChange(
                             {
                               ...row,
+                              dcSalePrice: salePrice,
                               dcSaleAmount: value,
                             },
                             index

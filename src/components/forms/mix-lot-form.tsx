@@ -17,7 +17,11 @@ import {
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 import { Option } from "@/lib/types/common";
-import { MixLotPaylod, MixLotTenderDetails, TotalValues } from "@/lib/types/tender";
+import {
+  MixLotPaylod,
+  MixLotTenderDetails,
+  TotalValues,
+} from "@/lib/types/tender";
 import Link from "next/link";
 import { redirect, useSearchParams } from "next/navigation";
 import { getBaseTenderById } from "@/services/base-tender";
@@ -197,13 +201,29 @@ export function MixLotForm({
     polCts: 0,
     polPercent: 0,
     salePrice: 0,
+    saleAmount: 0,
     costPrice: 0,
     topsAmount: 0,
   });
 
   useEffect(() => {
-    if(mixLotTender && mixLotTender.data && !loadingMixLot) {
-      const { inRoughPcs, dcRoughCts, dcRate, dcAmount, dcLabour, dcNetPercentage, dcBidPrice, dcLotSize, dcTotalAmount, dcResultPerCt, dcResultTotal, dcResultCost, stLotNo, otherTenderDetails } = mixLotTender.data;
+    if (mixLotTender && mixLotTender.data && !loadingMixLot) {
+      const {
+        inRoughPcs,
+        dcRoughCts,
+        dcRate,
+        dcAmount,
+        dcLabour,
+        dcNetPercentage,
+        dcBidPrice,
+        dcLotSize,
+        dcTotalAmount,
+        dcResultPerCt,
+        dcResultTotal,
+        dcResultCost,
+        stLotNo,
+        otherTenderDetails,
+      } = mixLotTender.data;
       reset({
         roughPcs: inRoughPcs,
         roughCts: dcRoughCts,
@@ -218,10 +238,10 @@ export function MixLotForm({
         resultTotal: dcResultTotal,
         resultCost: dcResultCost,
         lotNo: stLotNo,
-      })
+      });
       setTenderDetails(otherTenderDetails);
     }
-  }, [mixLotTender, loadingMixLot, reset])
+  }, [mixLotTender, loadingMixLot, reset]);
 
   const netPercent = watch("netPercent");
   const resultTotal = watch("resultTotal");
@@ -229,11 +249,11 @@ export function MixLotForm({
   const labour = watch("labour");
 
   useEffect(() => {
-    if(!lodingBaseTender && baseTender?.data) {
+    if (!lodingBaseTender && baseTender?.data) {
       setValue("netPercent", baseTender.data.dcNetPercentage);
       setValue("labour", baseTender.data.dcLabour);
     }
-  }, [baseTender, lodingBaseTender, setValue])
+  }, [baseTender, lodingBaseTender, setValue]);
 
   useEffectAfterMount(() => {
     if (netPercent && labour) {
@@ -251,7 +271,7 @@ export function MixLotForm({
       if (!isNaN(calculatedBidPrice)) {
         setValue("bidPrice", calculatedBidPrice);
         let totalAmount = 0;
-        if(roughCts) {
+        if (roughCts) {
           if (!isNaN(roughCts)) {
             totalAmount = parseFloat(
               (calculatedBidPrice * roughCts).toFixed(2)
@@ -264,18 +284,16 @@ export function MixLotForm({
       if (resultTotal) {
         if (!isNaN(resultTotal)) {
           let resultPerCarat = 0;
-          if(roughCts) {
+          if (roughCts) {
             if (!isNaN(roughCts)) {
-              resultPerCarat = parseFloat(
-                (resultTotal / roughCts).toFixed(2)
-              );
+              resultPerCarat = parseFloat((resultTotal / roughCts).toFixed(2));
             }
           }
 
           if (!isNaN(resultPerCarat)) {
             setValue("resultPerCarat", resultPerCarat);
             let resultCost = 0;
-            if(roughCts) {
+            if (roughCts) {
               resultCost = parseFloat(
                 (
                   (((resultPerCarat * 0.06 + resultPerCarat + labour) *
@@ -293,23 +311,14 @@ export function MixLotForm({
         }
       }
     }
-  }, [
-    labour,
-    totalValues,
-    setValue,
-    netPercent,
-    resultTotal,
-    roughCts,
-  ]);
+  }, [labour, totalValues, setValue, netPercent, resultTotal, roughCts]);
 
   const roughPcs = watch("roughPcs");
 
   useEffectAfterMount(() => {
     if (roughPcs) {
       if (!isNaN(roughPcs)) {
-        const roughSize = parseFloat(
-          (roughPcs / roughCts).toFixed(2)
-        );
+        const roughSize = parseFloat((roughPcs / roughCts).toFixed(2));
         setValue("lotSize", roughSize);
       }
     }
@@ -339,6 +348,19 @@ export function MixLotForm({
     );
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    // Prevent normal Enter from submitting
+    if (e.key === "Enter" && !e.ctrlKey) {
+      e.preventDefault();
+    }
+
+    // Submit on Ctrl+Enter
+    if (e.key === "Enter" && e.ctrlKey) {
+      e.preventDefault();
+      onSubmit(watch());
+    }
+  };
+
   async function onSubmit(data: MixLotFormValues) {
     setIsPending(true);
 
@@ -348,22 +370,26 @@ export function MixLotForm({
       tenderDetails: JSON.stringify(tenderDetails),
     };
 
-    if(mixLotTender?.data?.id) {
+    if (mixLotTender?.data?.id) {
       payload.id = parseInt(mixLotTender.data.id);
     }
 
-    if(mainLotId) {
+    if (mainLotId) {
       payload.mainLotId = parseInt(mainLotId);
     }
 
-  
     console.log(payload, "payload");
 
     const response = await createMixLot(payload);
     if (response.success) {
       toast.success(response.message);
-      if(mainLotId) {
-        redirect("/tenders/mix-lot?baseTenderId=" + baseTenderId + "&mainLotId=" + mainLotId);
+      if (mainLotId) {
+        redirect(
+          "/tenders/mix-lot?baseTenderId=" +
+            baseTenderId +
+            "&mainLotId=" +
+            mainLotId
+        );
       } else {
         redirect("/tenders/mix-lot?baseTenderId=" + baseTenderId);
       }
@@ -373,14 +399,22 @@ export function MixLotForm({
     setIsPending(false);
   }
 
-  if(lodingBaseTender || loadingMixLot) {
-    return <div className="flex justify-center items-center h-[90dvh]">
-      <Loader2 className="h-20 w-20 animate-spin" />
-    </div>
+  if (lodingBaseTender || loadingMixLot) {
+    return (
+      <div className="flex justify-center items-center h-[90dvh]">
+        <Loader2 className="h-20 w-20 animate-spin" />
+      </div>
+    );
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit(onSubmit);
+      }}
+      onKeyDown={handleKeyDown}
+    >
       <div className="flex items-center flex-col md:flex-row md:justify-between p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
         <div className="flex flex-col gap-2">
           <h1 className="text-lg font-semibold">Mix Lot Tender</h1>
@@ -398,7 +432,7 @@ export function MixLotForm({
             <Input
               type="number"
               step="0.01"
-              {...register("labour")}
+              {...register("labour", { valueAsNumber: true })}
               className={cn(
                 errors.labour?.message &&
                   "border border-red-500 placeholder:text-red-500"
@@ -411,7 +445,7 @@ export function MixLotForm({
             <Input
               type="number"
               step="0.01"
-              {...register("netPercent")}
+              {...register("netPercent", { valueAsNumber: true })}
               className={cn(
                 errors.netPercent?.message &&
                   "border border-red-500 placeholder:text-red-500"
@@ -436,7 +470,7 @@ export function MixLotForm({
 
       <div className="p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
         <div className="grid grid-cols-6 gap-x-3 gap-y-4">
-        <div className="flex w-full items-center gap-2">
+          <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Lot No.</Label>
             <Input
               type="text"
@@ -452,7 +486,7 @@ export function MixLotForm({
             <Label className="text-nowrap shrink-0">Rough Pcs.</Label>
             <Input
               type="number"
-              {...register("roughPcs")}
+              {...register("roughPcs", { valueAsNumber: true })}
               placeholder="4"
               className={cn(
                 errors.roughPcs?.message &&
@@ -464,7 +498,7 @@ export function MixLotForm({
             <Label className="text-nowrap shrink-0">Rough Cts.</Label>
             <Input
               type="number"
-              {...register("roughCts")}
+              {...register("roughCts", { valueAsNumber: true })}
               placeholder="24.4"
               step={0.01}
               className={cn(
@@ -476,7 +510,7 @@ export function MixLotForm({
           <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Lot Size</Label>
             <Input
-              {...register("lotSize")}
+              {...register("lotSize", { valueAsNumber: true })}
               disabled
               readOnly
               type="number"
@@ -491,7 +525,7 @@ export function MixLotForm({
           <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Rate</Label>
             <Input
-              {...register("rate")}
+              {...register("rate", { valueAsNumber: true })}
               type="number"
               placeholder="243"
               step={0.01}
@@ -505,7 +539,7 @@ export function MixLotForm({
           <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Amount</Label>
             <Input
-              {...register("amount")}
+              {...register("amount", { valueAsNumber: true })}
               type="number"
               placeholder="999"
               step={0.01}
@@ -536,14 +570,19 @@ export function MixLotForm({
         <div className="grid grid-cols-5 gap-6">
           <div className="flex w-full max-w-sm items-center gap-2">
             <Label className="text-nowrap">Bid Price</Label>
-            <Input type="number" {...register("bidPrice")} readOnly disabled />
+            <Input
+              type="number"
+              {...register("bidPrice", { valueAsNumber: true })}
+              readOnly
+              disabled
+            />
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">
             <Label className="text-nowrap">Total Amount</Label>
 
             <Input
               type="number"
-              {...register("totalAmount")}
+              {...register("totalAmount", { valueAsNumber: true })}
               readOnly
               disabled
             />
@@ -552,7 +591,7 @@ export function MixLotForm({
             <Label className="text-nowrap">Result Total</Label>
             <Input
               type="number"
-              {...register("resultTotal")}
+              {...register("resultTotal", { valueAsNumber: true })}
               step={0.01}
               placeholder="10000"
             />
@@ -561,7 +600,7 @@ export function MixLotForm({
             <Label className="text-nowrap">Result / Cts</Label>
             <Input
               type="number"
-              {...register("resultPerCarat")}
+              {...register("resultPerCarat", { valueAsNumber: true })}
               readOnly
               disabled
             />
@@ -570,7 +609,7 @@ export function MixLotForm({
             <Label className="text-nowrap">Result cost</Label>
             <Input
               type="number"
-              {...register("resultCost")}
+              {...register("resultCost", { valueAsNumber: true })}
               readOnly
               disabled
             />

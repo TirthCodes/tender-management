@@ -50,7 +50,7 @@ const columns = [
   "Tops Amnt",
   "Incription",
   "Bid Price",
-  "Total Amnt",
+  "Total Amount",
   "Result Total",
   "Result/Ct",
   "Result Cost",
@@ -96,6 +96,7 @@ export function SingleTenderDataTable({
         polCts: acc.polCts + (row.polCts || 0),
         polPercent: acc.polPercent + (row.polPercent || 0),
         salePrice: acc.salePrice + (row.salePrice || 0),
+        saleAmount: acc.saleAmount + (row.saleAmount || 0),
         costPrice: acc.costPrice + (row.costPrice || 0),
         topsAmount: acc.topsAmount + (row.topsAmount || 0),
       }),
@@ -105,6 +106,7 @@ export function SingleTenderDataTable({
         polCts: 0,
         polPercent: 0,
         salePrice: 0,
+        saleAmount: 0,
         costPrice: 0,
         topsAmount: 0,
       }
@@ -125,7 +127,7 @@ export function SingleTenderDataTable({
                     return (
                       <TableHead
                         onClick={() =>
-                          handleValueChange(singleInitialRow, data?.length || 0 + 1)
+                          handleValueChange(singleInitialRow, data?.length + 1 || 1)
                         }
                         style={{ borderTopWidth: 0 }}
                         className="border-collapse border border-gray-300 border-t-0"
@@ -137,7 +139,7 @@ export function SingleTenderDataTable({
                   }
                   return (
                     <TableHead
-                      className={`border-collapse border border-gray-300 border-t-0`}
+                      className={`text-nowrap border-collapse border border-gray-300 border-t-0`}
                       key={index}
                       style={{ borderTopWidth: 0 }}
                     >
@@ -399,7 +401,7 @@ export function SingleTenderDataTable({
 
                           if (!isNaN(value) && !isNaN(row.roughCts)) {
                             polPercent = parseFloat(
-                              ((value / row.roughCts) * 100).toFixed(2)
+                              ((value * 100) / row.roughCts).toFixed(2)
                             );
                           }
 
@@ -633,7 +635,7 @@ export function SingleTenderDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-24 text-right"
                         name="costPrice"
                         type="number"
                         value={row.costPrice || ""}
@@ -744,7 +746,7 @@ export function SingleTenderDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-full text-right"
                         name="totalAmount"
                         type="number"
                         value={row.totalAmount || ""}
@@ -868,9 +870,7 @@ export function SingleTenderDataTable({
                         type="button"
                         className="p-0"
                         onClick={() => {
-                          if (data?.length !== 1) {
-                            handleValueChange(row, index, "delete");
-                          }
+                          handleValueChange(row, index, "delete");
                         }}
                       >
                         <Trash2 className="h-4 w-4" />

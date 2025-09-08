@@ -43,9 +43,7 @@ export const calculateCostPrice = (
 ) => {
   const costPrice = parseFloat(
     (
-      (((bidPrice * 0.06 + bidPrice + labourValue) * roughCts) / polCts + 180) /
-        0.97 -
-      topsAmount
+      (((((((bidPrice * 0.06) + bidPrice) + labourValue) * roughCts) / polCts) + 180) / 0.97) - topsAmount
     ).toFixed(2)
   );
 

@@ -174,7 +174,7 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
         >
           {filteredData.map((item, index) => (
             <li
-              key={item.stShortName}
+              key={`${item.stShortName}-${index}`}
               ref={(el) => {
                 itemRefs.current[index] = el;
               }}
