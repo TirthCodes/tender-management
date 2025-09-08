@@ -83,6 +83,7 @@ export function TenderDetailsDataTable({
         polCts: acc.polCts + (row.polCts || 0),
         polPercent: acc.polPercent + (row.polPercent || 0),
         salePrice: acc.salePrice + (row.salePrice || 0),
+        saleAmount: acc.saleAmount + (row.saleAmount || 0),
         costPrice: acc.costPrice + (row.costPrice || 0),
         topsAmount: acc.topsAmount + (row.topsAmount || 0),
       }),
@@ -92,6 +93,7 @@ export function TenderDetailsDataTable({
         polCts: 0,
         polPercent: 0,
         salePrice: 0,
+        saleAmount: 0,
         costPrice: 0,
         topsAmount: 0,
       }

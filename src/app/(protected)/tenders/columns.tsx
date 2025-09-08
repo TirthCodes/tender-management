@@ -1,5 +1,6 @@
 "use client";
 
+import { LinkLoadingIndicator } from "@/components/common/link-loading-indicator";
 import { buttonVariants } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
@@ -50,20 +51,19 @@ export const columns: ColumnDef<TenderColumns>[] = [
       return (
         <div className="flex items-center gap-2">
           {tenderTypes.map((tenderType) => {
-
             // let url = `/tenders/tender-details/create?tenderId=${id}`;
-            let url = `/tenders/${tenderType.value}?baseTenderId=${id}`
-            if(tenderType.value === "single-stone") {
+            let url = `/tenders/${tenderType.value}?baseTenderId=${id}`;
+            if (tenderType.value === "single-stone") {
               url = `/tenders/single-stone/create?tenderId=${id}`;
             }
 
             return (
               <Link
-                className={buttonVariants({ variant: "outline" })}
+                className={`${buttonVariants({ variant: "outline" })} w-28`}
                 href={url}
                 key={tenderType.value}
               >
-                {tenderType.label}
+                {tenderType.label} <LinkLoadingIndicator />
               </Link>
             );
           })}

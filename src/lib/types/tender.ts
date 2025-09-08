@@ -17,6 +17,7 @@ export interface TotalValues {
   polCts: number;
   polPercent: number;
   salePrice: number;
+  saleAmount: number;
   costPrice: number;
   topsAmount?: number;
 }

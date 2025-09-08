@@ -33,13 +33,13 @@ export function MixLotTendersPage({ mixLotTenders, totalCount }: { mixLotTenders
 
   let createPath = ``;
   if(id) {
-    createPath = `/tenders/rough-lot/create?baseTenderId=${id}`;
+    createPath = `/tenders/mix-lot/create?baseTenderId=${id}`;
   }
   if(mainLotId) {
-    createPath = `/tenders/rough-lot/create?mainLotId=${mainLotId}`;
+    createPath = `/tenders/mix-lot/create?mainLotId=${mainLotId}`;
   }
   if(id && mainLotId) {
-    createPath = `/tenders/rough-lot/create?baseTenderId=${id}&mainLotId=${mainLotId}`;
+    createPath = `/tenders/mix-lot/create?baseTenderId=${id}&mainLotId=${mainLotId}`;
   }
 
   // console.log(mixLotResponse, "mixLotResponse");

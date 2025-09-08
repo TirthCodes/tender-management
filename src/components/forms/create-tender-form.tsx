@@ -176,6 +176,7 @@ export function CreateTenderForm({
     polCts: 0,
     polPercent: 0,
     salePrice: 0,
+    saleAmount: 0,
     costPrice: 0,
     topsAmount: 0,
   });
