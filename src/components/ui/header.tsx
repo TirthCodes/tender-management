@@ -27,10 +27,10 @@ export default function Header() {
         className="flex items-center justify-between p-4 lg:px-6"
       >
         <div className="flex items-center gap-x-12">
-          <Link href="/tenders" className="-m-1.5">
+          {/* <Link href="/tenders" className="-m-1.5">
             <span className="sr-only">Your Company</span>
             <span className="font-semibold text-xl">Tender</span>
-          </Link>
+          </Link> */}
           <div className="hidden lg:flex lg:gap-x-12">
             {navigation.map((item, index) => (
               <Link

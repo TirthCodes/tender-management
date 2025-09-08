@@ -43,7 +43,6 @@ export function MultiLotForm({
   const {
     handleSubmit,
     register,
-    watch,
     formState: { errors },
     reset,
   } = useForm({
@@ -82,15 +81,15 @@ export function MultiLotForm({
   });
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
-    // Prevent normal Enter from submitting
-    if (e.key === "Enter" && !e.ctrlKey) {
+    // Block plain Enter
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
     }
-
-    // Submit on Ctrl+Enter
-    if (e.key === "Enter" && e.ctrlKey) {
+  
+    // Submit on Shift+Enter
+    if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
-      onSubmit(watch());
+      (e.currentTarget as HTMLFormElement).requestSubmit();
     }
   };
 
@@ -112,10 +111,7 @@ export function MultiLotForm({
   return (
     <form
       onKeyDown={handleKeyDown}
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit(onSubmit);
-      }}
+      onSubmit={handleSubmit(onSubmit)}
       className="space-y-4"
     >
       <div className="grid grid-cols-2 gap-4">

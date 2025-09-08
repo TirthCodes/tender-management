@@ -173,7 +173,7 @@ export function SingleTenderDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-center"
+                        className="w-10 px-1 text-center"
                         name="roughPcs"
                         type="number"
                         value={row.roughPcs || ""}
@@ -198,7 +198,7 @@ export function SingleTenderDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-16 px-1 text-right"
                         name="roughCts"
                         type="number"
                         value={row.roughCts || ""}
@@ -257,12 +257,13 @@ export function SingleTenderDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-10 px-1 text-right"
                         name="roughSize"
                         type="number"
                         value={row.roughSize || ""}
                         step={0.01}
                         readOnly
+                        disabled
                         // onChange={(e) => {
                         //   const value = e.target.value
                         //     ? parseFloat(e.target.value)
@@ -300,7 +301,7 @@ export function SingleTenderDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-10 px-1 text-center"
                         name="colorGrade"
                         type="number"
                         value={row.colorGrade || ""}
@@ -481,7 +482,7 @@ export function SingleTenderDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-14 px-1 text-right"
                         name="depth"
                         type="number"
                         value={row.depth || ""}
@@ -503,7 +504,7 @@ export function SingleTenderDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-14 px-1 text-right"
                         name="table"
                         type="number"
                         value={row.table || ""}
@@ -525,7 +526,7 @@ export function SingleTenderDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-10 px-1 text-right"
                         name="ratio"
                         type="number"
                         value={row.ratio || ""}
@@ -630,6 +631,8 @@ export function SingleTenderDataTable({
                             index
                           );
                         }}
+                        readOnly
+                        disabled
                         placeholder="0"
                       />
                     </TableCell>
