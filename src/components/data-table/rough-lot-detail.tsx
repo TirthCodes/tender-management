@@ -340,8 +340,10 @@ export function RoughLotDetails({
                           const value = e.target.value
                             ? parseFloat(e.target.value)
                             : 0;
-                          
-                          const polCts = parseFloat(((value * row.dcRoughCts) / 100).toFixed(2))
+
+                          const polCts = parseFloat(
+                            ((value * row.dcRoughCts) / 100).toFixed(2)
+                          );
                           handleValueChange(
                             {
                               ...row,
@@ -424,6 +426,8 @@ export function RoughLotDetails({
                       <Input
                         className="w-20 text-right"
                         name="salePrice"
+                        disabled
+                        readOnly
                         type="number"
                         value={row.dcSalePrice || ""}
                         step={0.01}
@@ -449,12 +453,16 @@ export function RoughLotDetails({
                         type="number"
                         value={row.dcSaleAmount}
                         step={0.01}
+                        // disabled
+                        // readOnly
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
                             : 0;
 
-                          const salePrice = parseFloat((value / row.dcPolCts).toFixed(2)) 
+                          const salePrice = parseFloat(
+                            (value / row.dcPolCts).toFixed(2)
+                          );
                           handleValueChange(
                             {
                               ...row,

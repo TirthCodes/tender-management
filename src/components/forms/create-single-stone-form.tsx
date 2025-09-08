@@ -215,15 +215,15 @@ export function CreateSingleStoneTenderForm({
   useKeyPress({ backPath: "/tenders", ref: formRef });
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
-    // Prevent normal Enter from submitting
-    if (e.key === "Enter" && !e.ctrlKey) {
+    // Block plain Enter
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
     }
-
-    // Submit on Ctrl+Enter
-    if (e.key === "Enter" && e.ctrlKey) {
+  
+    // Submit on Shift+Enter
+    if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
-      onSubmit(watch());
+      (e.currentTarget as HTMLFormElement).requestSubmit();
     }
   };
 
@@ -260,10 +260,7 @@ export function CreateSingleStoneTenderForm({
   return (
     <form
       ref={formRef}
-      onSubmit={(e) => {
-        e.preventDefault()
-        handleSubmit(onSubmit);
-      }}
+      onSubmit={handleSubmit(onSubmit)}
       onKeyDown={handleKeyDown}
     >
       <div className="flex items-center flex-col md:flex-row md:justify-between px-4 py-2 border border-neutral-300 rounded-lg shadow-sm">

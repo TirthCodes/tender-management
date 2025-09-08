@@ -345,15 +345,15 @@ export function RoughLotForm({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
-    // Prevent normal Enter from submitting
-    if (e.key === "Enter" && !e.ctrlKey) {
+    // Block plain Enter
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
     }
-
-    // Submit on Ctrl+Enter
-    if (e.key === "Enter" && e.ctrlKey) {
+  
+    // Submit on Shift+Enter
+    if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
-      onSubmit(watch());
+      (e.currentTarget as HTMLFormElement).requestSubmit();
     }
   };
 
@@ -407,10 +407,7 @@ export function RoughLotForm({
 
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit(onSubmit);
-      }}
+      onSubmit={handleSubmit(onSubmit)}
       onKeyDown={handleKeyDown}
     >
       <div className="flex items-center flex-col md:flex-row md:justify-between p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
