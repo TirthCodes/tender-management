@@ -311,6 +311,15 @@ export function RoughLotForm({
     }
   }, [roughPcs, roughCts, setValue]);
 
+  useEffect(() => {
+    if (totalValues.salePrice) {
+      setValue("salePrice", totalValues.salePrice);
+    }
+    if(totalValues.saleAmount) {
+      setValue("saleAmount", totalValues.saleAmount);
+    }
+  }, [totalValues.salePrice, totalValues.saleAmount, setValue])
+
   const handleDetailsValueChange = (
     value: RoughLotTenderDetails,
     index: number,
@@ -566,7 +575,6 @@ export function RoughLotForm({
             <Label className="text-nowrap w-32">Sale Price</Label>
             <Input
               type="number"
-              defaultValue={totalValues.salePrice}
               {...register("salePrice", { valueAsNumber: true })}
               step={0.01}
               className="w-full"
