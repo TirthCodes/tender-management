@@ -85,6 +85,7 @@ export function RoughLotDetails({
         salePrice: acc.salePrice + (row.dcSalePrice || 0),
         saleAmount: acc.saleAmount + (row.dcSaleAmount || 0),
         costPrice: acc.costPrice + (row.dcCostPrice || 0),
+        totalAmount: 0,
       }),
       {
         pcs: 0,
@@ -94,6 +95,7 @@ export function RoughLotDetails({
         salePrice: 0,
         saleAmount: 0,
         costPrice: 0,
+        totalAmount: 0,
       }
     );
 

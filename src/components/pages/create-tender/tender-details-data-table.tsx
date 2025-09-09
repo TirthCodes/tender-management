@@ -86,6 +86,7 @@ export function TenderDetailsDataTable({
         saleAmount: acc.saleAmount + (row.saleAmount || 0),
         costPrice: acc.costPrice + (row.costPrice || 0),
         topsAmount: acc.topsAmount + (row.topsAmount || 0),
+        totalAmount: 0,
       }),
       {
         pcs: 0,
@@ -96,6 +97,7 @@ export function TenderDetailsDataTable({
         saleAmount: 0,
         costPrice: 0,
         topsAmount: 0,
+        totalAmount: 0,
       }
     );
 
