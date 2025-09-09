@@ -103,8 +103,8 @@ export function RoughLotDetails({
   return (
     <>
       <div className="rounded-md flex-1 flex flex-col min-h-0 h-[45svh]">
-        <div className="overflow-x-auto w-auto">
-          <Table className="bg-white mb-[34svh]">
+        <div className="overflow-auto w-auto">
+          <Table isOverflow={false} className="bg-white mb-[34svh]">
             <TableHeader className="sticky top-0 z-40 bg-white border-b">
               <TableRow>
                 {columns.map((header, index) => {
