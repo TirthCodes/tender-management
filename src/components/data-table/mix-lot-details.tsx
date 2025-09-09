@@ -102,8 +102,8 @@ export function MixLotDetails({
   return (
     <>
       <div className="rounded-md flex-1 flex flex-col min-h-0 h-[45svh]">
-        <div className="overflow-x-auto w-auto">
-          <Table className="bg-white mb-[34svh]">
+        <div className="overflow-auto w-auto">
+          <Table isOverflow={false} className="bg-white mb-[34svh]">
             <TableHeader className="sticky top-0 z-40 bg-white border-b">
               <TableRow>
                 {columns.map((header, index) => {
@@ -148,7 +148,8 @@ export function MixLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
+
                           handleValueChange(
                             {
                               ...row,
@@ -170,7 +171,8 @@ export function MixLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
+
                           handleValueChange(
                             {
                               ...row,
@@ -213,7 +215,7 @@ export function MixLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
                           handleValueChange(
                             {
                               ...row,
@@ -311,12 +313,14 @@ export function MixLotDetails({
                         className="w-20 text-right"
                         name="polCts"
                         type="number"
+                        disabled
                         value={row.dcPolCts}
                         step={0.01}
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
+
                           handleValueChange(
                             {
                               ...row,
@@ -338,18 +342,31 @@ export function MixLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
 
-                          const polCts = parseFloat(((value * row.dcRoughCts) / 100).toFixed(2))
+                          if (value && row.dcRoughCts) {
+                            const polCts = parseFloat(
+                              ((value * row.dcRoughCts) / 100).toFixed(2)
+                            );
 
-                          handleValueChange(
-                            {
-                              ...row,
-                              dcPolCts: polCts,
-                              dcPolPer: value,
-                            },
-                            index
-                          );
+                            handleValueChange(
+                              {
+                                ...row,
+                                dcPolCts: polCts,
+                                dcPolPer: value,
+                              },
+                              index
+                            );
+                          } else {
+                            handleValueChange(
+                              {
+                                ...row,
+                                dcPolCts: undefined,
+                                dcPolPer: undefined,
+                              },
+                              index
+                            );
+                          }
                         }}
                         placeholder="0"
                       />
@@ -364,7 +381,7 @@ export function MixLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
                           handleValueChange(
                             {
                               ...row,
@@ -386,7 +403,7 @@ export function MixLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
                           handleValueChange(
                             {
                               ...row,
@@ -408,7 +425,7 @@ export function MixLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
                           handleValueChange(
                             {
                               ...row,
@@ -430,14 +447,31 @@ export function MixLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
-                          handleValueChange(
-                            {
-                              ...row,
-                              dcSalePrice: value,
-                            },
-                            index
-                          );
+                            : undefined;
+
+                          if (value && row.dcPolCts) {
+                            const saleAmount = parseFloat(
+                              (value * row.dcPolCts).toFixed(2)
+                            );
+
+                            handleValueChange(
+                              {
+                                ...row,
+                                dcSalePrice: value,
+                                dcSaleAmount: saleAmount,
+                              },
+                              index
+                            );
+                          } else {
+                            handleValueChange(
+                              {
+                                ...row,
+                                dcSalePrice: undefined,
+                                dcSaleAmount: undefined,
+                              },
+                              index
+                            );
+                          }
                         }}
                         placeholder="0"
                       />
@@ -452,17 +486,30 @@ export function MixLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
 
-                          const salePrice = parseFloat((value / row.dcPolCts).toFixed(2))
-                          handleValueChange(
-                            {
-                              ...row,
-                              dcSalePrice: salePrice,
-                              dcSaleAmount: value,
-                            },
-                            index
-                          );
+                          if (value && row.dcPolCts) {
+                            const salePrice = parseFloat(
+                              (value / row.dcPolCts).toFixed(2)
+                            );
+                            handleValueChange(
+                              {
+                                ...row,
+                                dcSalePrice: salePrice,
+                                dcSaleAmount: value,
+                              },
+                              index
+                            );
+                          } else {
+                            handleValueChange(
+                              {
+                                ...row,
+                                dcSalePrice: undefined,
+                                dcSaleAmount: undefined,
+                              },
+                              index
+                            );
+                          }
                         }}
                         placeholder="0"
                       />
@@ -493,21 +540,21 @@ export function MixLotDetails({
           </Table>
         </div>
       </div>
-      <div className="px-10 flex items-center gap-10 h-10 bg-gray-100">
-        <p className="text-gray-600 w-28 text-sm font-semibold">
+      <div className="px-10 flex items-center justify-around flex-wrap w-full gap-6 h-10 bg-gray-100">
+        <p className="text-gray-600 text-sm font-semibold">
           Pcs: {totalValues.pcs}
         </p>
-        <p className="text-gray-600 w-28 text-sm font-semibold">
-          Cts: {totalValues.carats}
+        <p className="text-gray-600 text-sm font-semibold">
+          Cts: {totalValues.carats?.toFixed(2)}
         </p>
-        <p className="text-gray-600 w-28 text-sm font-semibold">
-          Pol Cts: {totalValues.polCts}
+        <p className="text-gray-600 text-sm font-semibold">
+          Pol Cts: {totalValues.polCts?.toFixed(2)}
         </p>
-        <p className="text-gray-600 w-28 text-sm font-semibold">
-          Pol %: {totalValues.polPercent}%
+        <p className="text-gray-600 text-sm font-semibold">
+          Pol Percent: {totalValues.polPercent}%
         </p>
-        <p className="text-gray-600 w-36 text-sm font-semibold">
-          Sale Price: {totalValues.salePrice}
+        <p className="text-gray-600 text-sm font-semibold">
+          Sale Price: {totalValues.salePrice?.toFixed(2)}
         </p>
       </div>
     </>

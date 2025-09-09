@@ -21,6 +21,7 @@ export interface TotalValues {
   costPrice: number;
   topsAmount?: number;
   totalAmount: number;
+  costAmount?: number;
 }
 
 // type BasePayload = {
@@ -72,43 +73,43 @@ export interface TenderDetails {
 
 export interface RoughLotTenderDetails {
   id?: number;
-  inRoughPcs: number;
-  dcRoughCts: number;
+  inRoughPcs: number | undefined;
+  dcRoughCts: number | undefined;
   color: Option;
-  inColorGrade: number;
+  inColorGrade: number | undefined;
   clarity: Option;
   fluorescence: Option;
   shape: Option;
   stRemark: string;
-  dcPolCts: number;
-  dcPolPer: number;
-  dcDepth: number;
-  dcTable: number;
-  dcRatio: number;
-  dcSalePrice: number;
-  dcSaleAmount: number;
-  dcLabour: number;
-  dcCostPrice: number;
-  dcCostAmount: number;
+  dcPolCts: number | undefined;
+  dcPolPer: number | undefined;
+  dcDepth: number | undefined;
+  dcTable: number | undefined;
+  dcRatio: number | undefined;
+  dcSalePrice: number | undefined;
+  dcSaleAmount: number | undefined;
+  dcLabour: number | undefined;
+  dcCostPrice: number | undefined;
+  dcCostAmount: number | undefined;
 }
 
 export interface MixLotTenderDetails {
   id?: number;
-  inRoughPcs: number;
-  dcRoughCts: number;
+  inRoughPcs: number | undefined;
+  dcRoughCts: number | undefined;
   color: Option;
-  inColorGrade: number;
+  inColorGrade: number | undefined;
   clarity: Option;
   fluorescence: Option;
   shape: Option;
   stRemark: string;
-  dcPolCts: number;
-  dcPolPer: number;
-  dcDepth: number;
-  dcTable: number;
-  dcRatio: number;
-  dcSalePrice: number;
-  dcSaleAmount: number;
+  dcPolCts: number | undefined;
+  dcPolPer: number | undefined;
+  dcDepth: number | undefined;
+  dcTable: number | undefined;
+  dcRatio: number | undefined;
+  dcSalePrice: number | undefined;
+  dcSaleAmount: number | undefined;
 }
 
 export type RoughLotPaylod = OtherTednerBasePayload

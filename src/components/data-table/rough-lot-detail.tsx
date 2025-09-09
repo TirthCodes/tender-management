@@ -85,6 +85,7 @@ export function RoughLotDetails({
         salePrice: acc.salePrice + (row.dcSalePrice || 0),
         saleAmount: acc.saleAmount + (row.dcSaleAmount || 0),
         costPrice: acc.costPrice + (row.dcCostPrice || 0),
+        costAmount: acc.costAmount + (row.dcCostAmount || 0),
         totalAmount: 0,
       }),
       {
@@ -95,6 +96,7 @@ export function RoughLotDetails({
         salePrice: 0,
         saleAmount: 0,
         costPrice: 0,
+        costAmount: 0,
         totalAmount: 0,
       }
     );
@@ -151,7 +153,7 @@ export function RoughLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
                           handleValueChange(
                             {
                               ...row,
@@ -173,7 +175,7 @@ export function RoughLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
                           handleValueChange(
                             {
                               ...row,
@@ -216,7 +218,7 @@ export function RoughLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
                           handleValueChange(
                             {
                               ...row,
@@ -319,7 +321,7 @@ export function RoughLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
                           handleValueChange(
                             {
                               ...row,
@@ -341,10 +343,10 @@ export function RoughLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
 
                           const polCts = parseFloat(
-                            ((value * row.dcRoughCts) / 100).toFixed(2)
+                            (((value ?? 0) * (row.dcRoughCts ?? 0)) / 100).toFixed(2)
                           );
                           handleValueChange(
                             {
@@ -368,7 +370,7 @@ export function RoughLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
                           handleValueChange(
                             {
                               ...row,
@@ -390,7 +392,8 @@ export function RoughLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
+
                           handleValueChange(
                             {
                               ...row,
@@ -412,7 +415,7 @@ export function RoughLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
                           handleValueChange(
                             {
                               ...row,
@@ -428,19 +431,31 @@ export function RoughLotDetails({
                       <Input
                         className="w-20 text-right"
                         name="salePrice"
-                        disabled
-                        readOnly
                         type="number"
                         value={row.dcSalePrice || ""}
                         step={0.01}
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
+
+                          const saleAmount = parseFloat(
+                            ((value ?? 0) * (row.dcPolCts ?? 0)).toFixed(2)
+                          );
+                          const costPrice =
+                            (value ?? 0) *
+                              (row.dcPolPer
+                                ? parseFloat((row.dcPolPer / 100).toFixed(2))
+                                : 0) -
+                            (row.dcLabour ?? 0);
+                          const costAmount = costPrice * (row.dcRoughCts ?? 0);
                           handleValueChange(
                             {
                               ...row,
                               dcSalePrice: value,
+                              dcSaleAmount: saleAmount,
+                              dcCostPrice: costPrice,
+                              dcCostAmount: costAmount,
                             },
                             index
                           );
@@ -460,19 +475,30 @@ export function RoughLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
 
-                          const salePrice = parseFloat(
-                            (value / row.dcPolCts).toFixed(2)
-                          );
-                          handleValueChange(
-                            {
-                              ...row,
-                              dcSalePrice: salePrice,
-                              dcSaleAmount: value,
-                            },
-                            index
-                          );
+                          if (value && row.dcPolCts) {
+                            const salePrice = parseFloat(
+                              (value / row.dcPolCts).toFixed(2)
+                            );
+                            handleValueChange(
+                              {
+                                ...row,
+                                dcSalePrice: salePrice,
+                                dcSaleAmount: value,
+                              },
+                              index
+                            );
+                          } else {
+                            handleValueChange(
+                              {
+                                ...row,
+                                dcSalePrice: undefined,
+                                dcSaleAmount: undefined,
+                              },
+                              index
+                            );
+                          }
                         }}
                         placeholder="0"
                       />
@@ -487,11 +513,21 @@ export function RoughLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
+
+                          const costPrice =
+                            (row.dcSalePrice ?? 0) *
+                              (row.dcPolPer
+                                ? parseFloat((row.dcPolPer / 100).toFixed(2))
+                                : 0) - (value ?? 0);
+                          const costAmount = costPrice * (row.dcRoughCts ?? 0);
+
                           handleValueChange(
                             {
                               ...row,
                               dcLabour: value,
+                              dcCostPrice: costPrice,
+                              dcCostAmount: costAmount,
                             },
                             index
                           );
@@ -509,11 +545,16 @@ export function RoughLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
+                          
+                          const costAmount = parseFloat(
+                            ((value ?? 0) * (row.dcRoughCts ?? 0)).toFixed(2)
+                          );
                           handleValueChange(
                             {
                               ...row,
                               dcCostPrice: value,
+                              dcCostAmount: costAmount,
                             },
                             index
                           );
@@ -531,7 +572,7 @@ export function RoughLotDetails({
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)
-                            : 0;
+                            : undefined;
                           handleValueChange(
                             {
                               ...row,
@@ -569,24 +610,27 @@ export function RoughLotDetails({
           </Table>
         </div>
       </div>
-      <div className="px-10 flex items-center gap-10 h-10 bg-gray-100">
-        <p className="text-gray-600 w-28 text-sm font-semibold">
+      <div className="px-10 flex items-center justify-around flex-wrap w-full gap-6 h-10 bg-gray-100">
+        <p className="text-gray-600 text-sm font-semibold">
           Pcs: {totalValues.pcs}
         </p>
-        <p className="text-gray-600 w-28 text-sm font-semibold">
-          Cts: {totalValues.carats}
+        <p className="text-gray-600 text-sm font-semibold">
+          Cts: {totalValues.carats?.toFixed(2)}
         </p>
-        <p className="text-gray-600 w-28 text-sm font-semibold">
-          Pol Cts: {totalValues.polCts}
+        <p className="text-gray-600 text-sm font-semibold">
+          Pol Cts: {totalValues.polCts?.toFixed(2)}
         </p>
-        <p className="text-gray-600 w-28 text-sm font-semibold">
+        {/* <p className="text-gray-600 text-sm font-semibold">
           Pol %: {totalValues.polPercent}%
+        </p> */}
+        <p className="text-gray-600 text-sm font-semibold">
+          Sale Price: {totalValues.salePrice?.toFixed(2)}
         </p>
-        <p className="text-gray-600 w-36 text-sm font-semibold">
-          Sale Price: {totalValues.salePrice}
+        <p className="text-gray-600 text-sm font-semibold">
+          Cost Price: {totalValues.costPrice?.toFixed(2)}
         </p>
-        <p className="text-gray-600 w-36 text-sm font-semibold">
-          Cost Price: {totalValues.costPrice}
+        <p className="text-gray-600 text-sm font-semibold">
+          Cost Amount: {totalValues?.costAmount?.toFixed(2)}
         </p>
       </div>
     </>

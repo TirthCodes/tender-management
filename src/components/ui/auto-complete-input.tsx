@@ -47,11 +47,13 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
 
   useEffect(() => {
     if (data && data.length > 0) {
-      setFilteredData(data);
       if (inputValue === "") {
+        // Show all options when input is empty
+        setFilteredData(data);
         handleValueChange({ stShortName: "", id: 0 });
       } else {
-        const filtered = filteredData.filter((item) =>
+        // Filter based on input value using the original data array
+        const filtered = data.filter((item) =>
           item.stShortName.toLowerCase().includes(inputValue?.toLowerCase())
         );
         setFilteredData(filtered);
@@ -189,8 +191,8 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
             </li>
           ))}
           <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-            <DialogTrigger onClick={() => setCreateDialogOpen(true)} className="z-50" asChild>
-              <button className={`p-2 cursor-pointer bg-white hover:bg-gray-100 h-9 flex items-center gap-2 border-b ${dropdownClass ? dropdownClass : "w-full"}`}>
+            <DialogTrigger onClick={() => setCreateDialogOpen(true)} className="z-50 w-full" asChild>
+              <button className={`p-2 cursor-pointer w-full bg-white hover:bg-gray-100 h-9 flex items-center gap-2 border-b ${dropdownClass ? dropdownClass : "w-full"}`}>
                 <PlusCircle className="h-5 w-5" /> Create
               </button>
             </DialogTrigger>

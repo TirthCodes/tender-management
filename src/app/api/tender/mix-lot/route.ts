@@ -99,16 +99,16 @@ export async function POST(req: Request) {
             await prisma.otherTenderDetails.create({
               data: {
                 otherTenderId: id,
-                inRoughPcs: detail.inRoughPcs,
-                dcRoughCts: detail.dcRoughCts,
+                inRoughPcs: detail.inRoughPcs ?? 0,
+                dcRoughCts: detail.dcRoughCts ?? 0,
                 colorId: detail.color.id,
                 clarityId: detail.clarity.id,
                 fluorescenceId: detail.fluorescence.id,
                 shapeId: detail.shape.id,
                 stRemark: detail.stRemark || "",
-                inColorGrade: detail.inColorGrade,
-                dcPolCts: detail.dcPolCts,
-                dcPolPer: detail.dcPolPer,
+                inColorGrade: detail.inColorGrade ?? 0,
+                dcPolCts: detail.dcPolCts ?? 0,
+                dcPolPer: detail.dcPolPer ?? 0,
                 dcDepth: detail.dcDepth,
                 dcTable: detail.dcTable,
                 dcRatio: detail.dcRatio,
@@ -178,21 +178,21 @@ export async function POST(req: Request) {
         otherTenderDetails: {
           createMany: {
             data: parsedTenderDetails.map((detail: MixLotTenderDetails) => ({
-              inRoughPcs: detail.inRoughPcs,
-              dcRoughCts: detail.dcRoughCts,
+              inRoughPcs: detail.inRoughPcs ?? 0,
+              dcRoughCts: detail.dcRoughCts ?? 0,
               colorId: detail.color.id,
               clarityId: detail.clarity.id,
               fluorescenceId: detail.fluorescence.id,
               shapeId: detail.shape.id,
               stRemark: detail.stRemark,
-              inColorGrade: detail.inColorGrade,
-              dcPolCts: detail.dcPolCts,
-              dcPolPer: detail.dcPolPer,
-              dcDepth: detail.dcDepth,
-              dcTable: detail.dcTable,
-              dcRatio: detail.dcRatio,
-              dcSalePrice: detail.dcSalePrice,
-              dcSaleAmount: detail.dcSaleAmount,
+              inColorGrade: detail.inColorGrade ?? 0,
+              dcPolCts: detail.dcPolCts ?? 0,
+              dcPolPer: detail.dcPolPer ?? 0,
+              dcDepth: detail.dcDepth ?? 0,
+              dcTable: detail.dcTable ?? 0,
+              dcRatio: detail.dcRatio ?? 0,
+              dcSalePrice: detail.dcSalePrice ?? 0,
+              dcSaleAmount: detail.dcSaleAmount ?? 0,
             }))
           }
         }
@@ -207,6 +207,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
+    console.log(error, "error");
     return Response.json(
       {
         success: false,
