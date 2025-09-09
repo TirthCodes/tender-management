@@ -124,7 +124,7 @@ export function SingleTenderDataTable({
       <div className="rounded-md flex-1 flex flex-col min-h-0 h-[65svh]">
         <div className="overflow-auto w-auto">
           <Table isOverflow={false} className="bg-white mb-[54svh]">
-            <TableHeader className="sticky top-0 z-40 bg-white border-b">
+            <TableHeader className="sticky top-0 z-50 bg-white border-b">
               <TableRow>
                 {columns.map((header, index) => {
                   const isLast = index === columns.length - 1;
@@ -138,7 +138,7 @@ export function SingleTenderDataTable({
                           : undefined
                       }
                       className={`text-nowrap border-collapse border border-gray-300 border-t-0 
-                        ${isLast ? "sticky right-0 bg-neutral-50 z-50" : ""}`}
+                        ${isLast ? "sticky right-0 bg-neutral-50 z-40" : ""}`}
                       style={{ borderTopWidth: 0 }}
                     >
                       {header}
@@ -176,7 +176,7 @@ export function SingleTenderDataTable({
                   <TableRow key={index} className={isRowsLoading ? "animate-pulse bg-neutral-50": ""}>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20"
+                        className="w-20 px-1"
                         name="lotNo"
                         type="text"
                         value={row.lotNo || ""}
@@ -704,13 +704,33 @@ export function SingleTenderDataTable({
                         value={row.topsAmount || ""}
                         step={0.01}
                         onChange={(e) => {
-                          const value = e.target.value
+                          const value = e.target.value      
                             ? parseFloat(e.target.value)
                             : 0;
+                          
+                          const bidPrice = calculateBidPrice(
+                            row.costPrice,
+                            value,
+                            row.polCts,
+                            row.roughCts,
+                            labourValue,
+                            netPercernt
+                          );
+
+                          const resultCost = calculateResultCost(
+                            row.resultPerCarat,
+                            labourValue,
+                            row.polCts,
+                            row.roughCts,
+                            value
+                          );
+
                           handleValueChange(
                             {
                               ...row,
                               topsAmount: value,
+                              bidPrice,
+                              resultCost,
                             },
                             index
                           );
