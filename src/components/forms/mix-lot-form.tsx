@@ -58,9 +58,9 @@ interface MixLotFormProps {
 }
 
 const mixLotSchema = z.object({
-  voucherDate: z.string(),
-  tenderName: z.string().trim().min(2, { message: "Tender name is required!" }),
-  personName: z.string().trim().min(2, { message: "Person name is required!" }),
+  // voucherDate: z.string(),
+  // tenderName: z.string().trim().min(2, { message: "Tender name is required!" }),
+  // personName: z.string().trim().min(2, { message: "Person name is required!" }),
   netPercent: z.preprocess(
     (val) => Number(val),
     z.number().min(0, { message: "Net % is required!" })
@@ -111,6 +111,14 @@ const mixLotSchema = z.object({
   resultCost: z.preprocess(
     (val) => Number(val),
     z.number().min(0, "Result cost is required!")
+  ),
+  salePrice: z.preprocess(
+    (val) => Number(val),
+    z.number().optional()
+  ),
+  saleAmount: z.preprocess(
+    (val) => Number(val),
+    z.number().optional()
   ),
 });
 
@@ -187,9 +195,11 @@ export function MixLotForm({
     formState: { errors },
     setValue,
   } = useForm<MixLotFormValues>({
-    mode: "onBlur",
+    mode: "onSubmit",
     resolver: zodResolver(mixLotSchema),
   });
+
+  
 
   const [isPending, setIsPending] = useState(false);
 
@@ -249,6 +259,8 @@ export function MixLotForm({
   const roughCts = watch("roughCts");
   const labour = watch("labour");
 
+  const salePrice = watch("salePrice");
+
   useEffect(() => {
     if (!lodingBaseTender && baseTender?.data) {
       setValue("netPercent", baseTender.data.dcNetPercentage);
@@ -257,12 +269,12 @@ export function MixLotForm({
   }, [baseTender, lodingBaseTender, setValue]);
 
   useEffectAfterMount(() => {
-    if (netPercent && labour) {
+    if (netPercent && labour && salePrice) {
       const netPercentage = netPercent / 100;
 
       const calculatedBidPrice = parseFloat(
         (
-          (((totalValues.salePrice * 0.97 - 180) * totalValues.polCts) /
+          (((salePrice * 0.97 - 180) * totalValues.polCts) /
             totalValues.carats -
             labour) /
           netPercentage
@@ -297,7 +309,7 @@ export function MixLotForm({
             if (roughCts) {
               resultCost = parseFloat(
                 (
-                  (((resultPerCarat * 0.06 + resultPerCarat + labour) *
+                  (((resultPerCarat * 0.15 + resultPerCarat + labour) *
                     totalValues.carats) /
                     totalValues.polCts +
                     180) /
@@ -312,7 +324,7 @@ export function MixLotForm({
         }
       }
     }
-  }, [labour, totalValues, setValue, netPercent, resultTotal, roughCts]);
+  }, [labour, totalValues, setValue, netPercent, resultTotal, roughCts, salePrice]);
 
   const roughPcs = watch("roughPcs");
 
@@ -324,6 +336,28 @@ export function MixLotForm({
       }
     }
   }, [roughPcs, roughCts, setValue]);
+
+  const rate = watch("rate");
+
+  useEffectAfterMount(() => {
+    if (rate) {
+      if (!isNaN(rate)) {
+        const amount = roughCts * rate;
+        setValue("amount", amount);
+      }
+    }
+  }, [rate, roughCts, setValue]);
+
+  useEffectAfterMount(() => {
+    if (totalValues.saleAmount) {
+      setValue("saleAmount", totalValues.saleAmount);
+    }
+
+    const salePrice = parseFloat(
+      (totalValues.saleAmount / totalValues.polCts).toFixed(2)
+    );
+    setValue("salePrice", salePrice);
+  }, [totalValues.saleAmount, totalValues.carats, setValue]);
 
   const handleDetailsValueChange = (
     value: MixLotTenderDetails,
@@ -354,7 +388,7 @@ export function MixLotForm({
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
     }
-  
+
     // Submit on Shift+Enter
     if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
@@ -409,10 +443,7 @@ export function MixLotForm({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      onKeyDown={handleKeyDown}
-    >
+    <form onSubmit={handleSubmit(onSubmit)} onKeyDown={handleKeyDown}>
       <div className="flex items-center flex-col md:flex-row md:justify-between p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
         <div className="flex flex-col gap-2">
           <h1 className="text-lg font-semibold">Mix Lot Tender</h1>
@@ -564,49 +595,78 @@ export function MixLotForm({
         />
       </div>
 
-      <div className="p-3 border border-neutral-300 rounded-lg shadow-sm mt-4">
-        <div className="grid grid-cols-5 gap-6">
+      <div className="p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10">
+        <div className="grid grid-cols-3 gap-x-6 gap-y-3">
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap">Bid Price</Label>
+            <Label className="text-nowrap w-32">Sale Price</Label>
             <Input
               type="number"
+              {...register("salePrice", { valueAsNumber: true })}
+              step={0.01}
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex w-full max-w-sm items-center gap-2">
+            <Label className="text-nowrap w-32">Bid Price</Label>
+            <Input
+              type="number"
+              step={0.01}
               {...register("bidPrice", { valueAsNumber: true })}
               readOnly
               disabled
+              className="w-full"
             />
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap">Total Amount</Label>
-
-            <Input
-              type="number"
-              {...register("totalAmount", { valueAsNumber: true })}
-              readOnly
-              disabled
-            />
-          </div>
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap">Result Total</Label>
+            <Label className="text-nowrap w-32">Result Total</Label>
             <Input
               type="number"
               {...register("resultTotal", { valueAsNumber: true })}
               step={0.01}
               placeholder="10000"
+              className="w-full"
             />
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap">Result / Cts</Label>
+            <Label className="text-nowrap w-32">Sale Amount</Label>
+            <Input
+              type="number"
+              {...register("saleAmount", { valueAsNumber: true })}
+              step={0.01}
+              className="w-full"
+            />
+          </div>
+          <div className="flex w-full max-w-sm items-center gap-2">
+            <Label className="text-nowrap w-32">Total Amount</Label>
+            <Input
+              type="number"
+              step={0.01}
+              {...register("totalAmount", { valueAsNumber: true })}
+              readOnly
+              disabled
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex w-full max-w-sm items-center gap-2">
+            <Label className="text-nowrap w-32">Result / Cts</Label>
             <Input
               type="number"
               {...register("resultPerCarat", { valueAsNumber: true })}
+              step={0.01}
               readOnly
               disabled
+              className="w-full"
             />
           </div>
+          <div/> 
+          <div/>
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap">Result cost</Label>
+            <Label className="text-nowrap w-32">Result cost</Label>
             <Input
               type="number"
+              step={0.01}
               {...register("resultCost", { valueAsNumber: true })}
               readOnly
               disabled
