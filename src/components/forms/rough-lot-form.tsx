@@ -312,6 +312,17 @@ export function RoughLotForm({
     }
   }, [roughPcs, roughCts, setValue]);
 
+  const rate = watch("rate");
+
+  useEffectAfterMount(() => {
+    if (rate) {
+      if (!isNaN(rate)) {
+        const amount = roughCts * rate;
+        setValue("amount", amount);
+      }
+    }
+  }, [rate, roughCts, setValue]);
+
   useEffect(() => {
     if (totalValues.salePrice) {
       setValue("salePrice", totalValues.salePrice);
