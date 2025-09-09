@@ -183,7 +183,10 @@ export function CreateSingleStoneTenderForm({
     saleAmount: 0,
     costPrice: 0,
     topsAmount: 0,
+    totalAmount: 0
   });
+
+  const totalSalePrice = totalValues.saleAmount / totalValues.polCts;
 
   const netPercent = watch("netPercent");
   const labour = watch("labour");
@@ -219,7 +222,7 @@ export function CreateSingleStoneTenderForm({
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
     }
-  
+
     // Submit on Shift+Enter
     if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
@@ -256,6 +259,14 @@ export function CreateSingleStoneTenderForm({
     }
     setIsPending(false);
   }
+
+  // if(isRowsLoading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-[90dvh]">
+  //       <Loader2 className="h-20 w-20 animate-spin" />
+  //     </div>
+  //   );
+  // }
 
   return (
     <form
@@ -319,7 +330,8 @@ export function CreateSingleStoneTenderForm({
 
       <div className="mt-4 overflow-hidden rounded-lg border border-neutral-300 shadow-sm">
         <SingleTenderDataTable
-          totalValues={totalValues}
+          // totalValues={totalValues}
+          isRowsLoading={isRowsLoading}
           setTotalValues={setTotalValues}
           handleValueChange={handleDetailsValueChange}
           data={tenderDetails}
@@ -330,6 +342,35 @@ export function CreateSingleStoneTenderForm({
           labourValue={labour}
           netPercernt={netPercent}
         />
+      </div>
+      {/* total values */}
+      <div className={`mt-2 flex items-center justify-around gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm ${isRowsLoading ? "animate-pulse bg-neutral-50": ""}`}>
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Pcs:</p>
+          <p className="font-semibold">{totalValues.pcs}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Carats:</p>
+          <p className="font-semibold">{totalValues.carats}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Polish Carats:</p>
+          <p className="font-semibold">{totalValues.polCts}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Sale Price:</p>
+          <p className="font-semibold">
+            {isNaN(totalSalePrice) ? 0 : totalSalePrice}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Cost Price:</p>
+          <p className="font-semibold">{totalValues.costPrice}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <p className="text-nowrap">Total Amount:</p>
+          <p className="font-semibold">{totalValues.totalAmount}</p>
+        </div>
       </div>
 
       <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 items-center">

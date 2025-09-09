@@ -10,9 +10,7 @@ export const calculateBidPrice = (
 
   const calculatedBidPrice = parseFloat(
     (
-      ((((costPrice + topsAmount) * 0.97 - 180) * polCts) / roughCts -
-        labourValue) /
-      netPercentage
+      ((((((costPrice + topsAmount) * 0.97) - 180) * polCts) / roughCts) - labourValue) / netPercentage
     ).toFixed(2)
   );
 
@@ -43,7 +41,7 @@ export const calculateCostPrice = (
 ) => {
   const costPrice = parseFloat(
     (
-      (((((((bidPrice * 0.06) + bidPrice) + labourValue) * roughCts) / polCts) + 180) / 0.97) - topsAmount
+      (((((((bidPrice * 0.15) + bidPrice) + labourValue) * roughCts) / polCts) + 180) / 0.97) - topsAmount
     ).toFixed(2)
   );
 
@@ -84,7 +82,7 @@ export const calculateResultCost = (
   if (resultPerCarat) {
     const resultCost = parseFloat(
       (
-        (((((((resultPerCarat * 0.06) + resultPerCarat) + labourValue) * roughCts) / polCts) + 180) / 0.97) - topsAmount
+        (((((((resultPerCarat * 0.15) + resultPerCarat) + labourValue) * roughCts) / polCts) + 180) / 0.97) - topsAmount
       ).toFixed(2)
     );
 

@@ -70,10 +70,11 @@ interface SingleTenderDataTableProps {
   clarities: Option[];
   fluorescences: Option[];
   shapes: Option[];
-  totalValues: TotalValues;
+  // totalValues: TotalValues;
   labourValue: number;
   netPercernt: number;
   setTotalValues: React.Dispatch<React.SetStateAction<TotalValues>>;
+  isRowsLoading: boolean;
 }
 
 export function SingleTenderDataTable({
@@ -82,7 +83,8 @@ export function SingleTenderDataTable({
   colors,
   clarities,
   fluorescences,
-  totalValues,
+  isRowsLoading,
+  // totalValues,
   setTotalValues,
   shapes,
   labourValue,
@@ -99,6 +101,7 @@ export function SingleTenderDataTable({
         saleAmount: acc.saleAmount + (row.saleAmount || 0),
         costPrice: acc.costPrice + (row.costPrice || 0),
         topsAmount: acc.topsAmount + (row.topsAmount || 0),
+        totalAmount: acc.totalAmount + (row.totalAmount || 0),
       }),
       {
         pcs: 0,
@@ -109,6 +112,7 @@ export function SingleTenderDataTable({
         saleAmount: 0,
         costPrice: 0,
         topsAmount: 0,
+        totalAmount: 0,
       }
     );
 
@@ -118,41 +122,58 @@ export function SingleTenderDataTable({
   return (
     <>
       <div className="rounded-md flex-1 flex flex-col min-h-0 h-[65svh]">
-        <div className="overflow-x-auto w-auto">
-          <Table className="bg-white mb-[54svh]">
+        <div className="overflow-auto w-auto">
+          <Table isOverflow={false} className="bg-white mb-[54svh]">
             <TableHeader className="sticky top-0 z-40 bg-white border-b">
               <TableRow>
                 {columns.map((header, index) => {
-                  if (index === columns.length - 1) {
-                    return (
-                      <TableHead
-                        onClick={() =>
-                          handleValueChange(singleInitialRow, data?.length + 1 || 1)
-                        }
-                        style={{ borderTopWidth: 0 }}
-                        className="border-collapse border border-gray-300 border-t-0"
-                        key={index}
-                      >
-                        {header}
-                      </TableHead>
-                    );
-                  }
+                  const isLast = index === columns.length - 1;
                   return (
                     <TableHead
-                      className={`text-nowrap border-collapse border border-gray-300 border-t-0`}
                       key={index}
+                      onClick={
+                        isLast
+                          ? () =>
+                              handleValueChange(singleInitialRow, data?.length + 1 || 1)
+                          : undefined
+                      }
+                      className={`text-nowrap border-collapse border border-gray-300 border-t-0 
+                        ${isLast ? "sticky right-0 bg-neutral-50 z-50" : ""}`}
                       style={{ borderTopWidth: 0 }}
                     >
                       {header}
                     </TableHead>
                   );
+                  // if (index === columns.length - 1) {
+                  //   return (
+                  //     <TableHead
+                  //       onClick={() =>
+                  //         handleValueChange(singleInitialRow, data?.length + 1 || 1)
+                  //       }
+                  //       style={{ borderTopWidth: 0 }}
+                  //       className="border-collapse border border-gray-300 border-t-0"
+                  //       key={index}
+                  //     >
+                  //       {header}
+                  //     </TableHead>
+                  //   );
+                  // }
+                  // return (
+                  //   <TableHead
+                  //     className={`text-nowrap border-collapse border border-gray-300 border-t-0`}
+                  //     key={index}
+                  //     style={{ borderTopWidth: 0 }}
+                  //   >
+                  //     {header}
+                  //   </TableHead>
+                  // );
                 })}
               </TableRow>
             </TableHeader>
             <TableBody>
               {data?.length > 0 ? (
                 data?.map((row, index) => (
-                  <TableRow key={index}>
+                  <TableRow key={index} className={isRowsLoading ? "animate-pulse bg-neutral-50": ""}>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20"
@@ -163,7 +184,7 @@ export function SingleTenderDataTable({
                           handleValueChange(
                             {
                               ...row,
-                              lotNo: e.target.value,
+                              lotNo: e.target.value.toUpperCase(),
                             },
                             index
                           );
@@ -867,7 +888,7 @@ export function SingleTenderDataTable({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="sticky right-0 bg-neutral-50 z-40 border-collapse border border-gray-300">
                       <Button
                         variant="ghost"
                         type="button"
@@ -895,7 +916,7 @@ export function SingleTenderDataTable({
           </Table>
         </div>
       </div>
-      <div className="px-10 flex items-center gap-10 h-10 bg-gray-100 border-t">
+      {/* <div className="px-10 flex items-center gap-10 h-10 bg-gray-100 border-t">
         <p className="text-gray-600 w-28 text-sm font-semibold">
           Pcs: {totalValues?.pcs}
         </p>
@@ -917,7 +938,7 @@ export function SingleTenderDataTable({
         <p className="text-gray-600 w-28 text-sm font-semibold">
           Tops Amount: {totalValues?.topsAmount}
         </p>
-      </div>
+      </div> */}
     </>
   );
 }

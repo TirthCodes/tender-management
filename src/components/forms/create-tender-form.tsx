@@ -179,6 +179,7 @@ export function CreateTenderForm({
     saleAmount: 0,
     costPrice: 0,
     topsAmount: 0,
+    totalAmount: 0,
   });
 
   useEffect(() => {

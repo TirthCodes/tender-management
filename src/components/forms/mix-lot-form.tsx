@@ -204,6 +204,7 @@ export function MixLotForm({
     saleAmount: 0,
     costPrice: 0,
     topsAmount: 0,
+    totalAmount: 0,
   });
 
   useEffect(() => {

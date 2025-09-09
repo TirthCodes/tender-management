@@ -210,6 +210,7 @@ export function RoughLotForm({
     saleAmount: 0,
     costPrice: 0,
     topsAmount: 0,
+    totalAmount: 0,
   });
 
   useEffect(() => {

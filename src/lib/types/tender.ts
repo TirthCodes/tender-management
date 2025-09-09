@@ -20,6 +20,7 @@ export interface TotalValues {
   saleAmount: number;
   costPrice: number;
   topsAmount?: number;
+  totalAmount: number;
 }
 
 // type BasePayload = {
