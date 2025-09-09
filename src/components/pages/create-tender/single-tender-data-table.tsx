@@ -756,11 +756,14 @@ export function SingleTenderDataTable({
                             row.topsAmount
                           );
 
+                          const totalAmount = calculateTotalAmount(value, row.roughCts);
+
                           handleValueChange(
                             {
                               ...row,
                               costPrice,
                               bidPrice: value,
+                              totalAmount
                             },
                             index
                           );
