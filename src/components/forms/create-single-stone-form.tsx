@@ -351,25 +351,25 @@ export function CreateSingleStoneTenderForm({
         </div>
         <div className="flex items-center gap-2">
           <p className="text-nowrap">Carats:</p>
-          <p className="font-semibold">{totalValues.carats}</p>
+          <p className="font-semibold">{totalValues.carats?.toFixed(2)}</p>
         </div>
         <div className="flex items-center gap-2">
           <p className="text-nowrap">Polish Carats:</p>
-          <p className="font-semibold">{totalValues.polCts}</p>
+          <p className="font-semibold">{totalValues.polCts?.toFixed(2)}</p>
         </div>
         <div className="flex items-center gap-2">
           <p className="text-nowrap">Sale Price:</p>
           <p className="font-semibold">
-            {isNaN(totalSalePrice) ? 0 : totalSalePrice}
+            {isNaN(totalSalePrice) ? 0 : totalSalePrice.toFixed(2)}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <p className="text-nowrap">Cost Price:</p>
-          <p className="font-semibold">{totalValues.costPrice}</p>
+          <p className="font-semibold">{totalValues.costPrice?.toFixed(2)}</p>
         </div>
         <div className="flex items-center gap-2">
           <p className="text-nowrap">Total Amount:</p>
-          <p className="font-semibold">{totalValues.totalAmount}</p>
+          <p className="font-semibold">{totalValues.totalAmount?.toFixed(2)}</p>
         </div>
       </div>
 
