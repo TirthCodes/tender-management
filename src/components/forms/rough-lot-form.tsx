@@ -22,9 +22,8 @@ import {
   RoughLotTenderDetails,
   TotalValues,
 } from "@/lib/types/tender";
-import Link from "next/link";
 import { RoughLotDetails } from "../data-table/rough-lot-detail";
-import { redirect, useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { getBaseTenderById } from "@/services/base-tender";
 import { createRoughLot, getRoughLotById } from "@/services/rough-lot";
 import { toast } from "react-toastify";
@@ -178,7 +177,7 @@ export function RoughLotForm({
   const mainLotId = searchParams.get("mainLotId") as string;
   const roughLotId = searchParams.get("id") as string; //otherTenderId
 
-  const { data: baseTender, isLoading: lodingBaseTender } = useQuery({
+  const { data: baseTender, isLoading: loadingBaseTender } = useQuery({
     queryKey: ["base-tender"],
     queryFn: () => getBaseTenderById(parseInt(baseTenderId)),
     enabled: !!baseTenderId,
@@ -235,6 +234,8 @@ export function RoughLotForm({
         dcResultTotal,
         stLotNo,
         otherTenderDetails,
+        dcSalePrice,
+        dcSaleAmount,
       } = roughLotTender.data;
       reset({
         roughPcs: inRoughPcs,
@@ -248,9 +249,26 @@ export function RoughLotForm({
         totalAmount: dcTotalAmount,
         resultPerCarat: dcResultPerCt,
         resultTotal: dcResultTotal,
+        salePrice: dcSalePrice,
+        saleAmount: dcSaleAmount,
         lotNo: stLotNo,
       });
-      setTenderDetails(otherTenderDetails);
+
+      const tenderDetails = otherTenderDetails.map((details: any) => ({
+        ...details,
+        dcRoughCts: parseFloat(details.dcRoughCts), 
+        dcPolCts: parseFloat(details.dcPolCts),
+        dcPolPer: parseFloat(details.dcPolPer),
+        dcDepth: parseFloat(details.dcDepth),
+        dcTable: parseFloat(details.dcTable),
+        dcRatio: parseFloat(details.dcRatio),
+        dcSalePrice: parseFloat(details.dcSalePrice),
+        dcSaleAmount: parseFloat(details.dcSaleAmount),
+        dcLabour: parseFloat(details.dcLabour),
+        dcCostPrice: parseFloat(details.dcCostPrice),
+        dcCostAmount: parseFloat(details.dcCostAmount),
+      }))
+      setTenderDetails(tenderDetails)
     }
   }, [roughLotTender, loadingRoughLot, reset]);
 
@@ -261,14 +279,14 @@ export function RoughLotForm({
   const salePrice = watch("salePrice");
 
   useEffect(() => {
-    if (!lodingBaseTender && baseTender?.data) {
+    if (!loadingBaseTender && baseTender?.data) {
       const { dcNetPercentage, dcLabour } = baseTender.data;
       const labour = parseFloat(dcLabour);
       setValue("netPercent", dcNetPercentage);
       setValue("labour", labour);
       setTenderDetails(initialTenderDetails(labour));
     }
-  }, [baseTender, lodingBaseTender, setValue]);
+  }, [baseTender, loadingBaseTender, setValue]);
 
   useEffectAfterMount(() => {
     if (netPercent && labour) {
@@ -309,7 +327,15 @@ export function RoughLotForm({
         }
       }
     }
-  }, [labour, totalValues, setValue, netPercent, resultTotal, roughCts, salePrice]);
+  }, [
+    labour,
+    totalValues,
+    setValue,
+    netPercent,
+    resultTotal,
+    roughCts,
+    salePrice,
+  ]);
 
   const roughPcs = watch("roughPcs");
 
@@ -337,7 +363,9 @@ export function RoughLotForm({
     if (totalValues.saleAmount) {
       setValue("saleAmount", totalValues.saleAmount);
     }
+  }, [totalValues.saleAmount, setValue]);
 
+  useEffectAfterMount(() => {
     const salePrice = parseFloat(
       (
         (totalValues.costAmount
@@ -346,7 +374,7 @@ export function RoughLotForm({
       ).toFixed(2)
     );
     setValue("salePrice", salePrice);
-  }, [totalValues.costAmount,totalValues.saleAmount, totalValues.carats, setValue]);
+  }, [totalValues.costAmount, totalValues.carats, setValue]);
 
   const handleDetailsValueChange = (
     value: RoughLotTenderDetails,
@@ -425,7 +453,9 @@ export function RoughLotForm({
     setIsPending(false);
   }
 
-  if (lodingBaseTender || loadingRoughLot) {
+  const router = useRouter()
+
+  if (!roughLotId && loadingBaseTender) {
     return (
       <div className="flex justify-center items-center h-[90dvh]">
         <Loader2 className="h-20 w-20 animate-spin" />
@@ -488,7 +518,7 @@ export function RoughLotForm({
         </div>
       </div>
 
-      <div className="p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
+      <div className={`p-3 border border-neutral-300 rounded-lg shadow-sm mb-4 ${loadingRoughLot ? "animate-pulse bg-neutral-100" : ""}`}>
         <div className="grid grid-cols-6 gap-x-3 gap-y-4">
           <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Lot No.</Label>
@@ -580,6 +610,7 @@ export function RoughLotForm({
       <div className="mt-4 overflow-hidden rounded-lg border border-neutral-300 shadow-sm">
         <RoughLotDetails
           lotNo={watch("lotNo")}
+          isDataLoading={loadingRoughLot}
           totalValues={totalValues}
           setTotalValues={setTotalValues}
           handleValueChange={handleDetailsValueChange}
@@ -591,7 +622,7 @@ export function RoughLotForm({
         />
       </div>
 
-      <div className="p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10">
+      <div className={`p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10 ${loadingRoughLot ? "animate-pulse bg-neutral-100" : ""}`}>
         <div className="grid grid-cols-3 gap-x-6 gap-y-3">
           <div className="flex w-full max-w-sm items-center gap-2">
             <Label className="text-nowrap w-32">Sale Price</Label>
@@ -621,7 +652,10 @@ export function RoughLotForm({
               {...register("resultTotal", { valueAsNumber: true })}
               step={0.01}
               placeholder="10000"
-              className="w-full"
+              className={cn(
+                errors.totalAmount?.message &&
+                  "w-full border border-red-500 placeholder:text-red-500"
+              )}
             />
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">
@@ -639,9 +673,9 @@ export function RoughLotForm({
               type="number"
               {...register("totalAmount", { valueAsNumber: true })}
               step={0.01}
+              className="w-full"
               readOnly
               disabled
-              className="w-full"
             />
           </div>
 
@@ -659,8 +693,8 @@ export function RoughLotForm({
         </div>
       </div>
       <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 items-center">
-        <Button className="mt-4" type="button">
-          <Link href={"/tenders"}>Cancel</Link>
+        <Button className="mt-4" type="button" onClick={() => router.back()}>
+          Cancel
         </Button>
         <Button disabled={isPending} className="mt-4" type="submit">
           Submit {isPending && <Loader2 className="h-4 w-4 animate-spin" />}

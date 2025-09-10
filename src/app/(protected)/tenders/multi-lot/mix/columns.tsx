@@ -1,5 +1,6 @@
 "use client";
 
+import { LinkLoadingIndicator } from "@/components/common/link-loading-indicator";
 import { buttonVariants } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
@@ -54,7 +55,7 @@ export const columns: ColumnDef<MixMultiLotColumns>[] = [
           className={buttonVariants({ variant: "outline" })}
           href={`/tenders/mix-lot?baseTenderId=${baseTenderId}&mainLotId=${id}`}
         >
-          Create
+          Create <LinkLoadingIndicator />
         </Link>
       );
     },

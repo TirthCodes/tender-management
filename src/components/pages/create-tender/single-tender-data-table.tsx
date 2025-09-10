@@ -54,8 +54,8 @@ const columns = [
   "Result Total",
   "Result/Ct",
   "Result Cost",
-  <Button key={1} className="p-0" variant="ghost" type="button">
-    <PlusCircle className="h-4 w-4" />
+  <Button key={1} className="p-1 h-fit hover:bg-green-100 hover:text-green-900" variant="ghost" type="button">
+    <PlusCircle />
   </Button>,
 ];
 
@@ -138,7 +138,7 @@ export function SingleTenderDataTable({
                           : undefined
                       }
                       className={`text-nowrap border-collapse border border-gray-300 border-t-0 
-                        ${isLast ? "sticky right-0 bg-neutral-50 z-40" : ""}`}
+                        ${isLast ? "sticky right-0 bg-green-50 text-green-800 z-40 text-center border-r-0" : ""}`}
                       style={{ borderTopWidth: 0 }}
                     >
                       {header}
@@ -911,7 +911,7 @@ export function SingleTenderDataTable({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="sticky right-0 bg-neutral-50 z-40 border-collapse border border-gray-300">
+                    <TableCell className="sticky right-0 bg-red-50 text-red-800 text-center z-40 border-collapse border border-r-0 border-gray-300">
                       <Button
                         variant="ghost"
                         type="button"

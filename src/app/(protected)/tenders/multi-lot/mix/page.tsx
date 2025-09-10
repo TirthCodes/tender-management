@@ -2,6 +2,8 @@ import { MixMultiLotTendersPage } from '@/components/pages/mix-multi-lot-tenders
 import { prisma } from '@/lib/prisma';
 import React, { Suspense } from 'react'
 
+export const dynamic = "force-dynamic"
+
 export default async function Page() {
 
   const [tenders, totalCount] = await Promise.all([

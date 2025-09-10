@@ -42,6 +42,8 @@ type OtherTednerBasePayload = {
   lotSize: number;
   rate: number;
   amount: number;
+  salePrice: number;
+  saleAmount: number;
   bidPrice: number;
   totalAmount: number; // Bid Amount
   resultPerCarat: number;

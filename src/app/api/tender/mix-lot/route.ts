@@ -34,6 +34,8 @@ export async function POST(req: Request) {
       resultTotal,
       tenderDetails,
       mainLotId,
+      salePrice,
+      saleAmount,
     } = await req.json() as MixLotPaylod;
 
     if (!baseTenderId || !roughPcs || !roughCts || !labour || !netPercent) {
@@ -65,6 +67,8 @@ export async function POST(req: Request) {
           dcNetPercentage: netPercent,
           mainLotId,
           stCertId: "",
+          dcSalePrice: salePrice || 0,
+          dcSaleAmount: saleAmount || 0,
         },
       });
       
@@ -175,6 +179,8 @@ export async function POST(req: Request) {
         dcLabour: labour,
         mainLotId,
         dcNetPercentage: netPercent,
+        dcSalePrice: salePrice || 0,
+        dcSaleAmount: saleAmount || 0,
         otherTenderDetails: {
           createMany: {
             data: parsedTenderDetails.map((detail: MixLotTenderDetails) => ({

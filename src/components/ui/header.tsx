@@ -24,7 +24,7 @@ export default function Header() {
     <header className="bg-white shadow-md sticky z-[100] top-0 w-full">
       <nav
         aria-label="Global"
-        className="flex items-center justify-between p-4 lg:px-6"
+        className="flex items-center justify-between px-4 lg:px-6 py-3"
       >
         <div className="flex items-center gap-x-12">
           {/* <Link href="/tenders" className="-m-1.5">
@@ -36,7 +36,7 @@ export default function Header() {
               <Link
                 key={index}
                 href={item.href}
-                className="text-sm font-semibold leading-6 text-gray-900"
+                className="hover:underline font-semibold leading-6 text-gray-900"
               >
                 {item.name}
               </Link>

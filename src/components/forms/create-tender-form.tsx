@@ -790,7 +790,7 @@ export function CreateTenderForm({
         </Card>
       </div>
       <div className="flex justify-end gap-2 items-center">
-        <Button className="mt-4" type="button">
+        <Button className="mt-4" type="button" asChild>
           <Link href={"/tenders"}>Cancel</Link>
         </Button>
         <Button disabled={isPending} className="mt-4" type="submit">

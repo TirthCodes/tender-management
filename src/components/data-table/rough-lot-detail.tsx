@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 import React, { useEffect } from "react";
 import AutoCompleteInput from "@/components/ui/auto-complete-input";
 import ColorDialog from "@/components/dialog/color-dialog";
@@ -41,13 +41,19 @@ const columns = [
   "Labour",
   "Cost Price",
   "Cost Amnt",
-  <Button key={1} className="p-0" variant="ghost" type="button">
-    <PlusCircle className="h-4 w-4" />
+  <Button
+    key={1}
+    className="p-1 h-fit hover:bg-green-100 hover:text-green-900"
+    variant="ghost"
+    type="button"
+  >
+    <PlusCircle />
   </Button>,
 ];
 
 interface RoughLotDetailsProps {
   data: RoughLotTenderDetails[];
+  isDataLoading: boolean;
   handleValueChange: (
     value: RoughLotTenderDetails,
     index: number,
@@ -66,6 +72,7 @@ interface RoughLotDetailsProps {
 
 export function RoughLotDetails({
   data,
+  isDataLoading,
   handleValueChange,
   colors,
   clarities,
@@ -107,28 +114,33 @@ export function RoughLotDetails({
   return (
     <>
       <div className="rounded-md flex-1 flex flex-col min-h-0 h-[45svh]">
-        <div className="overflow-auto w-auto">
+        <div
+          className={`overflow-auto w-auto ${isDataLoading && "hidden"}`}
+        >
           <Table isOverflow={false} className="bg-white mb-[34svh]">
-            <TableHeader className="sticky top-0 z-40 bg-white border-b">
+            <TableHeader className="sticky top-0 z-50 bg-white border-b">
               <TableRow>
                 {columns.map((header, index) => {
-                  if (index === columns.length - 1) {
-                    return (
-                      <TableHead
-                        onClick={() =>
-                          handleValueChange(initialRow, data.length + 1)
-                        }
-                        className="border-collapse border border-gray-300 border-t-0"
-                        key={index}
-                      >
-                        {header}
-                      </TableHead>
-                    );
-                  }
+                  const isLast = index === columns.length - 1;
                   return (
                     <TableHead
-                      className={`border-collapse border border-gray-300 border-t-0`}
                       key={index}
+                      onClick={
+                        isLast
+                          ? () =>
+                              handleValueChange(
+                                initialRow,
+                                data?.length + 1 || 1
+                              )
+                          : undefined
+                      }
+                      className={`text-nowrap border-collapse border border-gray-300 border-t-0
+                        ${
+                          isLast
+                            ? "sticky right-0 bg-green-50 text-green-800 border-r-0 z-40 text-center"
+                            : ""
+                        }`}
+                      style={{ borderTopWidth: 0 }}
                     >
                       {header}
                     </TableHead>
@@ -346,7 +358,10 @@ export function RoughLotDetails({
                             : undefined;
 
                           const polCts = parseFloat(
-                            (((value ?? 0) * (row.dcRoughCts ?? 0)) / 100).toFixed(2)
+                            (
+                              ((value ?? 0) * (row.dcRoughCts ?? 0)) /
+                              100
+                            ).toFixed(2)
                           );
                           handleValueChange(
                             {
@@ -442,13 +457,18 @@ export function RoughLotDetails({
                           const saleAmount = parseFloat(
                             ((value ?? 0) * (row.dcPolCts ?? 0)).toFixed(2)
                           );
-                          const costPrice =
-                            (value ?? 0) *
-                              (row.dcPolPer
-                                ? parseFloat((row.dcPolPer / 100).toFixed(2))
-                                : 0) -
-                            (row.dcLabour ?? 0);
-                          const costAmount = costPrice * (row.dcRoughCts ?? 0);
+                          const costPrice = parseFloat(
+                            (
+                              (value ?? 0) *
+                                (row.dcPolPer
+                                  ? parseFloat((row.dcPolPer / 100).toFixed(2))
+                                  : 0) -
+                              (row.dcLabour ?? 0)
+                            ).toFixed(2)
+                          );
+                          const costAmount = parseFloat(
+                            (costPrice * (row.dcRoughCts ?? 0)).toFixed(2)
+                          );
                           handleValueChange(
                             {
                               ...row,
@@ -515,12 +535,19 @@ export function RoughLotDetails({
                             ? parseFloat(e.target.value)
                             : undefined;
 
-                          const costPrice =
-                            (row.dcSalePrice ?? 0) *
-                              (row.dcPolPer
-                                ? parseFloat((row.dcPolPer / 100).toFixed(2))
-                                : 0) - (value ?? 0);
-                          const costAmount = costPrice * (row.dcRoughCts ?? 0);
+                          const costPrice = parseFloat(
+                            (
+                              (row.dcSalePrice ?? 0) *
+                                (row.dcPolPer
+                                  ? parseFloat((row.dcPolPer / 100).toFixed(2))
+                                  : 0) -
+                              (value ?? 0)
+                            ).toFixed(2)
+                          );
+
+                          const costAmount = parseFloat(
+                            (costPrice * (row.dcRoughCts ?? 0)).toFixed(2)
+                          );
 
                           handleValueChange(
                             {
@@ -546,7 +573,7 @@ export function RoughLotDetails({
                           const value = e.target.value
                             ? parseFloat(e.target.value)
                             : undefined;
-                          
+
                           const costAmount = parseFloat(
                             ((value ?? 0) * (row.dcRoughCts ?? 0)).toFixed(2)
                           );
@@ -584,14 +611,14 @@ export function RoughLotDetails({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="sticky right-0 bg-red-50 text-red-800 z-40 border-collapse border border-r-0 border-gray-300">
                       <Button
                         variant="ghost"
                         type="button"
-                        className="p-0"
+                        className="p-1 h-fit hover:bg-red-100 hover:text-red-900"
                         onClick={() => handleValueChange(row, index, "delete")}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -609,25 +636,32 @@ export function RoughLotDetails({
             </TableBody>
           </Table>
         </div>
+        <div
+          className={`${
+              !isDataLoading && "hidden"
+          } flex justify-center items-center h-full`}
+        >
+          <Loader2 className="h-10 w-10 animate-spin" />
+        </div>
       </div>
       <div className="px-10 flex items-center justify-around flex-wrap w-full gap-6 h-10 bg-gray-100">
         <p className="text-gray-600 text-sm font-semibold">
           Pcs: {totalValues.pcs}
         </p>
         <p className="text-gray-600 text-sm font-semibold">
-          Cts: {totalValues.carats?.toFixed(2)}
+          Cts: {totalValues?.carats?.toFixed(2)}
         </p>
         <p className="text-gray-600 text-sm font-semibold">
-          Pol Cts: {totalValues.polCts?.toFixed(2)}
+          Pol Cts: {totalValues?.polCts?.toFixed(2)}
         </p>
         {/* <p className="text-gray-600 text-sm font-semibold">
           Pol %: {totalValues.polPercent}%
         </p> */}
         <p className="text-gray-600 text-sm font-semibold">
-          Sale Price: {totalValues.salePrice?.toFixed(2)}
+          Sale Price: {totalValues?.salePrice?.toFixed(2)}
         </p>
         <p className="text-gray-600 text-sm font-semibold">
-          Cost Price: {totalValues.costPrice?.toFixed(2)}
+          Cost Price: {totalValues?.costPrice?.toFixed(2)}
         </p>
         <p className="text-gray-600 text-sm font-semibold">
           Cost Amount: {totalValues?.costAmount?.toFixed(2)}

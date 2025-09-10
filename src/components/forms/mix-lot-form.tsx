@@ -22,8 +22,7 @@ import {
   MixLotTenderDetails,
   TotalValues,
 } from "@/lib/types/tender";
-import Link from "next/link";
-import { redirect, useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { getBaseTenderById } from "@/services/base-tender";
 import { MixLotDetails } from "../data-table/mix-lot-details";
 import { createMixLot, getMixLotById } from "@/services/mix-lot";
@@ -114,11 +113,11 @@ const mixLotSchema = z.object({
   ),
   salePrice: z.preprocess(
     (val) => Number(val),
-    z.number().optional()
+    z.number().min(0, "Sale price is required!")
   ),
   saleAmount: z.preprocess(
     (val) => Number(val),
-    z.number().optional()
+    z.number().min(0, "Sale amount is required!")
   ),
 });
 
@@ -175,7 +174,7 @@ export function MixLotForm({
   const mainLotId = searchParams.get("mainLotId") as string;
   const mixLotId = searchParams.get("id") as string; //otherTenderId
 
-  const { data: baseTender, isLoading: lodingBaseTender } = useQuery({
+  const { data: baseTender, isLoading: loadingBaseTender } = useQuery({
     queryKey: ["base-tender"],
     queryFn: () => getBaseTenderById(parseInt(baseTenderId)),
     enabled: !!baseTenderId,
@@ -195,11 +194,9 @@ export function MixLotForm({
     formState: { errors },
     setValue,
   } = useForm<MixLotFormValues>({
-    mode: "onSubmit",
+    mode: "onBlur",
     resolver: zodResolver(mixLotSchema),
   });
-
-  
 
   const [isPending, setIsPending] = useState(false);
 
@@ -234,6 +231,8 @@ export function MixLotForm({
         dcResultCost,
         stLotNo,
         otherTenderDetails,
+        dcSalePrice,
+        dcSaleAmount,
       } = mixLotTender.data;
       reset({
         roughPcs: inRoughPcs,
@@ -248,9 +247,28 @@ export function MixLotForm({
         resultPerCarat: dcResultPerCt,
         resultTotal: dcResultTotal,
         resultCost: dcResultCost,
+        salePrice: dcSalePrice,
+        saleAmount: dcSaleAmount,
         lotNo: stLotNo,
       });
-      setTenderDetails(otherTenderDetails);
+
+      const tenderDetails = otherTenderDetails.map((tender: any) => {
+        return {
+          ...tender,
+          dcRoughCts: parseFloat(tender.dcRoughCts), 
+          dcPolCts: parseFloat(tender.dcPolCts),
+          dcPolPer: parseFloat(tender.dcPolPer),
+          dcDepth: parseFloat(tender.dcDepth),
+          dcTable: parseFloat(tender.dcTable),
+          dcRatio: parseFloat(tender.dcRatio),
+          dcSalePrice: parseFloat(tender.dcSalePrice),
+          dcSaleAmount: parseFloat(tender.dcSaleAmount),
+          dcLabour: parseFloat(tender.dcLabour),
+          dcCostPrice: parseFloat(tender.dcCostPrice),
+          dcCostAmount: parseFloat(tender.dcCostAmount),
+        };
+      });
+      setTenderDetails(tenderDetails);
     }
   }, [mixLotTender, loadingMixLot, reset]);
 
@@ -262,11 +280,11 @@ export function MixLotForm({
   const salePrice = watch("salePrice");
 
   useEffect(() => {
-    if (!lodingBaseTender && baseTender?.data) {
+    if (!loadingBaseTender && baseTender?.data) {
       setValue("netPercent", baseTender.data.dcNetPercentage);
       setValue("labour", baseTender.data.dcLabour);
     }
-  }, [baseTender, lodingBaseTender, setValue]);
+  }, [baseTender, loadingBaseTender, setValue]);
 
   useEffectAfterMount(() => {
     if (netPercent && labour && salePrice) {
@@ -324,7 +342,15 @@ export function MixLotForm({
         }
       }
     }
-  }, [labour, totalValues, setValue, netPercent, resultTotal, roughCts, salePrice]);
+  }, [
+    labour,
+    totalValues,
+    setValue,
+    netPercent,
+    resultTotal,
+    roughCts,
+    salePrice,
+  ]);
 
   const roughPcs = watch("roughPcs");
 
@@ -434,7 +460,9 @@ export function MixLotForm({
     setIsPending(false);
   }
 
-  if (lodingBaseTender || loadingMixLot) {
+  const router = useRouter();
+
+  if (!mixLotId || loadingBaseTender) {
     return (
       <div className="flex justify-center items-center h-[90dvh]">
         <Loader2 className="h-20 w-20 animate-spin" />
@@ -497,7 +525,11 @@ export function MixLotForm({
         </div>
       </div>
 
-      <div className="p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
+      <div
+        className={`p-3 border border-neutral-300 rounded-lg shadow-sm mb-4 ${
+          loadingMixLot ? "animate-pulse bg-neutral-100" : ""
+        }`}
+      >
         <div className="grid grid-cols-6 gap-x-3 gap-y-4">
           <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Lot No.</Label>
@@ -584,6 +616,7 @@ export function MixLotForm({
       <div className="mt-4 overflow-hidden rounded-lg border border-neutral-300 shadow-sm">
         <MixLotDetails
           lotNo={watch("lotNo")}
+          isDataLoading={loadingMixLot}
           totalValues={totalValues}
           setTotalValues={setTotalValues}
           handleValueChange={handleDetailsValueChange}
@@ -595,7 +628,11 @@ export function MixLotForm({
         />
       </div>
 
-      <div className="p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10">
+      <div
+        className={`p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10 ${
+          loadingMixLot ? "animate-pulse bg-neutral-100" : ""
+        }`}
+      >
         <div className="grid grid-cols-3 gap-x-6 gap-y-3">
           <div className="flex w-full max-w-sm items-center gap-2">
             <Label className="text-nowrap w-32">Sale Price</Label>
@@ -660,8 +697,8 @@ export function MixLotForm({
               className="w-full"
             />
           </div>
-          <div/> 
-          <div/>
+          <div />
+          <div />
           <div className="flex w-full max-w-sm items-center gap-2">
             <Label className="text-nowrap w-32">Result cost</Label>
             <Input
@@ -675,8 +712,8 @@ export function MixLotForm({
         </div>
       </div>
       <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 items-center">
-        <Button className="mt-4" type="button">
-          <Link href={"/tenders"}>Cancel</Link>
+        <Button className="mt-4" type="button" onClick={() => router.back()}>
+          Cancel
         </Button>
         <Button disabled={isPending} className="mt-4" type="submit">
           Submit {isPending && <Loader2 className="h-4 w-4 animate-spin" />}

@@ -53,6 +53,8 @@ export async function GET(
         dcResultTotal: true,
         dcResultCost: true,
         stLotNo: true,
+        dcSalePrice: true,
+        dcSaleAmount: true,
         otherTenderDetails: {
           select: {
             id: true,
@@ -95,6 +97,7 @@ export async function GET(
             dcRatio: true,
             dcSalePrice: true,
             dcSaleAmount: true,
+
             // dcLabour: true,
             // dcCostPrice: true,
             // dcCostAmount: true,
