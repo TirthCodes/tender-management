@@ -8,9 +8,21 @@ import { PageHeader } from "../common/page-header";
 import { TenderDataTable } from "../ui/tender-data-table";
 import { Pagination } from "../common/pagination";
 import { getMixLots } from "@/services/mix-lot";
-import { columns, MixLotColumns } from "@/app/(protected)/tenders/mix-lot/columns";
+import {
+  columns,
+  MixLotColumns,
+} from "@/app/(protected)/tenders/mix-lot/columns";
+import { MainLot } from "@/lib/types/tender";
 
-export function MixLotTendersPage({ mixLotTenders, totalCount }: { mixLotTenders: MixLotColumns[], totalCount: number }) {
+export function MixLotTendersPage({
+  mixLotTenders,
+  totalCount,
+  mainLot,
+}: {
+  mixLotTenders: MixLotColumns[];
+  totalCount: number;
+  mainLot: MainLot | null;
+}) {
   const [page, setPage] = useState(1);
 
   const searchParams = useSearchParams();
@@ -32,24 +44,44 @@ export function MixLotTendersPage({ mixLotTenders, totalCount }: { mixLotTenders
   });
 
   let createPath = ``;
-  if(id) {
+  if (id) {
     createPath = `/tenders/mix-lot/create?baseTenderId=${id}`;
   }
-  if(mainLotId) {
+  if (mainLotId) {
     createPath = `/tenders/mix-lot/create?mainLotId=${mainLotId}`;
   }
-  if(id && mainLotId) {
+  if (id && mainLotId) {
     createPath = `/tenders/mix-lot/create?baseTenderId=${id}&mainLotId=${mainLotId}`;
+  }
+
+  let title = "Mix Lot Tenders";
+  if (mainLot?.stLotNo) {
+    title = `Mix Multi Lot (${mainLot.stName} - ${mainLot.stLotNo})`;
   }
 
   // console.log(mixLotResponse, "mixLotResponse");
 
   return (
     <PageWrapper>
-      <PageHeader
-        title="Mix Lot Tenders"
-        createPath={createPath}
-      />
+      {mainLot?.stLotNo && (
+        <div className="flex items-center justify-center gap-6 -mb-[30px]">
+          <div className="flex items-center gap-1">
+            <p className="font-semibold">Pcs:</p>
+            <p>
+              <span className="text-red-800">{mainLot.inRemainingPcs}</span> /{" "}
+              <span className="font-semibold">{mainLot.inPcs}</span>
+            </p>
+          </div>
+          <div className="flex items-center gap-1">
+            <p className="font-semibold">Carats:</p>
+            <p>
+              <span className="text-red-800">{mainLot.dcRemainingCts}</span> /{" "}
+              <span className="font-semibold">{mainLot.dcRemainingCts}</span>
+            </p>
+          </div>
+        </div>
+      )}
+      <PageHeader title={title} createPath={createPath} />
       <TenderDataTable
         columns={columns}
         data={mixLotResponse?.data || []}
@@ -58,7 +90,11 @@ export function MixLotTendersPage({ mixLotTenders, totalCount }: { mixLotTenders
         editPath={createPath}
         deleteEndpoint="other-tender"
       />
-      <Pagination setPage={setPage} nextPage={mixLotResponse?.nextPage} page={page} />
+      <Pagination
+        setPage={setPage}
+        nextPage={mixLotResponse?.nextPage}
+        page={page}
+      />
     </PageWrapper>
   );
 }

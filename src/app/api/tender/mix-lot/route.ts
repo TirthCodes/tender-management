@@ -36,6 +36,7 @@ export async function POST(req: Request) {
       mainLotId,
       salePrice,
       saleAmount,
+      resultCost,
     } = await req.json() as MixLotPaylod;
 
     if (!baseTenderId || !roughPcs || !roughCts || !labour || !netPercent) {
@@ -60,6 +61,14 @@ export async function POST(req: Request) {
           baseTenderId,
           inRoughPcs: roughPcs,
           dcRoughCts: roughCts,
+          dcBidPrice: bidPrice || 0,
+          dcTotalAmount: totalAmount || 0,
+          dcResultPerCt: resultPerCarat || 0,
+          dcResultTotal: resultTotal || 0,
+          dcResultCost: resultCost || 0,
+          dcLotSize: lotSize || 0,
+          stLotNo: lotNo,
+          stTenderType: "mix-lot",
           dcRate: rate || 0,
           dcAmount: amount || 0,
           stRemark: remark || "",

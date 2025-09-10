@@ -29,21 +29,28 @@ export async function DELETE(
     );
   }
 
+  const idInt = Number(id);
+
   try {
-    await prisma.baseTender.delete({
+
+    await prisma.singleTender.deleteMany({
       where: {
-        id: Number(id),
+        baseTenderId: idInt,
       },
     });
 
-    // TODO: delete tender details when it is implemented
+    await prisma.otherTender.deleteMany({
+      where: {
+        baseTenderId: idInt,
+      },
+    });
 
-    // await prisma.tenderDetails.deleteMany({
-    //   where: {
-    //     tenderId: id,
-    //   },
-    // });
-
+    await prisma.baseTender.delete({
+      where: {
+        id: idInt,
+      },
+    });
+    
     return new Response(
       JSON.stringify({
         message: "Tender deleted successfully",

@@ -3,6 +3,7 @@
 import { LinkLoadingIndicator } from "@/components/common/link-loading-indicator";
 import { buttonVariants } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
+import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 
 export type MixMultiLotColumns = {
@@ -46,16 +47,22 @@ export const columns: ColumnDef<MixMultiLotColumns>[] = [
     header: "Create",
     cell: ({ row }) => {
       const id = row.original.id as number;
-      const searchParams = typeof window !== 'undefined' ? window?.location?.search : '';
-      const urlParams = new URLSearchParams(searchParams);
+      const searchParams =
+        typeof window !== "undefined" ? window?.location?.search : "";
+      
+        const urlParams = new URLSearchParams(searchParams);
       const baseTenderId = urlParams.get("baseTenderId");
 
       return (
         <Link
           className={buttonVariants({ variant: "outline" })}
-          href={`/tenders/mix-lot?baseTenderId=${baseTenderId}&mainLotId=${id}`}
+          href={
+            baseTenderId && id
+              ? `/tenders/mix-lot?baseTenderId=${baseTenderId}&mainLotId=${id}`
+              : "#"
+          }
         >
-          Create <LinkLoadingIndicator />
+          Create <LinkLoadingIndicator element={<PlusCircle />} />
         </Link>
       );
     },
