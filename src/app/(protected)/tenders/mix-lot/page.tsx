@@ -5,16 +5,29 @@ import React from "react";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ baseTenderId: string }>;
+  searchParams: Promise<{ baseTenderId?: string, mainLotId?: string }>;
 }) {
-  const { baseTenderId } = await searchParams;
+  const { baseTenderId, mainLotId } = await searchParams;
+
+  const whereCondition: {
+    baseTenderId?: number;
+    mainLotId?: number;
+    stTenderType: "mix-lot";
+  } = {
+    stTenderType: "mix-lot"
+  }
+
+  if(baseTenderId) {
+    whereCondition.baseTenderId = parseInt(baseTenderId);
+  }
+
+  if(mainLotId) {
+    whereCondition.mainLotId = parseInt(mainLotId);
+  }
 
   const [mixLotTenders, totalCount] = await Promise.all([
     prisma.otherTender.findMany({
-      where: {
-        baseTenderId: parseInt(baseTenderId),
-        stTenderType: "mix-lot",
-      },
+      where: whereCondition,
       take: 10,
       select: {
         id: true,
@@ -39,10 +52,7 @@ export default async function Page({
       },
     }),
     prisma.otherTender.count({
-      where: {
-        baseTenderId: parseInt(baseTenderId),
-        stTenderType: "mix-lot",
-      },
+      where: whereCondition,
     }),
   ]);
 
@@ -72,7 +82,35 @@ export default async function Page({
     })
   );
 
+  let mainLotDetails = null 
+  if(mainLotId) {
+    mainLotDetails = await prisma.mainLot.findUnique({
+      where: {
+        id: parseInt(mainLotId)
+      },
+      select: {
+        stLotNo: true,
+        stName: true,
+        inPcs: true,
+        dcCts: true,
+        dcRemainingCts: true,
+        inRemainingPcs: true,
+      },
+    })
+  }
+
   return (
-    <MixLotTendersPage mixLotTenders={mixLotData} totalCount={totalCount} />
+    <MixLotTendersPage 
+      mixLotTenders={mixLotData} 
+      totalCount={totalCount} 
+      mainLot={{
+        stLotNo: mainLotDetails?.stLotNo ?? "",
+        stName: mainLotDetails?.stName ?? "",
+        inPcs: mainLotDetails?.inPcs ?? 0,
+        inRemainingPcs: mainLotDetails?.inRemainingPcs ?? 0,
+        dcCts: mainLotDetails?.dcCts.toNumber() ?? 0,
+        dcRemainingCts: mainLotDetails?.dcRemainingCts.toNumber() ?? 0,
+      }}
+    />
   );
 }

@@ -95,6 +95,15 @@ export interface RoughLotTenderDetails {
   dcCostAmount: number | undefined;
 }
 
+export interface MainLot {
+  stLotNo: string;
+  stName: string;
+  inPcs: number;
+  dcCts: number;
+  dcRemainingCts: number;
+  inRemainingPcs: number;
+}
+
 export interface MixLotTenderDetails {
   id?: number;
   inRoughPcs: number | undefined;

@@ -24,9 +24,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
     whereCondition.mainLotId = parseInt(mainLotId);
   }
 
-  console.log(whereCondition, "whereCondition");
-  
-
   const [roughLotTenders, totalCount] = await Promise.all([
     prisma.otherTender.findMany({
       where: whereCondition,
@@ -57,24 +54,22 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
     })
   ])
 
-  // let mainLotDetails = null 
-  // if(mainLotId) {
-  //   mainLotDetails = await prisma.mainLot.findUnique({
-  //     where: {
-  //       id: parseInt(mainLotId)
-  //     },
-  //     select: {
-  //       stLotNo: true,
-  //       stName: true,
-  //       dcPcs: true,
-  //       dcCts: true,
-  //       dcRemainingCts: true,
-  //       inRemainingPcs: true,
-  //     },
-  //   })
-  // }
-
-  // console.log(mainLotDetails, "mainLotDetails");
+  let mainLotDetails = null 
+  if(mainLotId) {
+    mainLotDetails = await prisma.mainLot.findUnique({
+      where: {
+        id: parseInt(mainLotId)
+      },
+      select: {
+        stLotNo: true,
+        stName: true,
+        inPcs: true,
+        dcCts: true,
+        dcRemainingCts: true,
+        inRemainingPcs: true,
+      },
+    })
+  }
 
   const roughLotData = roughLotTenders.map(({ dcNetPercentage, dcLabour, dcLotSize, dcBidPrice, dcResultPerCt, dcResultTotal,dcRoughCts, dcTotalAmount, ...rest }) => ({  
     ...rest,
@@ -92,6 +87,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
     <RoughLotTendersPage 
       roughLotTenders={roughLotData} 
       totalCount={totalCount} 
+      mainLot={{
+        stLotNo: mainLotDetails?.stLotNo ?? "",
+        stName: mainLotDetails?.stName ?? "",
+        inPcs: mainLotDetails?.inPcs ?? 0,
+        inRemainingPcs: mainLotDetails?.inRemainingPcs ?? 0,
+        dcCts: mainLotDetails?.dcCts.toNumber() ?? 0,
+        dcRemainingCts: mainLotDetails?.dcRemainingCts.toNumber() ?? 0,
+      }}
     />
   )
 }
