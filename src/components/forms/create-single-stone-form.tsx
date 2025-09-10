@@ -183,7 +183,7 @@ export function CreateSingleStoneTenderForm({
     saleAmount: 0,
     costPrice: 0,
     topsAmount: 0,
-    totalAmount: 0
+    totalAmount: 0,
   });
 
   const totalSalePrice = totalValues.saleAmount / totalValues.polCts;
@@ -344,7 +344,11 @@ export function CreateSingleStoneTenderForm({
         />
       </div>
       {/* total values */}
-      <div className={`mt-2 flex items-center justify-around gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm ${isRowsLoading ? "animate-pulse bg-neutral-50": ""}`}>
+      <div
+        className={`mt-2 flex items-center justify-around gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm ${
+          isRowsLoading ? "animate-pulse bg-neutral-50" : ""
+        }`}
+      >
         <div className="flex items-center gap-2">
           <p className="text-nowrap">Pcs:</p>
           <p className="font-semibold">{totalValues.pcs}</p>
@@ -374,7 +378,7 @@ export function CreateSingleStoneTenderForm({
       </div>
 
       <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 items-center">
-        <Button className="mt-4" type="button">
+        <Button className="mt-4" type="button" asChild>
           <Link href={"/tenders"}>Cancel</Link>
         </Button>
         <Button disabled={isPending} className="mt-4" type="submit">

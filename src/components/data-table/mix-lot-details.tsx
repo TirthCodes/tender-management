@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 import React, { useEffect } from "react";
 import AutoCompleteInput from "@/components/ui/auto-complete-input";
 import ColorDialog from "@/components/dialog/color-dialog";
@@ -38,13 +38,19 @@ const columns = [
   "Ratio",
   "Sale Price",
   "Sale Amnt",
-  <Button key={1} className="p-0" variant="ghost" type="button">
-    <PlusCircle className="h-4 w-4" />
+  <Button
+    key={1}
+    className="p-1 h-fit hover:bg-green-100 hover:text-green-900"
+    variant="ghost"
+    type="button"
+  >
+    <PlusCircle />
   </Button>,
 ];
 
 interface MixLotDetailsProps {
   data: MixLotTenderDetails[];
+  isDataLoading: boolean;
   handleValueChange: (
     value: MixLotTenderDetails,
     index: number,
@@ -63,6 +69,7 @@ interface MixLotDetailsProps {
 
 export function MixLotDetails({
   data,
+  isDataLoading,
   handleValueChange,
   colors,
   clarities,
@@ -102,28 +109,31 @@ export function MixLotDetails({
   return (
     <>
       <div className="rounded-md flex-1 flex flex-col min-h-0 h-[45svh]">
-        <div className="overflow-auto w-auto">
+        <div className={`overflow-auto w-auto ${isDataLoading && "hidden"}`}>
           <Table isOverflow={false} className="bg-white mb-[34svh]">
             <TableHeader className="sticky top-0 z-40 bg-white border-b">
               <TableRow>
                 {columns.map((header, index) => {
-                  if (index === columns.length - 1) {
-                    return (
-                      <TableHead
-                        onClick={() =>
-                          handleValueChange(initialRow, data.length + 1)
-                        }
-                        className="border-collapse border border-gray-300 border-t-0"
-                        key={index}
-                      >
-                        {header}
-                      </TableHead>
-                    );
-                  }
+                  const isLast = index === columns.length - 1;
                   return (
                     <TableHead
-                      className={`border-collapse border border-gray-300 border-t-0`}
                       key={index}
+                      onClick={
+                        isLast
+                          ? () =>
+                              handleValueChange(
+                                initialRow,
+                                data?.length + 1 || 1
+                              )
+                          : undefined
+                      }
+                      className={`text-nowrap border-collapse border border-gray-300 border-t-0
+                        ${
+                          isLast
+                            ? "sticky right-0 bg-green-50 text-green-800 border-r-0 z-40 text-center"
+                            : ""
+                        }`}
+                      style={{ borderTopWidth: 0 }}
                     >
                       {header}
                     </TableHead>
@@ -321,10 +331,15 @@ export function MixLotDetails({
                             ? parseFloat(e.target.value)
                             : undefined;
 
+                          const polPercent = parseFloat(
+                            ((value ?? 0) / (row.dcRoughCts ?? 0)).toFixed(2)
+                          );
+
                           handleValueChange(
                             {
                               ...row,
                               dcPolCts: value,
+                              dcPolPer: polPercent,
                             },
                             index
                           );
@@ -344,29 +359,21 @@ export function MixLotDetails({
                             ? parseFloat(e.target.value)
                             : undefined;
 
-                          if (value && row.dcRoughCts) {
-                            const polCts = parseFloat(
-                              ((value * row.dcRoughCts) / 100).toFixed(2)
-                            );
+                          const polCts = parseFloat(
+                            (
+                              ((value ?? 0) * (row.dcRoughCts ?? 0)) /
+                              100
+                            ).toFixed(2)
+                          );
 
-                            handleValueChange(
-                              {
-                                ...row,
-                                dcPolCts: polCts,
-                                dcPolPer: value,
-                              },
-                              index
-                            );
-                          } else {
-                            handleValueChange(
-                              {
-                                ...row,
-                                dcPolCts: undefined,
-                                dcPolPer: undefined,
-                              },
-                              index
-                            );
-                          }
+                          handleValueChange(
+                            {
+                              ...row,
+                              dcPolCts: polCts,
+                              dcPolPer: value,
+                            },
+                            index
+                          );
                         }}
                         placeholder="0"
                       />
@@ -514,14 +521,14 @@ export function MixLotDetails({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="sticky right-0 bg-red-50 text-red-800 border-collapse border border-r-0 border-gray-300">
                       <Button
                         variant="ghost"
                         type="button"
-                        className="p-0"
+                        className="p-1 h-fit hover:bg-red-100 hover:text-red-900"
                         onClick={() => handleValueChange(row, index, "delete")}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -538,6 +545,13 @@ export function MixLotDetails({
               )}
             </TableBody>
           </Table>
+        </div>
+        <div
+          className={`${
+            !isDataLoading && "hidden"
+          } flex justify-center items-center h-full`}
+        >
+          <Loader2 className="h-10 w-10 animate-spin" />
         </div>
       </div>
       <div className="px-10 flex items-center justify-around flex-wrap w-full gap-6 h-10 bg-gray-100">

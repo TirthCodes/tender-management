@@ -2,6 +2,8 @@ import { RoughLotTendersPage } from '@/components/pages/rough-lot-tenders'
 import { prisma } from '@/lib/prisma'
 import React from 'react'
 
+export const dynamic = "force-dynamic"
+
 export default async function Page({ searchParams }: { searchParams: Promise<{ baseTenderId?: string, mainLotId?: string }> }) {
 
   const { baseTenderId, mainLotId } = await searchParams;
@@ -21,6 +23,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
   if(mainLotId) {
     whereCondition.mainLotId = parseInt(mainLotId);
   }
+
+  console.log(whereCondition, "whereCondition");
   
 
   const [roughLotTenders, totalCount] = await Promise.all([
@@ -53,6 +57,25 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
     })
   ])
 
+  // let mainLotDetails = null 
+  // if(mainLotId) {
+  //   mainLotDetails = await prisma.mainLot.findUnique({
+  //     where: {
+  //       id: parseInt(mainLotId)
+  //     },
+  //     select: {
+  //       stLotNo: true,
+  //       stName: true,
+  //       dcPcs: true,
+  //       dcCts: true,
+  //       dcRemainingCts: true,
+  //       inRemainingPcs: true,
+  //     },
+  //   })
+  // }
+
+  // console.log(mainLotDetails, "mainLotDetails");
+
   const roughLotData = roughLotTenders.map(({ dcNetPercentage, dcLabour, dcLotSize, dcBidPrice, dcResultPerCt, dcResultTotal,dcRoughCts, dcTotalAmount, ...rest }) => ({  
     ...rest,
     dcNetPercentage: dcNetPercentage.toNumber(),
@@ -66,6 +89,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
   }));
 
   return (
-    <RoughLotTendersPage roughLotTenders={roughLotData} totalCount={totalCount} />
+    <RoughLotTendersPage 
+      roughLotTenders={roughLotData} 
+      totalCount={totalCount} 
+    />
   )
 }

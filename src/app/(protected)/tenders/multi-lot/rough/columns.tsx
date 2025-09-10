@@ -1,7 +1,9 @@
 "use client";
 
+import { LinkLoadingIndicator } from "@/components/common/link-loading-indicator";
 import { buttonVariants } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
+import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 
 export type RoughMultiLotColumns = {
@@ -45,16 +47,17 @@ export const columns: ColumnDef<RoughMultiLotColumns>[] = [
     header: "Create",
     cell: ({ row }) => {
       const id = row.original.id as number;
-      const searchParams = typeof window !== 'undefined' ? window?.location?.search : '';
+      const searchParams =
+        typeof window !== "undefined" ? window?.location?.search : "";
       const urlParams = new URLSearchParams(searchParams);
       const baseTenderId = urlParams.get("baseTenderId");
-      
+
       return (
         <Link
-          className={buttonVariants({ variant: "outline" })}
-          href={`/tenders/rough-lot?baseTenderId=${baseTenderId}&mainLotId=${id}`}
+          className={`${buttonVariants({ variant: "outline" })} shadow-sm`}
+          href={baseTenderId && id  ? `/tenders/rough-lot?baseTenderId=${baseTenderId}&mainLotId=${id}`: "#"}
         >
-          Create
+          Create <LinkLoadingIndicator element={<PlusCircle />} />
         </Link>
       );
     },
