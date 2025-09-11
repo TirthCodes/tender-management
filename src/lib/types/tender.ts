@@ -40,8 +40,8 @@ type OtherTednerBasePayload = {
   roughPcs: number;
   roughCts: number;
   lotSize: number;
-  rate: number;
-  amount: number;
+  rate?: number;
+  amount?: number;
   salePrice: number;
   saleAmount: number;
   bidPrice: number;

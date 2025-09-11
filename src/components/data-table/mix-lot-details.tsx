@@ -30,7 +30,6 @@ const columns = [
   "Clarity",
   "FLR",
   "Shape",
-  "Remark",
   "Pol. Cts.",
   "Pol. %",
   // "Depth",
@@ -38,6 +37,7 @@ const columns = [
   // "Ratio",
   "Sale Price",
   "Sale Amnt",
+  "Remark",
   <Button
     key={1}
     className="p-1 h-fit hover:bg-green-100 hover:text-green-900"
@@ -316,24 +316,7 @@ export function MixLotDetails({
                         createDialogContent={<ShapeDialog />}
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-22"
-                        name="remark"
-                        type="text"
-                        value={row.stRemark}
-                        onChange={(e) => {
-                          handleValueChange(
-                            {
-                              ...row,
-                              stRemark: e.target.value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="Remark"
-                      />
-                    </TableCell>
+                    
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
@@ -535,6 +518,24 @@ export function MixLotDetails({
                           }
                         }}
                         placeholder="0"
+                      />
+                    </TableCell>
+                    <TableCell className="border-collapse border border-gray-300">
+                      <Input
+                        className="w-22"
+                        name="remark"
+                        type="text"
+                        value={row.stRemark}
+                        onChange={(e) => {
+                          handleValueChange(
+                            {
+                              ...row,
+                              stRemark: e.target.value,
+                            },
+                            index
+                          );
+                        }}
+                        placeholder="Remark"
                       />
                     </TableCell>
                     <TableCell className="sticky right-0 bg-red-50 text-red-800 border-collapse text-center border border-r-0 border-gray-300">

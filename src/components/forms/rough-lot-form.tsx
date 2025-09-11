@@ -8,12 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import {
-  getClarityOptions,
-  getColorOptions,
-  getFluorescenceOptions,
-  getShapeOptions,
-} from "@/services/options";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
 // import { Option } from "@/lib/types/common";
@@ -83,14 +77,8 @@ const createRoughLotSchema = z.object({
     (val) => Number(val),
     z.number().min(0, { message: "Lot size is required!" })
   ),
-  rate: z.preprocess(
-    (val) => Number(val),
-    z.number().min(0, { message: "Rate is required!" })
-  ),
-  amount: z.preprocess(
-    (val) => Number(val),
-    z.number().min(0, { message: "Amount is required!" })
-  ),
+  rate: z.preprocess((val) => Number(val), z.number().optional()),
+  amount: z.preprocess((val) => Number(val), z.number().optional()),
   bidPrice: z.preprocess(
     (val) => Number(val),
     z.number().min(0, "Bid price is required!")
@@ -120,25 +108,25 @@ const createRoughLotSchema = z.object({
 type CreateRoughLotFormValues = z.infer<typeof createRoughLotSchema>;
 
 export function RoughLotForm() {
-  const { data: colorsOptions } = useQuery({
-    queryKey: ["color-options"],
-    queryFn: getColorOptions,
-  });
+  // const { data: colorsOptions } = useQuery({
+  //   queryKey: ["color-options"],
+  //   queryFn: getColorOptions,
+  // });
 
-  const { data: claritiesOptions } = useQuery({
-    queryKey: ["clarity-options"],
-    queryFn: getClarityOptions,
-  });
+  // const { data: claritiesOptions } = useQuery({
+  //   queryKey: ["clarity-options"],
+  //   queryFn: getClarityOptions,
+  // });
 
-  const { data: fluorescencesOptions } = useQuery({
-    queryKey: ["fluorescence-options"],
-    queryFn: getFluorescenceOptions,
-  });
+  // const { data: fluorescencesOptions } = useQuery({
+  //   queryKey: ["fluorescence-options"],
+  //   queryFn: getFluorescenceOptions,
+  // });
 
-  const { data: shapesOptions } = useQuery({
-    queryKey: ["shape-options"],
-    queryFn: getShapeOptions,
-  });
+  // const { data: shapesOptions } = useQuery({
+  //   queryKey: ["shape-options"],
+  //   queryFn: getShapeOptions,
+  // });
 
   const searchParams = useSearchParams();
   const baseTenderId = searchParams.get("baseTenderId") as string;
@@ -226,7 +214,7 @@ export function RoughLotForm() {
 
       const tenderDetails = otherTenderDetails.map((details: any) => ({
         ...details,
-        dcRoughCts: parseFloat(details.dcRoughCts), 
+        dcRoughCts: parseFloat(details.dcRoughCts),
         dcPolCts: parseFloat(details.dcPolCts),
         dcPolPer: parseFloat(details.dcPolPer),
         // dcDepth: parseFloat(details.dcDepth),
@@ -237,13 +225,13 @@ export function RoughLotForm() {
         dcLabour: parseFloat(details.dcLabour),
         dcCostPrice: parseFloat(details.dcCostPrice),
         dcCostAmount: parseFloat(details.dcCostAmount),
-      }))
-      setTenderDetails(tenderDetails)
+      }));
+      setTenderDetails(tenderDetails);
     }
   }, [roughLotTender, loadingRoughLot, reset]);
 
   const netPercent = watch("netPercent");
-  const resultTotal = watch("resultTotal");
+
   const roughCts = watch("roughCts");
   const labour = watch("labour");
   const salePrice = watch("salePrice");
@@ -258,7 +246,7 @@ export function RoughLotForm() {
   }, [baseTender, loadingBaseTender, setValue]);
 
   useEffect(() => {
-    if(!roughLotId) {
+    if (!roughLotId) {
       setTenderDetails(initialTenderDetails(labour));
     }
   }, [roughLotId, labour]);
@@ -286,31 +274,59 @@ export function RoughLotForm() {
         setValue("totalAmount", totalAmount);
       }
 
-      if (resultTotal) {
-        if (!isNaN(resultTotal)) {
-          let resultPerCarat = 0;
-          if (roughCts) {
-            // const roughCtsValue = parseFloat(roughCts);
-            if (!isNaN(roughCts)) {
-              resultPerCarat = parseFloat((resultTotal / roughCts).toFixed(2));
-            }
-          }
+      // if (resultTotal) {
+      //   if (!isNaN(resultTotal)) {
+      //     let resultPerCarat = 0;
+      //     if (roughCts) {
+      //       // const roughCtsValue = parseFloat(roughCts);
+      //       if (!isNaN(roughCts)) {
+      //         resultPerCarat = parseFloat((resultTotal / roughCts).toFixed(2));
+      //       }
+      //     }
 
-          if (!isNaN(resultPerCarat)) {
-            setValue("resultPerCarat", resultPerCarat);
-          }
-        }
-      }
+      //     if (!isNaN(resultPerCarat)) {
+      //       setValue("resultPerCarat", resultPerCarat);
+      //     }
+      //   }
+      // }
     }
   }, [
     labour,
     totalValues,
     setValue,
     netPercent,
-    resultTotal,
+    // resultTotal,
     roughCts,
     salePrice,
   ]);
+
+  const resultPerCarat = watch("resultPerCarat");
+
+  useEffectAfterMount(() => {
+    if (resultPerCarat) {
+      const resultTotal = parseFloat((resultPerCarat * roughCts).toFixed(1));
+      setValue("resultTotal", resultTotal);
+    }
+  }, [resultPerCarat, setValue]);
+
+  const resultTotal = watch("resultTotal");
+
+  useEffectAfterMount(() => {
+    if (resultTotal) {
+      if (!isNaN(resultTotal)) {
+        let resultPerCarat = 0;
+        if (roughCts) {
+          if (!isNaN(roughCts)) {
+            resultPerCarat = parseFloat((resultTotal / roughCts).toFixed(2));
+          }
+        }
+
+        if (!isNaN(resultPerCarat)) {
+          setValue("resultPerCarat", resultPerCarat);
+        }
+      }
+    }
+  }, [resultTotal, roughCts, setValue]);
 
   const roughPcs = watch("roughPcs");
 
@@ -331,7 +347,7 @@ export function RoughLotForm() {
         const amount = roughCts * rate;
         setValue("amount", amount);
       }
-    } else if(rate === 0) {
+    } else if (rate === 0) {
       setValue("amount", 0);
     }
   }, [rate, roughCts, setValue]);
@@ -430,7 +446,7 @@ export function RoughLotForm() {
     setIsPending(false);
   }
 
-  const router = useRouter()
+  const router = useRouter();
 
   if (!roughLotId && loadingBaseTender) {
     return (
@@ -495,7 +511,11 @@ export function RoughLotForm() {
         </div>
       </div>
 
-      <div className={`p-3 border border-neutral-300 rounded-lg shadow-sm mb-4 ${loadingRoughLot ? "animate-pulse bg-neutral-100" : ""}`}>
+      <div
+        className={`p-3 border border-neutral-300 rounded-lg shadow-sm mb-4 ${
+          loadingRoughLot ? "animate-pulse bg-neutral-100" : ""
+        }`}
+      >
         <div className="grid grid-cols-6 gap-x-3 gap-y-4">
           <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Lot No.</Label>
@@ -561,10 +581,7 @@ export function RoughLotForm() {
               type="number"
               placeholder="243"
               step={0.01}
-              className={cn(
-                errors.rate?.message &&
-                  "border border-red-500 placeholder:text-red-500"
-              )}
+              className="w-full"
             />
           </div>
 
@@ -575,10 +592,7 @@ export function RoughLotForm() {
               type="number"
               placeholder="999"
               step={0.01}
-              className={cn(
-                errors.amount?.message &&
-                  "border border-red-500 placeholder:text-red-500"
-              )}
+              className="w-full"
             />
           </div>
         </div>
@@ -592,15 +606,19 @@ export function RoughLotForm() {
           setTotalValues={setTotalValues}
           handleValueChange={handleDetailsValueChange}
           data={tenderDetails}
-          colors={colorsOptions?.data}
-          clarities={claritiesOptions?.data}
-          fluorescences={fluorescencesOptions?.data}
-          shapes={shapesOptions?.data}
+          // colors={colorsOptions?.data}
+          // clarities={claritiesOptions?.data}
+          // fluorescences={fluorescencesOptions?.data}
+          // shapes={shapesOptions?.data}
           labour={labour}
         />
       </div>
 
-      <div className={`p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10 ${loadingRoughLot ? "animate-pulse bg-neutral-100" : ""}`}>
+      <div
+        className={`p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10 ${
+          loadingRoughLot ? "animate-pulse bg-neutral-100" : ""
+        }`}
+      >
         <div className="grid grid-cols-3 gap-x-6 gap-y-3">
           <div className="flex w-full max-w-sm items-center gap-2">
             <Label className="text-nowrap w-32">Cost Price</Label>
@@ -663,8 +681,6 @@ export function RoughLotForm() {
               type="number"
               {...register("resultPerCarat", { valueAsNumber: true })}
               step={0.01}
-              readOnly
-              disabled
               className="w-full"
             />
           </div>

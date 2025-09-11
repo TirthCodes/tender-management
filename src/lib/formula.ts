@@ -37,11 +37,13 @@ export const calculateCostPrice = (
   labourValue: number,
   roughCts: number,
   polCts: number,
-  topsAmount: number
+  topsAmount: number,
+  netPercernt: number
 ) => {
+  const resultPercent = parseFloat(((netPercernt - 100) / 100).toFixed(2));
   const costPrice = parseFloat(
     (
-      (((((((bidPrice * 0.15) + bidPrice) + labourValue) * roughCts) / polCts) + 180) / 0.97) - topsAmount
+      (((((((bidPrice * resultPercent) + bidPrice) + labourValue) * roughCts) / polCts) + 180) / 0.97) - topsAmount
     ).toFixed(2)
   );
 
@@ -77,12 +79,15 @@ export const calculateResultCost = (
   labourValue: number,
   polCts: number,
   roughCts: number,
-  topsAmount: number
+  topsAmount: number,
+  netPercent: number
 ) => {
+  const resultPercent = parseFloat(((netPercent - 100) / 100).toFixed(2));
+  console.log(netPercent, "netPercernt");
   if (resultPerCarat) {
     const resultCost = parseFloat(
       (
-        (((((((resultPerCarat * 0.15) + resultPerCarat) + labourValue) * roughCts) / polCts) + 180) / 0.97) - topsAmount
+        (((((((resultPerCarat * resultPercent) + resultPerCarat) + labourValue) * roughCts) / polCts) + 180) / 0.97) - topsAmount
       ).toFixed(2)
     );
 
