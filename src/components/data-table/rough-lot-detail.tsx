@@ -19,23 +19,23 @@ import { Option } from "@/lib/types/common";
 import ClarityDialog from "@/components/dialog/clarity-dialog";
 import FlrDialog from "@/components/dialog/flr-dialog";
 import ShapeDialog from "@/components/dialog/shape-dialog";
-import { initialRow } from "../forms/rough-lot-form";
+import { initialTenderDetails } from "../forms/rough-lot-form";
 
 const columns = [
   "Lot",
   "Pcs.",
   "Cts.",
   "Color",
-  "C.GD",
+  // "C.GD",
   "Clarity",
   "FLR",
   "Shape",
   "Remark",
   "Pol. Cts.",
   "Pol. %",
-  "Depth",
-  "Table",
-  "Ratio",
+  // "Depth",
+  // "Table",
+  // "Ratio",
   "Sale Price",
   "Sale Amnt",
   "Labour",
@@ -68,6 +68,7 @@ interface RoughLotDetailsProps {
   shapes: Option[];
   totalValues: TotalValues;
   setTotalValues: React.Dispatch<React.SetStateAction<TotalValues>>;
+  labour: number;
 }
 
 export function RoughLotDetails({
@@ -81,7 +82,9 @@ export function RoughLotDetails({
   setTotalValues,
   shapes,
   lotNo,
+  labour,
 }: RoughLotDetailsProps) {
+
   useEffect(() => {
     const totals = data.reduce(
       (acc, row) => ({
@@ -111,6 +114,22 @@ export function RoughLotDetails({
     setTotalValues(totals);
   }, [data, setTotalValues]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if(event.ctrlKey && event.key === "t") {
+        handleValueChange(
+          initialTenderDetails(labour)[0],
+          data?.length + 1 || 1
+        );
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [data, labour, handleValueChange]);
+  
   return (
     <>
       <div className="rounded-md flex-1 flex flex-col min-h-0 h-[45svh]">
@@ -129,7 +148,7 @@ export function RoughLotDetails({
                         isLast
                           ? () =>
                               handleValueChange(
-                                initialRow,
+                                initialTenderDetails(labour)[0],
                                 data?.length + 1 || 1
                               )
                           : undefined
@@ -157,7 +176,7 @@ export function RoughLotDetails({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-center"
+                        className="w-14 text-center"
                         name="pcs"
                         type="number"
                         value={row.inRoughPcs || ""}
@@ -179,7 +198,7 @@ export function RoughLotDetails({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-16 text-right"
                         name="carats"
                         type="number"
                         value={row.dcRoughCts || ""}
@@ -220,7 +239,7 @@ export function RoughLotDetails({
                         createDialogContent={<ColorDialog />}
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    {/* <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
                         name="colorGrade"
@@ -241,7 +260,7 @@ export function RoughLotDetails({
                         }}
                         placeholder="0"
                       />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="border-collapse border border-gray-300">
                       <AutoCompleteInput
                         data={clarities}
@@ -325,7 +344,7 @@ export function RoughLotDetails({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-16 text-right"
                         name="polCts"
                         type="number"
                         value={row.dcPolCts}
@@ -334,9 +353,13 @@ export function RoughLotDetails({
                           const value = e.target.value
                             ? parseFloat(e.target.value)
                             : undefined;
+
+                          const polPercent = parseFloat((parseFloat(((value ?? 0) / (row.dcRoughCts ?? 0)).toFixed(2)) * 100).toFixed(2));
+
                           handleValueChange(
                             {
                               ...row,
+                              dcPolPer: polPercent,
                               dcPolCts: value,
                             },
                             index
@@ -347,7 +370,7 @@ export function RoughLotDetails({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-14 text-right"
                         name="polPercent"
                         type="number"
                         value={row.dcPolPer || ""}
@@ -375,7 +398,7 @@ export function RoughLotDetails({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    {/* <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
                         name="depth"
@@ -441,10 +464,10 @@ export function RoughLotDetails({
                         }}
                         placeholder="0"
                       />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-24 text-right"
                         name="salePrice"
                         type="number"
                         value={row.dcSalePrice || ""}
@@ -485,7 +508,7 @@ export function RoughLotDetails({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-24 text-right"
                         name="saleAmount"
                         type="number"
                         value={row.dcSaleAmount}
@@ -525,7 +548,7 @@ export function RoughLotDetails({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-14 text-right"
                         name="labour"
                         type="number"
                         value={row.dcLabour}
@@ -564,7 +587,7 @@ export function RoughLotDetails({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-24 text-right"
                         name="costPrice"
                         type="number"
                         value={row.dcCostPrice}
@@ -591,7 +614,7 @@ export function RoughLotDetails({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-24 text-right"
                         name="costAmount"
                         type="number"
                         value={row.dcCostAmount}
@@ -646,6 +669,9 @@ export function RoughLotDetails({
       </div>
       <div className="px-10 flex items-center justify-around flex-wrap w-full gap-6 h-10 bg-gray-100">
         <p className="text-gray-600 text-sm font-semibold">
+          Rows: {data.length}
+        </p>
+        <p className="text-gray-600 text-sm font-semibold">
           Pcs: {totalValues.pcs}
         </p>
         <p className="text-gray-600 text-sm font-semibold">
@@ -657,9 +683,9 @@ export function RoughLotDetails({
         {/* <p className="text-gray-600 text-sm font-semibold">
           Pol %: {totalValues.polPercent}%
         </p> */}
-        <p className="text-gray-600 text-sm font-semibold">
+        {/* <p className="text-gray-600 text-sm font-semibold">
           Sale Price: {totalValues?.salePrice?.toFixed(2)}
-        </p>
+        </p> */}
         <p className="text-gray-600 text-sm font-semibold">
           Cost Price: {totalValues?.costPrice?.toFixed(2)}
         </p>

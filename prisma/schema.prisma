@@ -109,7 +109,7 @@ model OtherTender {
   id                   Int                    @id @default(autoincrement())
   baseTender           BaseTender             @relation(fields: [baseTenderId], references: [id])
   baseTenderId         Int
-  stTenderType           String
+  stTenderType         String
   mainLot              MainLot?               @relation(fields: [mainLotId], references: [id])
   mainLotId            Int?
 	stLotNo              String
@@ -144,16 +144,16 @@ model OtherTenderDetails {
   dcRoughCts        Decimal         @db.Decimal(10, 2)
   stRemark          String?
 
-  color             Color           @relation(fields: [colorId], references: [id], onDelete: Cascade)
-  colorId           Int          
-  clarity           Clarity         @relation(fields: [clarityId], references: [id], onDelete: Cascade)
-  clarityId         Int          
-  fluorescence      Fluorescence    @relation(fields: [fluorescenceId], references: [id], onDelete: Cascade)
-  fluorescenceId    Int          
-  shape             Shape           @relation(fields: [shapeId], references: [id], onDelete: Cascade)
-  shapeId           Int          
+  color             Color?           @relation(fields: [colorId], references: [id], onDelete: Cascade)
+  colorId           Int?          
+  clarity           Clarity?         @relation(fields: [clarityId], references: [id], onDelete: Cascade)
+  clarityId         Int?          
+  fluorescence      Fluorescence?    @relation(fields: [fluorescenceId], references: [id], onDelete: Cascade)
+  fluorescenceId    Int?          
+  shape             Shape?           @relation(fields: [shapeId], references: [id], onDelete: Cascade)
+  shapeId           Int?          
   
-  inColorGrade      Int
+  inColorGrade      Int             @default(0)
   
   dcPolCts          Decimal         @db.Decimal(10, 2)
   dcPolPer          Decimal         @db.Decimal(10, 2)

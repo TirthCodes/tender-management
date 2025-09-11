@@ -91,11 +91,11 @@ export function TenderDataTable<TData extends { id?: number }>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
-                className="sticky ring-black top-0 z-10 border-b-2 bg-neutral-100 shadow-sm hover:bg-neutral-100"
+                className="sticky ring-black top-0 z-10 border-b-2 text-nowrap bg-neutral-100 shadow-sm hover:bg-neutral-100"
               >
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} style={(header.column.columnDef.meta as any)?.style}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -116,7 +116,7 @@ export function TenderDataTable<TData extends { id?: number }>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} style={(cell.column.columnDef.meta as any)?.style}>
                       {cell.column.id === "actions" ? (
                         <div className="flex items-center gap-2 w-fit">
                           <Button

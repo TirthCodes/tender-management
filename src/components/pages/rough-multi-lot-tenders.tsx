@@ -43,14 +43,14 @@ export function RoughMultiLotTendersPage({ tenders, totalCount }: { tenders: Rou
   return (
     <PageWrapper>
       <PageHeader
-        title="Rough Multi Lot Tenders"
+        title="Rough Multi Lot Tenders (Main Lot)"
         handleDialog={handleDialog}
       />
       <FormDialog
         open={dialogOpen}
         setOpen={setDialogOpen}
         action={editData ? "Edit" : "Add"}
-        title={editData ? editData.stName : "Tender"}
+        title={editData ? editData.stName : "Main Lot"}
         widthClass="md:max-w-[35dvw] md:w-[35dvw]"
       >
         <MultiLotForm editData={editData} setDialogOpen={setDialogOpen} tenderType="rough" />

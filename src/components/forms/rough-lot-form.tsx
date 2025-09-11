@@ -16,14 +16,14 @@ import {
 } from "@/services/options";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
-import { Option } from "@/lib/types/common";
+// import { Option } from "@/lib/types/common";
 import {
   RoughLotPaylod,
   RoughLotTenderDetails,
   TotalValues,
 } from "@/lib/types/tender";
 import { RoughLotDetails } from "../data-table/rough-lot-detail";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getBaseTenderById } from "@/services/base-tender";
 import { createRoughLot, getRoughLotById } from "@/services/rough-lot";
 import { toast } from "react-toastify";
@@ -50,19 +50,12 @@ export const initialRow: RoughLotTenderDetails = {
   dcCostAmount: 0,
 };
 
-const initialTenderDetails = (labour?: number) => [
+export const initialTenderDetails = (labour?: number) => [
   {
     ...initialRow,
     dcLabour: labour || 0,
   },
 ];
-
-interface CreateRoughLotFormProps {
-  colorOptions: Option[];
-  clarityOptions: Option[];
-  fluorescenceOptions: Option[];
-  shapeOptions: Option[];
-}
 
 const createRoughLotSchema = z.object({
   // voucherDate: z.string(),
@@ -126,50 +119,25 @@ const createRoughLotSchema = z.object({
 
 type CreateRoughLotFormValues = z.infer<typeof createRoughLotSchema>;
 
-export function RoughLotForm({
-  colorOptions,
-  clarityOptions,
-  fluorescenceOptions,
-  shapeOptions,
-}: CreateRoughLotFormProps) {
+export function RoughLotForm() {
   const { data: colorsOptions } = useQuery({
     queryKey: ["color-options"],
     queryFn: getColorOptions,
-    initialData: {
-      data: colorOptions,
-      success: true,
-      message: "Initial data loaded successfully",
-    },
   });
 
   const { data: claritiesOptions } = useQuery({
     queryKey: ["clarity-options"],
     queryFn: getClarityOptions,
-    initialData: {
-      data: clarityOptions,
-      success: true,
-      message: "Initial data loaded successfully",
-    },
   });
 
   const { data: fluorescencesOptions } = useQuery({
     queryKey: ["fluorescence-options"],
     queryFn: getFluorescenceOptions,
-    initialData: {
-      data: fluorescenceOptions,
-      success: true,
-      message: "Initial data loaded successfully",
-    },
   });
 
   const { data: shapesOptions } = useQuery({
     queryKey: ["shape-options"],
     queryFn: getShapeOptions,
-    initialData: {
-      data: shapeOptions,
-      success: true,
-      message: "Initial data loaded successfully",
-    },
   });
 
   const searchParams = useSearchParams();
@@ -178,13 +146,13 @@ export function RoughLotForm({
   const roughLotId = searchParams.get("id") as string; //otherTenderId
 
   const { data: baseTender, isLoading: loadingBaseTender } = useQuery({
-    queryKey: ["base-tender"],
+    queryKey: ["base-tender", baseTenderId],
     queryFn: () => getBaseTenderById(parseInt(baseTenderId)),
     enabled: !!baseTenderId,
   });
 
   const { data: roughLotTender, isLoading: loadingRoughLot } = useQuery({
-    queryKey: ["rough-lot-tender"],
+    queryKey: ["rough-lot-tender", roughLotId],
     queryFn: () => getRoughLotById(parseInt(roughLotId)),
     enabled: !!roughLotId,
   });
@@ -261,9 +229,9 @@ export function RoughLotForm({
         dcRoughCts: parseFloat(details.dcRoughCts), 
         dcPolCts: parseFloat(details.dcPolCts),
         dcPolPer: parseFloat(details.dcPolPer),
-        dcDepth: parseFloat(details.dcDepth),
-        dcTable: parseFloat(details.dcTable),
-        dcRatio: parseFloat(details.dcRatio),
+        // dcDepth: parseFloat(details.dcDepth),
+        // dcTable: parseFloat(details.dcTable),
+        // dcRatio: parseFloat(details.dcRatio),
         dcSalePrice: parseFloat(details.dcSalePrice),
         dcSaleAmount: parseFloat(details.dcSaleAmount),
         dcLabour: parseFloat(details.dcLabour),
@@ -286,9 +254,14 @@ export function RoughLotForm({
       const labour = parseFloat(dcLabour);
       setValue("netPercent", dcNetPercentage);
       setValue("labour", labour);
-      setTenderDetails(initialTenderDetails(labour));
     }
   }, [baseTender, loadingBaseTender, setValue]);
+
+  useEffect(() => {
+    if(!roughLotId) {
+      setTenderDetails(initialTenderDetails(labour));
+    }
+  }, [roughLotId, labour]);
 
   useEffectAfterMount(() => {
     if (netPercent && labour) {
@@ -358,6 +331,8 @@ export function RoughLotForm({
         const amount = roughCts * rate;
         setValue("amount", amount);
       }
+    } else if(rate === 0) {
+      setValue("amount", 0);
     }
   }, [rate, roughCts, setValue]);
 
@@ -440,14 +415,14 @@ export function RoughLotForm({
       reset();
 
       if (mainLotId) {
-        redirect(
+        router.push(
           "/tenders/rough-lot?baseTenderId=" +
             baseTenderId +
             "&mainLotId=" +
             mainLotId
         );
       } else {
-        redirect("/tenders/rough-lot?baseTenderId=" + baseTenderId);
+        router.push("/tenders/rough-lot?baseTenderId=" + baseTenderId);
       }
     } else {
       toast.error(response.message);
@@ -621,6 +596,7 @@ export function RoughLotForm({
           clarities={claritiesOptions?.data}
           fluorescences={fluorescencesOptions?.data}
           shapes={shapesOptions?.data}
+          labour={labour}
         />
       </div>
 
@@ -655,7 +631,7 @@ export function RoughLotForm({
               step={0.01}
               placeholder="10000"
               className={cn(
-                errors.totalAmount?.message &&
+                errors.resultTotal?.message &&
                   "w-full border border-red-500 placeholder:text-red-500"
               )}
             />

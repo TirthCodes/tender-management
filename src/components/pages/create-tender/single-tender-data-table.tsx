@@ -119,6 +119,19 @@ export function SingleTenderDataTable({
     setTotalValues(totals);
   }, [data, setTotalValues]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if(event.ctrlKey && event.key === "t") {
+        handleValueChange(singleInitialRow, data?.length + 1 || 1)
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [data, handleValueChange]);
+
   return (
     <>
       <div className="rounded-md flex-1 flex flex-col min-h-0 h-[65svh]">

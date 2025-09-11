@@ -16,13 +16,12 @@ import {
 } from "@/services/options";
 import { cn } from "@/lib/utils";
 import { z } from "zod";
-import { Option } from "@/lib/types/common";
 import {
   MixLotPaylod,
   MixLotTenderDetails,
   TotalValues,
 } from "@/lib/types/tender";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getBaseTenderById } from "@/services/base-tender";
 import { MixLotDetails } from "../data-table/mix-lot-details";
 import { createMixLot, getMixLotById } from "@/services/mix-lot";
@@ -48,13 +47,6 @@ export const initialRow: MixLotTenderDetails = {
 };
 
 const initialTenderDetails = [initialRow];
-
-interface MixLotFormProps {
-  colorOptions: Option[];
-  clarityOptions: Option[];
-  fluorescenceOptions: Option[];
-  shapeOptions: Option[];
-}
 
 const mixLotSchema = z.object({
   // voucherDate: z.string(),
@@ -123,50 +115,25 @@ const mixLotSchema = z.object({
 
 type MixLotFormValues = z.infer<typeof mixLotSchema>;
 
-export function MixLotForm({
-  colorOptions,
-  clarityOptions,
-  fluorescenceOptions,
-  shapeOptions,
-}: MixLotFormProps) {
+export function MixLotForm() {
   const { data: colorsOptions } = useQuery({
     queryKey: ["color-options"],
     queryFn: getColorOptions,
-    initialData: {
-      data: colorOptions,
-      success: true,
-      message: "Initial data loaded successfully",
-    },
   });
 
   const { data: claritiesOptions } = useQuery({
     queryKey: ["clarity-options"],
     queryFn: getClarityOptions,
-    initialData: {
-      data: clarityOptions,
-      success: true,
-      message: "Initial data loaded successfully",
-    },
   });
 
   const { data: fluorescencesOptions } = useQuery({
     queryKey: ["fluorescence-options"],
     queryFn: getFluorescenceOptions,
-    initialData: {
-      data: fluorescenceOptions,
-      success: true,
-      message: "Initial data loaded successfully",
-    },
   });
 
   const { data: shapesOptions } = useQuery({
     queryKey: ["shape-options"],
     queryFn: getShapeOptions,
-    initialData: {
-      data: shapeOptions,
-      success: true,
-      message: "Initial data loaded successfully",
-    },
   });
 
   const searchParams = useSearchParams();
@@ -175,13 +142,13 @@ export function MixLotForm({
   const mixLotId = searchParams.get("id") as string; //otherTenderId
 
   const { data: baseTender, isLoading: loadingBaseTender } = useQuery({
-    queryKey: ["base-tender"],
+    queryKey: ["base-tender", baseTenderId],
     queryFn: () => getBaseTenderById(parseInt(baseTenderId)),
     enabled: !!baseTenderId,
   });
 
   const { data: mixLotTender, isLoading: loadingMixLot } = useQuery({
-    queryKey: ["mix-lot-tender"],
+    queryKey: ["mix-lot-tender", mixLotId],
     queryFn: () => getMixLotById(parseInt(mixLotId)),
     enabled: !!mixLotId,
   });
@@ -233,6 +200,7 @@ export function MixLotForm({
         otherTenderDetails,
         dcSalePrice,
         dcSaleAmount,
+        stRemark,
       } = mixLotTender.data;
       reset({
         roughPcs: inRoughPcs,
@@ -240,6 +208,7 @@ export function MixLotForm({
         rate: dcRate,
         amount: dcAmount,
         labour: dcLabour,
+        remark: stRemark,
         netPercent: dcNetPercentage,
         bidPrice: dcBidPrice,
         lotSize: dcLotSize,
@@ -258,9 +227,9 @@ export function MixLotForm({
           dcRoughCts: parseFloat(tender.dcRoughCts), 
           dcPolCts: parseFloat(tender.dcPolCts),
           dcPolPer: parseFloat(tender.dcPolPer),
-          dcDepth: parseFloat(tender.dcDepth),
-          dcTable: parseFloat(tender.dcTable),
-          dcRatio: parseFloat(tender.dcRatio),
+          // dcDepth: parseFloat(tender.dcDepth),
+          // dcTable: parseFloat(tender.dcTable),
+          // dcRatio: parseFloat(tender.dcRatio),
           dcSalePrice: parseFloat(tender.dcSalePrice),
           dcSaleAmount: parseFloat(tender.dcSaleAmount),
           dcLabour: parseFloat(tender.dcLabour),
@@ -371,6 +340,8 @@ export function MixLotForm({
         const amount = roughCts * rate;
         setValue("amount", amount);
       }
+    } else if (rate === 0) {
+      setValue("amount", 0);
     }
   }, [rate, roughCts, setValue]);
 
@@ -445,14 +416,14 @@ export function MixLotForm({
     if (response.success) {
       toast.success(response.message);
       if (mainLotId) {
-        redirect(
+        router.push(
           "/tenders/mix-lot?baseTenderId=" +
             baseTenderId +
             "&mainLotId=" +
             mainLotId
         );
       } else {
-        redirect("/tenders/mix-lot?baseTenderId=" + baseTenderId);
+        router.push("/tenders/mix-lot?baseTenderId=" + baseTenderId);
       }
     } else {
       toast.error(response.message);
@@ -662,7 +633,10 @@ export function MixLotForm({
               {...register("resultTotal", { valueAsNumber: true })}
               step={0.01}
               placeholder="10000"
-              className="w-full"
+              className={cn(
+                errors.resultTotal?.message &&
+                  "border border-red-500 placeholder:text-red-500"
+              )}
             />
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">

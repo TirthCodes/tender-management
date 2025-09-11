@@ -97,12 +97,12 @@ export async function POST(req: Request) {
                 fluorescenceId: detail.fluorescence.id,
                 shapeId: detail.shape.id,
                 stRemark: detail.stRemark || "",
-                inColorGrade: detail.inColorGrade,
+                // inColorGrade: detail.inColorGrade,
                 dcPolCts: detail.dcPolCts,
                 dcPolPer: detail.dcPolPer,
-                dcDepth: detail.dcDepth,
-                dcTable: detail.dcTable,
-                dcRatio: detail.dcRatio,
+                // dcDepth: detail.dcDepth,
+                // dcTable: detail.dcTable,
+                // dcRatio: detail.dcRatio,
                 dcSalePrice: detail.dcSalePrice,
                 dcSaleAmount: detail.dcSaleAmount,
               }
@@ -119,12 +119,12 @@ export async function POST(req: Request) {
                 fluorescenceId: detail.fluorescence.id,
                 shapeId: detail.shape.id,
                 stRemark: detail.stRemark || "",
-                inColorGrade: detail.inColorGrade ?? 0,
+                inColorGrade: 0,
                 dcPolCts: detail.dcPolCts ?? 0,
                 dcPolPer: detail.dcPolPer ?? 0,
-                dcDepth: detail.dcDepth,
-                dcTable: detail.dcTable,
-                dcRatio: detail.dcRatio,
+                dcDepth: 0,
+                dcTable: 0,
+                dcRatio: 0,
                 dcSalePrice: detail.dcSalePrice,
                 dcSaleAmount: detail.dcSaleAmount,
               }
@@ -200,12 +200,12 @@ export async function POST(req: Request) {
               fluorescenceId: detail.fluorescence.id,
               shapeId: detail.shape.id,
               stRemark: detail.stRemark,
-              inColorGrade: detail.inColorGrade ?? 0,
+              inColorGrade: 0,
               dcPolCts: detail.dcPolCts ?? 0,
               dcPolPer: detail.dcPolPer ?? 0,
-              dcDepth: detail.dcDepth ?? 0,
-              dcTable: detail.dcTable ?? 0,
-              dcRatio: detail.dcRatio ?? 0,
+              dcDepth: 0,
+              dcTable: 0,
+              dcRatio: 0,
               dcSalePrice: detail.dcSalePrice ?? 0,
               dcSaleAmount: detail.dcSaleAmount ?? 0,
             }))
@@ -213,6 +213,28 @@ export async function POST(req: Request) {
         }
       },
     });
+
+    if(mainLotId) {
+      const mainLot = await prisma.mainLot.findUnique({
+        where: {
+          id: mainLotId
+        },
+        select: {
+          dcRemainingCts: true,
+          inRemainingPcs: true,
+        }
+      })
+
+      await prisma.mainLot.update({
+        where: {
+          id: mainLotId
+        },
+        data: {
+          dcRemainingCts: mainLot?.dcRemainingCts ? (mainLot?.dcRemainingCts.toNumber() - roughCts) : 0,
+          inRemainingPcs: mainLot?.inRemainingPcs ? (mainLot?.inRemainingPcs - roughPcs) : 0,
+        }
+      })
+    }
 
     return Response.json(
       {
@@ -252,6 +274,7 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const page = url.searchParams.get("page");
   const baseTenderId = url.searchParams.get("baseTenderId") as string;
+  const mainLotId = url.searchParams.get("mainLotId") as string;
   
   if(!baseTenderId) {
     return Response.json(
@@ -267,12 +290,22 @@ export async function GET(req: Request) {
   const pageNumber = page ? parseInt(page) : 1;
   const offset = (pageNumber - 1) * limit;
 
+  const whereCondition: {
+    baseTenderId: number;
+    mainLotId?: number;
+    stTenderType: "mix-lot";
+  } = {
+    baseTenderId: parseInt(baseTenderId),
+    stTenderType: "mix-lot",
+  }
+
+  if(mainLotId) {
+    whereCondition.mainLotId = parseInt(mainLotId);
+  }
+
   try {
     const mixtLotTenders = await prisma.otherTender.findMany({
-      where: {
-        baseTenderId: parseInt(baseTenderId),
-        stTenderType: "mix-lot"
-      },
+      where: whereCondition,
       take: limit,
       skip: offset,
       select: {
@@ -280,9 +313,9 @@ export async function GET(req: Request) {
         baseTenderId: true,
         inRoughPcs: true,
         dcRoughCts: true,
-        // dcRate: true,
-        // dcAmount: true,
-        // stRemark: true,
+        dcRate: true,
+        dcAmount: true,
+        stRemark: true,
         dcLabour: true,
         dcNetPercentage: true,
         dcBidPrice: true,
@@ -299,10 +332,7 @@ export async function GET(req: Request) {
     })
 
     const totalCount = await prisma.otherTender.count({
-      where: {
-        baseTenderId: parseInt(baseTenderId),
-        stTenderType: "mix-lot"
-      }
+      where: whereCondition
     });
 
     const hasNextPage = limit * pageNumber < totalCount;

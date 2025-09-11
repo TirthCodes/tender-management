@@ -352,6 +352,10 @@ export function CreateSingleStoneTenderForm({
         }`}
       >
         <div className="flex items-center gap-2">
+          <p className="text-nowrap">Rows:</p>
+          <p className="font-semibold">{tenderDetails.length}</p>
+        </div>
+        <div className="flex items-center gap-2">
           <p className="text-nowrap">Pcs:</p>
           <p className="font-semibold">{totalValues.pcs}</p>
         </div>

@@ -6,10 +6,15 @@ export async function createMixLot(data: MixLotPaylod) {
   return response;
 }
 
-export async function getMixLots(baseTenderId: number, page: number) {
-  const response = await fetchData(`/tender/mix-lot?baseTenderId=${baseTenderId}&page=${page}`);
+export async function getMixLots(baseTenderId: number, page: number, mainLotId?: string) {
+  let url = `/tender/mix-lot?baseTenderId=${baseTenderId}&page=${page}`;
+  if(mainLotId) {
+    url = `${url}&mainLotId=${mainLotId}`;
+  }
+  const response = await fetchData(url);
   return response;
 }
+
 
 export async function getMixLotById(id: number) {
   const response = await fetchData(`/tender/mix-lot/${id}`);
