@@ -43,14 +43,14 @@ export function MixMultiLotTendersPage({ tenders, totalCount }: { tenders: MixMu
   return (
     <PageWrapper>
       <PageHeader
-        title="Mix Multi Lot Tenders"
+        title="Mix Multi Lot Tenders (Main Lot)"
         handleDialog={handleDialog}
       />
       <FormDialog
         open={dialogOpen}
         setOpen={setDialogOpen}
         action={editData ? "Edit" : "Add"}
-        title={editData ? editData.stName : "Tender"}
+        title={editData ? editData.stName : "Main Lot"}
         widthClass="md:max-w-[35dvw] md:w-[35dvw]"
       >
         <MultiLotForm editData={editData} setDialogOpen={setDialogOpen} tenderType="mix" />

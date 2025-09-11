@@ -32,8 +32,8 @@ export function RoughLotTendersPage({
   const queryKey = "rought-lot-tenders";
 
   const { data: roughLotResponse } = useQuery({
-    queryKey: [queryKey, id, page],
-    queryFn: () => getRoughLots(parseInt(id), page),
+    queryKey: [queryKey, id, page, mainLotId],
+    queryFn: () => getRoughLots(parseInt(id), page, mainLotId),
     initialData: {
       data: roughLotTenders,
       success: true,
@@ -61,25 +61,40 @@ export function RoughLotTendersPage({
 
   return (
     <PageWrapper>
-      {mainLot?.stLotNo && (
-        <div className="flex items-center justify-center gap-6 -mb-[30px]">
-          <div className="flex items-center gap-1">
-            <p className="font-semibold">Pcs:</p>
-            <p>
-              <span className="text-red-800">{mainLot.inRemainingPcs}</span> /{" "}
-              <span className="font-semibold">{mainLot.inPcs}</span>
-            </p>
-          </div>
-          <div className="flex items-center gap-1">
-            <p className="font-semibold">Carats:</p>
-            <p>
-              <span className="text-red-800">{mainLot.dcRemainingCts}</span> /{" "}
-              <span className="font-semibold">{mainLot.dcRemainingCts}</span>
-            </p>
-          </div>
-        </div>
-      )}
-      <PageHeader title={title} createPath={createPath} />
+      <PageHeader
+        title={title}
+        createPath={createPath}
+        mainLotInfo={
+          <>
+            {mainLot?.stLotNo && (
+              <div className="flex items-center gap-6 ml-10">
+                <div className="flex items-center gap-1">
+                  <p className="font-semibold">Pcs:</p>
+                  <p>
+                    <span className="text-red-800">
+                      {mainLot.inRemainingPcs}
+                    </span>{" "}
+                    / <span className="font-semibold">{mainLot.inPcs}</span>
+                  </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <p className="font-semibold">Carats:</p>
+                  <p>
+                    <span className="text-red-800">
+                      {mainLot.dcRemainingCts}
+                    </span>{" "}
+                    /{" "}
+                    <span className="font-semibold">
+                      {mainLot.dcRemainingCts}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            )}
+          </>
+        }
+      />
+
       <TenderDataTable
         columns={columns}
         data={roughLotResponse?.data || []}

@@ -26,16 +26,16 @@ const columns = [
   "Pcs.",
   "Cts.",
   "Color",
-  "C.GD",
+  // "C.GD",
   "Clarity",
   "FLR",
   "Shape",
   "Remark",
   "Pol. Cts.",
   "Pol. %",
-  "Depth",
-  "Table",
-  "Ratio",
+  // "Depth",
+  // "Table",
+  // "Ratio",
   "Sale Price",
   "Sale Amnt",
   <Button
@@ -105,6 +105,22 @@ export function MixLotDetails({
 
     setTotalValues(totals);
   }, [data, setTotalValues]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if(event.ctrlKey && event.key === "t") {
+        handleValueChange(
+          initialRow,
+          data?.length + 1 || 1
+        )
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [data, handleValueChange]);
 
   return (
     <>
@@ -215,7 +231,7 @@ export function MixLotDetails({
                         createDialogContent={<ColorDialog />}
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    {/* <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
                         name="colorGrade"
@@ -236,7 +252,7 @@ export function MixLotDetails({
                         }}
                         placeholder="0"
                       />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="border-collapse border border-gray-300">
                       <AutoCompleteInput
                         data={clarities}
@@ -378,7 +394,7 @@ export function MixLotDetails({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    {/* <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
                         name="depth"
@@ -443,7 +459,7 @@ export function MixLotDetails({
                         }}
                         placeholder="0"
                       />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
@@ -521,7 +537,7 @@ export function MixLotDetails({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="sticky right-0 bg-red-50 text-red-800 border-collapse border border-r-0 border-gray-300">
+                    <TableCell className="sticky right-0 bg-red-50 text-red-800 border-collapse text-center border border-r-0 border-gray-300">
                       <Button
                         variant="ghost"
                         type="button"
@@ -556,6 +572,9 @@ export function MixLotDetails({
       </div>
       <div className="px-10 flex items-center justify-around flex-wrap w-full gap-6 h-10 bg-gray-100">
         <p className="text-gray-600 text-sm font-semibold">
+          Rows: {data.length}
+        </p>
+        <p className="text-gray-600 text-sm font-semibold">
           Pcs: {totalValues.pcs}
         </p>
         <p className="text-gray-600 text-sm font-semibold">
@@ -565,10 +584,7 @@ export function MixLotDetails({
           Pol Cts: {totalValues.polCts?.toFixed(2)}
         </p>
         <p className="text-gray-600 text-sm font-semibold">
-          Pol Percent: {totalValues.polPercent}%
-        </p>
-        <p className="text-gray-600 text-sm font-semibold">
-          Sale Price: {totalValues.salePrice?.toFixed(2)}
+          Pol Percent: {(totalValues.polPercent / data.length).toFixed(2)}%
         </p>
       </div>
     </>

@@ -34,9 +34,9 @@ export default async function Page({
         baseTenderId: true,
         inRoughPcs: true,
         dcRoughCts: true,
-        // dcRate: true,
-        // dcAmount: true,
-        // stRemark: true,
+        dcRate: true,
+        dcAmount: true,
+        stRemark: true,
         dcLabour: true,
         dcNetPercentage: true,
         dcBidPrice: true,
@@ -58,6 +58,8 @@ export default async function Page({
 
   const mixLotData = mixLotTenders.map(
     ({
+      dcRate,
+      dcAmount,
       dcNetPercentage,
       dcLabour,
       dcLotSize,
@@ -70,6 +72,8 @@ export default async function Page({
       ...rest
     }) => ({
       ...rest,
+      dcRate: dcRate.toNumber(),
+      dcAmount: dcAmount.toNumber(),
       dcNetPercentage: dcNetPercentage.toNumber(),
       dcLabour: dcLabour.toNumber(),
       dcLotSize: dcLotSize.toNumber(),

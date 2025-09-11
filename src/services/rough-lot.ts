@@ -6,8 +6,12 @@ export async function createRoughLot(data: RoughLotPaylod) {
   return response;
 }
 
-export async function getRoughLots(baseTenderId: number, page: number) {
-  const response = await fetchData(`/tender/rough-lot?baseTenderId=${baseTenderId}&page=${page}`);
+export async function getRoughLots(baseTenderId: number, page: number, mainLotId?: string) {
+  let url = `/tender/rough-lot?baseTenderId=${baseTenderId}&page=${page}`;
+  if(mainLotId) {
+    url = `${url}&mainLotId=${mainLotId}`;
+  }
+  const response = await fetchData(url);
   return response;
 }
 

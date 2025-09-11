@@ -9,11 +9,13 @@ export function PageHeader({
   title,
   handleDialog,
   createPath,
+  mainLotInfo,
   isBackButton = true,
 }: {
   title: string;
   handleDialog?: () => void;
   createPath?: string;
+  mainLotInfo?: React.ReactNode;
   isBackButton?: boolean;
 }) {
   const router = useRouter();
@@ -32,6 +34,7 @@ export function PageHeader({
           </Button>
         )}
         <h1 className="text-2xl font-bold">{title}</h1>
+        {mainLotInfo}
       </div>
       {createPath ? (
         <Link
