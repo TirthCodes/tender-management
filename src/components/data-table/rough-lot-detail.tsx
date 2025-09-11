@@ -12,24 +12,24 @@ import {
 } from "@/components/ui/table";
 import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 import React, { useEffect } from "react";
-import AutoCompleteInput from "@/components/ui/auto-complete-input";
-import ColorDialog from "@/components/dialog/color-dialog";
+// import AutoCompleteInput from "@/components/ui/auto-complete-input";
+// import ColorDialog from "@/components/dialog/color-dialog";
 import { RoughLotTenderDetails, TotalValues } from "@/lib/types/tender";
-import { Option } from "@/lib/types/common";
-import ClarityDialog from "@/components/dialog/clarity-dialog";
-import FlrDialog from "@/components/dialog/flr-dialog";
-import ShapeDialog from "@/components/dialog/shape-dialog";
+// import { Option } from "@/lib/types/common";
+// import ClarityDialog from "@/components/dialog/clarity-dialog";
+// import FlrDialog from "@/components/dialog/flr-dialog";
+// import ShapeDialog from "@/components/dialog/shape-dialog";
 import { initialTenderDetails } from "../forms/rough-lot-form";
 
 const columns = [
   "Lot",
   "Pcs.",
   "Cts.",
-  "Color",
+  // "Color",
   // "C.GD",
-  "Clarity",
-  "FLR",
-  "Shape",
+  // "Clarity",
+  // "FLR",
+  // "Shape",
   "Remark",
   "Pol. Cts.",
   "Pol. %",
@@ -62,10 +62,10 @@ interface RoughLotDetailsProps {
   // handleCostDetails: (values: CostDetails) => void;
   // costDetails: CostDetails;
   lotNo: string;
-  colors: Option[];
-  clarities: Option[];
-  fluorescences: Option[];
-  shapes: Option[];
+  // colors: Option[];
+  // clarities: Option[];
+  // fluorescences: Option[];
+  // shapes: Option[];
   totalValues: TotalValues;
   setTotalValues: React.Dispatch<React.SetStateAction<TotalValues>>;
   labour: number;
@@ -75,12 +75,12 @@ export function RoughLotDetails({
   data,
   isDataLoading,
   handleValueChange,
-  colors,
-  clarities,
-  fluorescences,
+  // colors,
+  // clarities,
+  // fluorescences,
   totalValues,
   setTotalValues,
-  shapes,
+  // shapes,
   lotNo,
   labour,
 }: RoughLotDetailsProps) {
@@ -137,7 +137,7 @@ export function RoughLotDetails({
           className={`overflow-auto w-auto ${isDataLoading && "hidden"}`}
         >
           <Table isOverflow={false} className="bg-white mb-[34svh]">
-            <TableHeader className="sticky top-0 z-50 bg-white border-b">
+            <TableHeader className="sticky top-0 z-50 bg-neutral-50 border-b">
               <TableRow>
                 {columns.map((header, index) => {
                   const isLast = index === columns.length - 1;
@@ -153,7 +153,7 @@ export function RoughLotDetails({
                               )
                           : undefined
                       }
-                      className={`text-nowrap border-collapse border border-gray-300 border-t-0
+                      className={`font-semibold text-nowrap border-collapse border border-gray-300 border-t-0
                         ${
                           isLast
                             ? "sticky right-0 bg-green-50 text-green-800 border-r-0 z-40 text-center"
@@ -171,10 +171,10 @@ export function RoughLotDetails({
               {data.length > 0 ? (
                 data.map((row, index) => (
                   <TableRow key={index}>
-                    <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="text-center border-collapse border border-gray-300">
                       {lotNo}
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="text-center border-collapse border border-gray-300">
                       <Input
                         className="w-14 text-center"
                         name="pcs"
@@ -196,7 +196,7 @@ export function RoughLotDetails({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="text-center border-collapse border border-gray-300">
                       <Input
                         className="w-16 text-right"
                         name="carats"
@@ -218,7 +218,7 @@ export function RoughLotDetails({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    {/* <TableCell className="border-collapse border border-gray-300">
                       <AutoCompleteInput
                         data={colors}
                         title="Color"
@@ -238,7 +238,7 @@ export function RoughLotDetails({
                         }}
                         createDialogContent={<ColorDialog />}
                       />
-                    </TableCell>
+                    </TableCell> */}
                     {/* <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
@@ -261,7 +261,7 @@ export function RoughLotDetails({
                         placeholder="0"
                       />
                     </TableCell> */}
-                    <TableCell className="border-collapse border border-gray-300">
+                    {/* <TableCell className="border-collapse border border-gray-300">
                       <AutoCompleteInput
                         data={clarities}
                         title="Clarity"
@@ -323,10 +323,10 @@ export function RoughLotDetails({
                         }}
                         createDialogContent={<ShapeDialog />}
                       />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-22"
+                        className="w-80"
                         name="remark"
                         type="text"
                         value={row.stRemark || ""}
@@ -342,7 +342,7 @@ export function RoughLotDetails({
                         placeholder="Remark"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="text-center border-collapse border border-gray-300">
                       <Input
                         className="w-16 text-right"
                         name="polCts"
@@ -368,9 +368,9 @@ export function RoughLotDetails({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="text-center border-collapse border border-gray-300">
                       <Input
-                        className="w-14 text-right"
+                        className="w-16 text-right"
                         name="polPercent"
                         type="number"
                         value={row.dcPolPer || ""}
@@ -465,9 +465,9 @@ export function RoughLotDetails({
                         placeholder="0"
                       />
                     </TableCell> */}
-                    <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="text-center border-collapse border border-gray-300">
                       <Input
-                        className="w-24 text-right"
+                        className="w-28 text-right"
                         name="salePrice"
                         type="number"
                         value={row.dcSalePrice || ""}
@@ -506,9 +506,9 @@ export function RoughLotDetails({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="text-center border-collapse border border-gray-300">
                       <Input
-                        className="w-24 text-right"
+                        className="w-28 text-right"
                         name="saleAmount"
                         type="number"
                         value={row.dcSaleAmount}
@@ -546,9 +546,9 @@ export function RoughLotDetails({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="text-center border-collapse border border-gray-300">
                       <Input
-                        className="w-14 text-right"
+                        className="w-16 text-right"
                         name="labour"
                         type="number"
                         value={row.dcLabour}
@@ -587,7 +587,7 @@ export function RoughLotDetails({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-24 text-right"
+                        className="w-28 text-right"
                         name="costPrice"
                         type="number"
                         value={row.dcCostPrice}
@@ -614,7 +614,7 @@ export function RoughLotDetails({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-24 text-right"
+                        className="w-28 text-right"
                         name="costAmount"
                         type="number"
                         value={row.dcCostAmount}
@@ -634,7 +634,7 @@ export function RoughLotDetails({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="sticky right-0 bg-red-50 text-red-800 z-40 border-collapse border border-r-0 border-gray-300">
+                    <TableCell className="sticky text-center right-0 bg-red-50 text-red-800 z-40 border-collapse border border-r-0 border-gray-300">
                       <Button
                         variant="ghost"
                         type="button"

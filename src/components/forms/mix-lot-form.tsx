@@ -74,14 +74,8 @@ const mixLotSchema = z.object({
     (val) => Number(val),
     z.number().min(0, { message: "Lot size is required!" })
   ),
-  rate: z.preprocess(
-    (val) => Number(val),
-    z.number().min(0, { message: "Rate is required!" })
-  ),
-  amount: z.preprocess(
-    (val) => Number(val),
-    z.number().min(0, { message: "Amount is required!" })
-  ),
+  rate: z.preprocess((val) => Number(val), z.number().optional()),
+  amount: z.preprocess((val) => Number(val), z.number().optional()),
   // bidPrice: z.number().min(1, { message: "Bid price is required!" }),
   bidPrice: z.preprocess(
     (val) => Number(val),
@@ -224,7 +218,7 @@ export function MixLotForm() {
       const tenderDetails = otherTenderDetails.map((tender: any) => {
         return {
           ...tender,
-          dcRoughCts: parseFloat(tender.dcRoughCts), 
+          dcRoughCts: parseFloat(tender.dcRoughCts),
           dcPolCts: parseFloat(tender.dcPolCts),
           dcPolPer: parseFloat(tender.dcPolPer),
           // dcDepth: parseFloat(tender.dcDepth),
@@ -242,7 +236,6 @@ export function MixLotForm() {
   }, [mixLotTender, loadingMixLot, reset]);
 
   const netPercent = watch("netPercent");
-  const resultTotal = watch("resultTotal");
   const roughCts = watch("roughCts");
   const labour = watch("labour");
 
@@ -280,46 +273,8 @@ export function MixLotForm() {
         }
         setValue("totalAmount", totalAmount);
       }
-
-      if (resultTotal) {
-        if (!isNaN(resultTotal)) {
-          let resultPerCarat = 0;
-          if (roughCts) {
-            if (!isNaN(roughCts)) {
-              resultPerCarat = parseFloat((resultTotal / roughCts).toFixed(2));
-            }
-          }
-
-          if (!isNaN(resultPerCarat)) {
-            setValue("resultPerCarat", resultPerCarat);
-            let resultCost = 0;
-            if (roughCts) {
-              resultCost = parseFloat(
-                (
-                  (((resultPerCarat * 0.15 + resultPerCarat + labour) *
-                    totalValues.carats) /
-                    totalValues.polCts +
-                    180) /
-                  0.97
-                ).toFixed(2)
-              );
-            }
-            if (!isNaN(resultCost)) {
-              setValue("resultCost", resultCost);
-            }
-          }
-        }
-      }
     }
-  }, [
-    labour,
-    totalValues,
-    setValue,
-    netPercent,
-    resultTotal,
-    roughCts,
-    salePrice,
-  ]);
+  }, [labour, totalValues, setValue, netPercent, roughCts, salePrice]);
 
   const roughPcs = watch("roughPcs");
 
@@ -344,6 +299,32 @@ export function MixLotForm() {
       setValue("amount", 0);
     }
   }, [rate, roughCts, setValue]);
+
+  const resultTotal = watch("resultTotal");
+
+  useEffectAfterMount(() => {
+    if (roughCts && resultTotal) {
+      const resultPerCarat = parseFloat((resultTotal / roughCts).toFixed(2));
+      setValue("resultPerCarat", resultPerCarat);
+
+      const newResultTotal = parseFloat((resultPerCarat * roughCts).toFixed(2));
+      setValue("resultTotal", newResultTotal);
+
+      const resultPercent = parseFloat(((netPercent - 100) / 100).toFixed(2));
+
+      const resultCost = parseFloat(
+        (
+          (((resultPerCarat * resultPercent + resultPerCarat + labour) *
+            totalValues.carats) /
+            totalValues.polCts +
+            180) /
+          0.97
+        ).toFixed(2)
+      );
+
+      setValue("resultCost", resultCost);
+    }
+  }, [roughCts, setValue]);
 
   useEffectAfterMount(() => {
     if (totalValues.saleAmount) {
@@ -548,10 +529,7 @@ export function MixLotForm() {
               type="number"
               step={0.01}
               placeholder="4.96"
-              className={cn(
-                errors.lotSize?.message &&
-                  "border border-red-500 placeholder:text-red-500"
-              )}
+              className="w-full"
             />
           </div>
           <div className="flex w-full items-center gap-2">
@@ -561,10 +539,7 @@ export function MixLotForm() {
               type="number"
               placeholder="243"
               step={0.01}
-              className={cn(
-                errors.rate?.message &&
-                  "border border-red-500 placeholder:text-red-500"
-              )}
+              className="w-full"
             />
           </div>
 
@@ -637,6 +612,48 @@ export function MixLotForm() {
                 errors.resultTotal?.message &&
                   "border border-red-500 placeholder:text-red-500"
               )}
+              onChange={(e) => {
+                const value = e.target.value
+                  ? parseFloat(e.target.value)
+                  : undefined;
+
+                if (value) {
+                  if (!isNaN(value)) {
+                    let resultPerCarat = 0;
+                    if (roughCts) {
+                      if (!isNaN(roughCts)) {
+                        resultPerCarat = parseFloat(
+                          (value / roughCts).toFixed(2)
+                        );
+                      }
+                    }
+
+                    if (!isNaN(resultPerCarat)) {
+                      setValue("resultPerCarat", resultPerCarat);
+                      const resultPercent = parseFloat(
+                        ((netPercent - 100) / 100).toFixed(2)
+                      );
+                      let resultCost = 0;
+                      if (roughCts) {
+                        resultCost = parseFloat(
+                          (
+                            (((resultPerCarat * resultPercent +
+                              resultPerCarat +
+                              labour) *
+                              totalValues.carats) /
+                              totalValues.polCts +
+                              180) /
+                            0.97
+                          ).toFixed(2)
+                        );
+                      }
+                      if (!isNaN(resultCost)) {
+                        setValue("resultCost", resultCost);
+                      }
+                    }
+                  }
+                }
+              }}
             />
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">
@@ -666,15 +683,41 @@ export function MixLotForm() {
               type="number"
               {...register("resultPerCarat", { valueAsNumber: true })}
               step={0.01}
-              readOnly
-              disabled
-              className="w-full"
+              className={cn(
+                errors.resultPerCarat?.message &&
+                  "w-full border border-red-500 placeholder:text-red-500"
+              )}
+              onChange={(e) => {
+                const value = e.target.value
+                  ? parseFloat(e.target.value)
+                  : undefined;
+
+                const resultTotal = parseFloat(
+                  ((value ?? 0) * roughCts).toFixed(2)
+                );
+                setValue("resultTotal", resultTotal);
+
+                const resultPercent = parseFloat(
+                  ((netPercent - 100) / 100).toFixed(2)
+                );
+
+                const resultCost = parseFloat(
+                  (
+                    ((((value ?? 0) * resultPercent + (value ?? 0) + labour) *
+                      totalValues.carats) /
+                      totalValues.polCts +
+                      180) /
+                    0.97
+                  ).toFixed(2)
+                );
+                setValue("resultCost", resultCost);
+              }}
             />
           </div>
           <div />
           <div />
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Result cost</Label>
+            <Label className="text-nowrap w-32">Result Cost</Label>
             <Input
               type="number"
               step={0.01}

@@ -72,7 +72,7 @@ interface SingleTenderDataTableProps {
   shapes: Option[];
   // totalValues: TotalValues;
   labourValue: number;
-  netPercernt: number;
+  netPercent: number;
   setTotalValues: React.Dispatch<React.SetStateAction<TotalValues>>;
   isRowsLoading: boolean;
 }
@@ -88,7 +88,7 @@ export function SingleTenderDataTable({
   setTotalValues,
   shapes,
   labourValue,
-  netPercernt,
+  netPercent,
 }: SingleTenderDataTableProps) {
   useEffect(() => {
     const totals = data?.reduce(
@@ -688,7 +688,7 @@ export function SingleTenderDataTable({
                             row.polCts,
                             row.roughCts,
                             labourValue,
-                            netPercernt
+                            netPercent
                           );
 
                           const totalAmount = calculateTotalAmount(
@@ -727,7 +727,7 @@ export function SingleTenderDataTable({
                             row.polCts,
                             row.roughCts,
                             labourValue,
-                            netPercernt
+                            netPercent
                           );
 
                           const resultCost = calculateResultCost(
@@ -735,7 +735,8 @@ export function SingleTenderDataTable({
                             labourValue,
                             row.polCts,
                             row.roughCts,
-                            value
+                            value,
+                            netPercent
                           );
 
                           handleValueChange(
@@ -786,7 +787,8 @@ export function SingleTenderDataTable({
                             labourValue,
                             row.roughCts,
                             row.polCts,
-                            row.topsAmount
+                            row.topsAmount,
+                            netPercent
                           );
 
                           const totalAmount = calculateTotalAmount(value, row.roughCts);
@@ -855,7 +857,8 @@ export function SingleTenderDataTable({
                             labourValue,
                             row.polCts,
                             row.roughCts,
-                            row.topsAmount
+                            row.topsAmount,
+                            netPercent
                           );
                           handleValueChange(
                             {
@@ -882,18 +885,23 @@ export function SingleTenderDataTable({
                             ? parseFloat(e.target.value)
                             : 0;
 
+                          const resultTotal = parseFloat((value * row.roughCts).toFixed(2))
+
+                          console.log(netPercent, "----")
                           const resultCost = calculateResultCost(
                             value,
                             labourValue,
                             row.polCts,
                             row.roughCts,
-                            row.topsAmount
+                            row.topsAmount,
+                            netPercent
                           );
 
                           handleValueChange(
                             {
                               ...row,
                               resultCost,
+                              resultTotal,
                               resultPerCarat: value,
                             },
                             index
@@ -909,6 +917,7 @@ export function SingleTenderDataTable({
                         type="number"
                         value={row.resultCost || ""}
                         step={0.01}
+                        disabled
                         onChange={(e) => {
                           const value = e.target.value
                             ? parseFloat(e.target.value)

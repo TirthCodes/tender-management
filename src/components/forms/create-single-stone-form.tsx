@@ -342,7 +342,7 @@ export function CreateSingleStoneTenderForm({
           fluorescences={fluorescencesOptions?.data}
           shapes={shapesOptions?.data}
           labourValue={labour}
-          netPercernt={netPercent}
+          netPercent={netPercent}
         />
       </div>
       {/* total values */}
