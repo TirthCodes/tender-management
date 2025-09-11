@@ -21,7 +21,7 @@ export const columns: ColumnDef<TenderColumns>[] = [
     cell: ({ row }) => {
       const voucherDate = row.getValue("dtVoucherDate") as Date;
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center text-nowrap gap-2">
           {new Date(voucherDate).toDateString()}
         </div>
       );
@@ -30,10 +30,26 @@ export const columns: ColumnDef<TenderColumns>[] = [
   {
     accessorKey: "stTenderName",
     header: "Name",
+    cell: ({ row }) => {
+      const { stTenderName } = row.original;
+      return (
+        <div title={stTenderName} className="max-w-56 truncate">
+          {stTenderName}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "stPersonName",
     header: "Person Name",
+    cell: ({ row }) => {
+      const { stPersonName } = row.original;
+      return (
+        <div title={stPersonName} className="max-w-56 truncate">
+          {stPersonName}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "dcNetPercentage",
