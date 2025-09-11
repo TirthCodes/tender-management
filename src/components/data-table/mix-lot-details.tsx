@@ -127,7 +127,7 @@ export function MixLotDetails({
       <div className="rounded-md flex-1 flex flex-col min-h-0 h-[45svh]">
         <div className={`overflow-auto w-auto ${isDataLoading && "hidden"}`}>
           <Table isOverflow={false} className="bg-white mb-[34svh]">
-            <TableHeader className="sticky top-0 z-40 bg-white border-b">
+            <TableHeader className="sticky top-0 z-40 bg-neutral-50 border-b">
               <TableRow>
                 {columns.map((header, index) => {
                   const isLast = index === columns.length - 1;
@@ -143,7 +143,7 @@ export function MixLotDetails({
                               )
                           : undefined
                       }
-                      className={`text-nowrap border-collapse border border-gray-300 border-t-0
+                      className={`font-semibold text-nowrap border-collapse border border-gray-300 border-t-0
                         ${
                           isLast
                             ? "sticky right-0 bg-green-50 text-green-800 border-r-0 z-40 text-center"
