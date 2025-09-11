@@ -462,7 +462,7 @@ export function MixLotForm({
 
   const router = useRouter();
 
-  if (!mixLotId || loadingBaseTender) {
+  if (!mixLotId && loadingBaseTender) {
     return (
       <div className="flex justify-center items-center h-[90dvh]">
         <Loader2 className="h-20 w-20 animate-spin" />

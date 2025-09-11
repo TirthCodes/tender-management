@@ -23,7 +23,7 @@ import { SingleTenderDataTable } from "../pages/create-tender/single-tender-data
 import useKeyPress from "@/hooks/useKeyPress";
 import { createSingleTender } from "@/services/single-stone";
 import { toast } from "react-toastify";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { getSingleStoneTender } from "@/services/single-stone";
 
 export const singleInitialRow: SingleStoneTenderDetails = {
@@ -230,6 +230,8 @@ export function CreateSingleStoneTenderForm({
     }
   };
 
+  const router = useRouter();
+
   async function onSubmit(data: CreateTenderFormValues) {
     if (totalValues.pcs <= 0) {
       toast.error("Pcs should be greater than 0");
@@ -253,7 +255,7 @@ export function CreateSingleStoneTenderForm({
     const response = await createSingleTender(payload);
     if (response.success) {
       toast.success(response.message);
-      redirect("/tenders");
+      router.push("/tenders");
     } else {
       toast.error(response.message);
     }

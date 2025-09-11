@@ -236,10 +236,12 @@ export function RoughLotForm({
         otherTenderDetails,
         dcSalePrice,
         dcSaleAmount,
+        stRemark,
       } = roughLotTender.data;
       reset({
         roughPcs: inRoughPcs,
         roughCts: dcRoughCts,
+        remark: stRemark,
         rate: dcRate,
         amount: dcAmount,
         labour: dcLabour,
@@ -625,7 +627,7 @@ export function RoughLotForm({
       <div className={`p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10 ${loadingRoughLot ? "animate-pulse bg-neutral-100" : ""}`}>
         <div className="grid grid-cols-3 gap-x-6 gap-y-3">
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Sale Price</Label>
+            <Label className="text-nowrap w-32">Cost Price</Label>
             <Input
               type="number"
               {...register("salePrice", { valueAsNumber: true })}
@@ -646,7 +648,7 @@ export function RoughLotForm({
             />
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Result Total</Label>
+            <Label className="text-nowrap w-48">Final Sale Amount</Label>
             <Input
               type="number"
               {...register("resultTotal", { valueAsNumber: true })}
@@ -659,7 +661,7 @@ export function RoughLotForm({
             />
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Sale Amount</Label>
+            <Label className="text-nowrap w-32">Cost Amount</Label>
             <Input
               type="number"
               {...register("saleAmount", { valueAsNumber: true })}
@@ -668,7 +670,7 @@ export function RoughLotForm({
             />
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Total Amount</Label>
+            <Label className="text-nowrap w-32">Bid Amount</Label>
             <Input
               type="number"
               {...register("totalAmount", { valueAsNumber: true })}
@@ -680,7 +682,7 @@ export function RoughLotForm({
           </div>
 
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Result / Cts</Label>
+            <Label className="text-nowrap w-48">Final Sale Price</Label>
             <Input
               type="number"
               {...register("resultPerCarat", { valueAsNumber: true })}
