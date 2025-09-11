@@ -8,9 +8,9 @@ export type RoughLotColumns = {
   stLotNo: string;
   inRoughPcs: number;
   dcRoughCts: number;
-  // dcRate: number;
-  // dcAmount: number;
-  // stRemark?: string;
+  dcRate: number;
+  dcAmount: number;
+  stRemark: string | null;
   dcLabour: number;
   dcNetPercentage: number;
   dcBidPrice: number;

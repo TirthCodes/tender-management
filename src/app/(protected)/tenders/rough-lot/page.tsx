@@ -33,8 +33,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
         baseTenderId: true,
         inRoughPcs: true,
         dcRoughCts: true,
-        // dcRate: true,
-        // dcAmount: true,
+        dcRate: true,
+        dcAmount: true,
         stRemark: true,
         dcLabour: true,
         dcNetPercentage: true,
@@ -71,8 +71,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
     })
   }
 
-  const roughLotData = roughLotTenders.map(({ dcNetPercentage, dcLabour, dcLotSize, dcBidPrice, dcResultPerCt, dcResultTotal,dcRoughCts, dcTotalAmount, ...rest }) => ({  
+  const roughLotData = roughLotTenders.map(({ dcRate, dcAmount, dcNetPercentage, dcLabour, dcLotSize, dcBidPrice, dcResultPerCt, dcResultTotal,dcRoughCts, dcTotalAmount, ...rest }) => ({  
     ...rest,
+    dcRate: dcRate.toNumber(),
+    dcAmount: dcAmount.toNumber(),
     dcNetPercentage: dcNetPercentage.toNumber(),
     dcLabour: dcLabour.toNumber(),
     dcLotSize: dcLotSize.toNumber(),
