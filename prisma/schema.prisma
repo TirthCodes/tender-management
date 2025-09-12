@@ -123,6 +123,8 @@ model OtherTender {
   dcResultTotal        Decimal?               @db.Decimal(10, 2)
   dcSalePrice          Decimal?               @db.Decimal(10, 2) @default(0)
   dcSaleAmount         Decimal?               @db.Decimal(10, 2) @default(0)
+  dcCostPrice          Decimal?               @db.Decimal(10, 2) @default(0)
+  dcCostAmount         Decimal?               @db.Decimal(10, 2) @default(0)
   dcRate               Decimal                @db.Decimal(10, 2)
   dcAmount             Decimal                @db.Decimal(10, 2)
 	stRemark             String?                @db.Text

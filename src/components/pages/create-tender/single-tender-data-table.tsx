@@ -121,7 +121,7 @@ export function SingleTenderDataTable({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if(event.ctrlKey && event.key === "t") {
+      if(event.shiftKey && event.key === "A") {
         handleValueChange(singleInitialRow, data?.length + 1 || 1)
       }
     };

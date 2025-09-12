@@ -108,7 +108,7 @@ export function MixLotDetails({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if(event.ctrlKey && event.key === "t") {
+      if(event.shiftKey && event.key === "A") {
         handleValueChange(
           initialRow,
           data?.length + 1 || 1
@@ -199,9 +199,14 @@ export function MixLotDetails({
                             ? parseFloat(e.target.value)
                             : undefined;
 
+                          // const polPercent = parseFloat(
+                          //   ((row.dcPolCts ?? 0) / (value ?? 0)).toFixed(2)
+                          // );
+
                           handleValueChange(
                             {
                               ...row,
+                              // dcPolPer: polPercent,
                               dcRoughCts: value,
                             },
                             index

@@ -77,8 +77,8 @@ const createRoughLotSchema = z.object({
     (val) => Number(val),
     z.number().min(0, { message: "Lot size is required!" })
   ),
-  rate: z.preprocess((val) => Number(val), z.number().optional()),
-  amount: z.preprocess((val) => Number(val), z.number().optional()),
+  rate: z.preprocess((val) => val ? Number(val) : 0, z.number().optional()),
+  amount: z.preprocess((val) => val ? Number(val) : 0, z.number().optional()),
   bidPrice: z.preprocess(
     (val) => Number(val),
     z.number().min(0, "Bid price is required!")
@@ -88,20 +88,20 @@ const createRoughLotSchema = z.object({
     z.number().min(0, "Total amount is required!")
   ),
   resultPerCarat: z.preprocess(
-    (val) => Number(val),
-    z.number().min(0, "Result per carat is required!")
+    (val) => val ? Number(val) : 0,
+    z.number().optional()
   ),
   resultTotal: z.preprocess(
-    (val) => Number(val),
-    z.number().min(0, "Result total is required!")
+    (val) => val ? Number(val) : 0,
+    z.number().optional()
   ),
-  salePrice: z.preprocess(
+  costPrice: z.preprocess(
     (val) => Number(val),
-    z.number().min(0, "Sale price is required!")
+    z.number().min(0, "Cost price is required!")
   ),
-  saleAmount: z.preprocess(
+  costAmount: z.preprocess(
     (val) => Number(val),
-    z.number().min(0, "Sale amount is required!")
+    z.number().min(0, "Cost amount is required!")
   ),
 });
 
@@ -190,8 +190,8 @@ export function RoughLotForm() {
         dcResultTotal,
         stLotNo,
         otherTenderDetails,
-        dcSalePrice,
-        dcSaleAmount,
+        dcCostPrice,
+        dcCostAmount,
         stRemark,
       } = roughLotTender.data;
       reset({
@@ -207,8 +207,8 @@ export function RoughLotForm() {
         totalAmount: dcTotalAmount,
         resultPerCarat: dcResultPerCt,
         resultTotal: dcResultTotal,
-        salePrice: dcSalePrice,
-        saleAmount: dcSaleAmount,
+        costPrice: dcCostPrice,
+        costAmount: dcCostAmount,
         lotNo: stLotNo,
       });
 
@@ -234,7 +234,7 @@ export function RoughLotForm() {
 
   const roughCts = watch("roughCts");
   const labour = watch("labour");
-  const salePrice = watch("salePrice");
+  const costPrice = watch("costPrice");
 
   useEffect(() => {
     if (!loadingBaseTender && baseTender?.data) {
@@ -252,13 +252,13 @@ export function RoughLotForm() {
   }, [roughLotId, labour]);
 
   useEffectAfterMount(() => {
-    if (netPercent && labour) {
+    if (netPercent) {
       // const netPercentValue = parseFloat(netPercent);
 
       const netPercentage = netPercent / 100;
 
       const calculatedBidPrice = parseFloat(
-        (salePrice / netPercentage).toFixed(2)
+        (costPrice / netPercentage).toFixed(2)
       );
 
       if (!isNaN(calculatedBidPrice)) {
@@ -273,31 +273,13 @@ export function RoughLotForm() {
         }
         setValue("totalAmount", totalAmount);
       }
-
-      // if (resultTotal) {
-      //   if (!isNaN(resultTotal)) {
-      //     let resultPerCarat = 0;
-      //     if (roughCts) {
-      //       // const roughCtsValue = parseFloat(roughCts);
-      //       if (!isNaN(roughCts)) {
-      //         resultPerCarat = parseFloat((resultTotal / roughCts).toFixed(2));
-      //       }
-      //     }
-
-      //     if (!isNaN(resultPerCarat)) {
-      //       setValue("resultPerCarat", resultPerCarat);
-      //     }
-      //   }
-      // }
     }
   }, [
-    labour,
     totalValues,
     setValue,
     netPercent,
-    // resultTotal,
     roughCts,
-    salePrice,
+    costPrice,
   ]);
 
   const resultPerCarat = watch("resultPerCarat");
@@ -339,34 +321,34 @@ export function RoughLotForm() {
     }
   }, [roughPcs, roughCts, setValue]);
 
-  const rate = watch("rate");
+  // const rate = watch("rate");
+
+  // useEffectAfterMount(() => {
+  //   if (rate) {
+  //     if (!isNaN(rate)) {
+  //       const amount = roughCts * rate;
+  //       setValue("amount", amount);
+  //     }
+  //   } else if (rate === 0) {
+  //     setValue("amount", 0);
+  //   }
+  // }, [rate, roughCts, setValue]);
 
   useEffectAfterMount(() => {
-    if (rate) {
-      if (!isNaN(rate)) {
-        const amount = roughCts * rate;
-        setValue("amount", amount);
-      }
-    } else if (rate === 0) {
-      setValue("amount", 0);
+    if (totalValues.costAmount) {
+      setValue("costAmount", totalValues.costAmount);
     }
-  }, [rate, roughCts, setValue]);
+  }, [totalValues.costAmount, setValue]);
 
   useEffectAfterMount(() => {
-    if (totalValues.saleAmount) {
-      setValue("saleAmount", totalValues.saleAmount);
-    }
-  }, [totalValues.saleAmount, setValue]);
-
-  useEffectAfterMount(() => {
-    const salePrice = parseFloat(
+    const costPrice = parseFloat(
       (
         (totalValues.costAmount
           ? parseFloat(totalValues?.costAmount?.toFixed(2))
           : 0) / parseFloat(totalValues.carats?.toFixed(2))
       ).toFixed(2)
     );
-    setValue("salePrice", salePrice);
+    setValue("costPrice", costPrice);
   }, [totalValues.costAmount, totalValues.carats, setValue]);
 
   const handleDetailsValueChange = (
@@ -476,6 +458,7 @@ export function RoughLotForm() {
               type="number"
               step="0.01"
               {...register("labour", { valueAsNumber: true })}
+              disabled
               className={cn(
                 errors.labour?.message &&
                   "border border-red-500 placeholder:text-red-500"
@@ -489,6 +472,7 @@ export function RoughLotForm() {
               type="number"
               step="0.01"
               {...register("netPercent", { valueAsNumber: true })}
+              disabled
               className={cn(
                 errors.netPercent?.message &&
                   "border border-red-500 placeholder:text-red-500"
@@ -516,7 +500,7 @@ export function RoughLotForm() {
           loadingRoughLot ? "animate-pulse bg-neutral-100" : ""
         }`}
       >
-        <div className="grid grid-cols-6 gap-x-3 gap-y-4">
+        <div className="grid grid-cols-4 gap-x-3 gap-y-4">
           <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Lot No.</Label>
             <Input
@@ -574,7 +558,7 @@ export function RoughLotForm() {
               )}
             />
           </div>
-          <div className="flex w-full items-center gap-2">
+          {/* <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Rate</Label>
             <Input
               {...register("rate", { valueAsNumber: true })}
@@ -594,7 +578,7 @@ export function RoughLotForm() {
               step={0.01}
               className="w-full"
             />
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -624,7 +608,7 @@ export function RoughLotForm() {
             <Label className="text-nowrap w-32">Cost Price</Label>
             <Input
               type="number"
-              {...register("salePrice", { valueAsNumber: true })}
+              {...register("costPrice", { valueAsNumber: true })}
               step={0.01}
               className="w-full"
             />
@@ -642,23 +626,20 @@ export function RoughLotForm() {
             />
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-48">Final Sale Amount</Label>
+            <Label className="text-nowrap w-40">Result Total</Label>
             <Input
               type="number"
               {...register("resultTotal", { valueAsNumber: true })}
               step={0.01}
-              placeholder="10000"
-              className={cn(
-                errors.resultTotal?.message &&
-                  "w-full border border-red-500 placeholder:text-red-500"
-              )}
+              // placeholder="10000"
+              className="w-full"
             />
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">
             <Label className="text-nowrap w-32">Cost Amount</Label>
             <Input
               type="number"
-              {...register("saleAmount", { valueAsNumber: true })}
+              {...register("costAmount", { valueAsNumber: true })}
               step={0.01}
               className="w-full"
             />
@@ -676,7 +657,7 @@ export function RoughLotForm() {
           </div>
 
           <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-48">Final Sale Price</Label>
+            <Label className="text-nowrap w-40">Result Per Cts.</Label>
             <Input
               type="number"
               {...register("resultPerCarat", { valueAsNumber: true })}

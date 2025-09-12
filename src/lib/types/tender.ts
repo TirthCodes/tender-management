@@ -42,12 +42,14 @@ type OtherTednerBasePayload = {
   lotSize: number;
   rate?: number;
   amount?: number;
-  salePrice: number;
-  saleAmount: number;
+  salePrice?: number;
+  saleAmount?: number;
+  costPrice?: number;
+  costAmount?: number;
   bidPrice: number;
   totalAmount: number; // Bid Amount
-  resultPerCarat: number;
-  resultTotal: number;
+  resultPerCarat?: number;
+  resultTotal?: number;
   tenderDetails: string; // RoughLotTenderDetails[] || MixLotTenderDetails[]
   mainLotId?: number;
 }

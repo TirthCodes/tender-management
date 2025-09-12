@@ -84,7 +84,6 @@ export function RoughLotDetails({
   lotNo,
   labour,
 }: RoughLotDetailsProps) {
-
   useEffect(() => {
     const totals = data.reduce(
       (acc, row) => ({
@@ -116,7 +115,7 @@ export function RoughLotDetails({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if(event.ctrlKey && event.key === "t") {
+      if (event.shiftKey && event.key === "A") {
         handleValueChange(
           initialTenderDetails(labour)[0],
           data?.length + 1 || 1
@@ -129,13 +128,11 @@ export function RoughLotDetails({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [data, labour, handleValueChange]);
-  
+
   return (
     <>
       <div className="rounded-md flex-1 flex flex-col min-h-0 h-[45svh]">
-        <div
-          className={`overflow-auto w-auto ${isDataLoading && "hidden"}`}
-        >
+        <div className={`overflow-auto w-auto ${isDataLoading && "hidden"}`}>
           <Table isOverflow={false} className="bg-white mb-[34svh]">
             <TableHeader className="sticky top-0 z-50 bg-neutral-50 border-b">
               <TableRow>
@@ -207,9 +204,37 @@ export function RoughLotDetails({
                           const value = e.target.value
                             ? parseFloat(e.target.value)
                             : undefined;
+
+                          const polPercent = parseFloat(
+                            (
+                              parseFloat(
+                                ((row.dcPolCts ?? 0) / (value ?? 0)).toFixed(
+                                  2
+                                )
+                              ) * 100
+                            ).toFixed(2)
+                          );
+
+                          const costPrice = parseFloat(
+                            (
+                              (row.dcSalePrice ?? 0) *
+                                (polPercent
+                                  ? parseFloat((polPercent / 100).toFixed(2))
+                                  : 0) -
+                              (row.dcLabour ?? 0)
+                            ).toFixed(2)
+                          );
+
+                          const costAmount = parseFloat(
+                            (costPrice * (value ?? 0)).toFixed(2)
+                          );
+
                           handleValueChange(
                             {
                               ...row,
+                              dcCostPrice: costPrice,
+                              dcCostAmount: costAmount,
+                              dcPolPer: polPercent,
                               dcRoughCts: value,
                             },
                             index
@@ -354,11 +379,37 @@ export function RoughLotDetails({
                             ? parseFloat(e.target.value)
                             : undefined;
 
-                          const polPercent = parseFloat((parseFloat(((value ?? 0) / (row.dcRoughCts ?? 0)).toFixed(2)) * 100).toFixed(2));
+                          const polPercent = parseFloat(
+                            (
+                              parseFloat(
+                                ((value ?? 0) / (row.dcRoughCts ?? 0)).toFixed(
+                                  2
+                                )
+                              ) * 100
+                            ).toFixed(2)
+                          );
+
+                          const saleAmount = parseFloat(((row.dcSalePrice ?? 0) * (value ?? 0)).toFixed(2));
+
+                          const costPrice = parseFloat(
+                            (
+                              (row.dcSalePrice ?? 0) *
+                                (polPercent
+                                  ? parseFloat((polPercent / 100).toFixed(2))
+                                  : 0) -
+                              (row.dcLabour ?? 0)
+                            ).toFixed(2)
+                          );
+                          const costAmount = parseFloat(
+                            (costPrice * (row.dcRoughCts ?? 0)).toFixed(2)
+                          );
 
                           handleValueChange(
                             {
                               ...row,
+                              dcCostPrice: costPrice,
+                              dcCostAmount: costAmount,
+                              dcSaleAmount: saleAmount,
                               dcPolPer: polPercent,
                               dcPolCts: value,
                             },
@@ -661,7 +712,7 @@ export function RoughLotDetails({
         </div>
         <div
           className={`${
-              !isDataLoading && "hidden"
+            !isDataLoading && "hidden"
           } flex justify-center items-center h-full`}
         >
           <Loader2 className="h-10 w-10 animate-spin" />

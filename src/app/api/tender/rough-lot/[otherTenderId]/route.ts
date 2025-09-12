@@ -51,8 +51,8 @@ export async function GET(
         dcTotalAmount: true,
         dcResultPerCt: true,
         dcResultTotal: true,
-        dcSalePrice: true,
-        dcSaleAmount: true,
+        dcCostPrice: true,
+        dcCostAmount: true,
         stLotNo: true,
         otherTenderDetails: {
           select: {
