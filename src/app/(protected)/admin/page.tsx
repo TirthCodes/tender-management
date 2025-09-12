@@ -15,6 +15,7 @@ import { prisma } from "@/lib/prisma";
 
 import { LogoutButton } from "@/components/ui/logout-button";
 import Link from "next/link";
+import { FilterSheet } from "@/components/common/filter-sheet";
 
 export default async function Admin() {
   const { user } = await getCurrentSession();
@@ -47,7 +48,10 @@ export default async function Admin() {
               <UserForm />
             </DialogContent>
           </Dialog>
-          <LogoutButton />
+          <div className="flex items-center gap-4">
+            <FilterSheet />
+            <LogoutButton />
+          </div>
         </div>
       </div>
       <div className="border border-gray-200 rounded-md">

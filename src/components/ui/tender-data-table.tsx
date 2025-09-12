@@ -118,10 +118,10 @@ export function TenderDataTable<TData extends { id?: number }>({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} style={(cell.column.columnDef.meta as any)?.style}>
                       {cell.column.id === "actions" ? (
-                        <div className="flex items-center gap-2 w-fit">
+                        <div className="flex items-center gap-1.5 w-fit">
                           <Button
                             variant={"outline"}
-                            className="text-blue-600 bg-blue-50 p-2 h-fit shadow-sm border-blue-200 hover:bg-blue-100 hover:border-blue-300 hover:text-blue-700"
+                            className="text-blue-600 bg-blue-50 p-1.5 h-fit shadow-sm border-blue-200 hover:bg-blue-100 hover:border-blue-300 hover:text-blue-700 [&_svg]:size-3.5"
                             onClick={() => {
                               if (isDialog) {
                                 setEditDialogOpen?.(true);
@@ -143,7 +143,7 @@ export function TenderDataTable<TData extends { id?: number }>({
                           </Button>
                           <Button
                             variant={"outline"}
-                            className="text-red-600 bg-red-50 p-2 h-fit shadow-sm border-red-200 hover:bg-red-100 hover:border-red-300 hover:text-red-700"
+                            className="text-red-600 bg-red-50 p-1.5 h-fit shadow-sm border-red-200 hover:bg-red-100 hover:border-red-300 hover:text-red-700 [&_svg]:size-3.5"
                             onClick={() => handleDelete(row.original?.id)}
                             disabled={
                               isPending && deletingId === row.original?.id

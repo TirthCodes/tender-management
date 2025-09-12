@@ -67,12 +67,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
 
     const intId = parseInt(id);
 
-    await prisma.baseTender.delete({
-      where: {
-        id: intId,
-      },
-    });
-
     await prisma.singleTender.deleteMany({
       where: {
         baseTenderId: intId,
@@ -82,6 +76,12 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     await prisma.otherTender.deleteMany({
       where: {
         baseTenderId: intId,
+      },
+    });
+
+    await prisma.baseTender.delete({
+      where: {
+        id: intId,
       },
     });
 

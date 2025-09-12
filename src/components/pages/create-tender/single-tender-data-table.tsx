@@ -18,7 +18,7 @@ import ClarityDialog from "@/components/dialog/clarity-dialog";
 import FlrDialog from "@/components/dialog/flr-dialog";
 import ShapeDialog from "@/components/dialog/shape-dialog";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { singleInitialRow } from "../../forms/create-single-stone-form";
 import {
   calculateBidPrice,
@@ -134,8 +134,8 @@ export function SingleTenderDataTable({
 
   return (
     <>
-      <div className="rounded-md flex-1 flex flex-col min-h-0 h-[65svh]">
-        <div className="overflow-auto w-auto">
+      <div className="rounded-sm flex-1 flex flex-col min-h-0 h-[65svh]">
+        <div className={`overflow-auto w-auto ${isRowsLoading && "hidden"}`}>
           <Table isOverflow={false} className="bg-white mb-[54svh]">
             <TableHeader className="sticky top-0 z-50 bg-white border-b">
               <TableRow>
@@ -186,7 +186,7 @@ export function SingleTenderDataTable({
             <TableBody>
               {data?.length > 0 ? (
                 data?.map((row, index) => (
-                  <TableRow key={index} className={isRowsLoading ? "animate-pulse bg-neutral-50": ""}>
+                  <TableRow key={index}>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 px-1"
@@ -959,6 +959,13 @@ export function SingleTenderDataTable({
               )}
             </TableBody>
           </Table>
+        </div>
+        <div
+          className={`${
+            !isRowsLoading && "hidden"
+          } flex justify-center items-center h-full`}
+        >
+          <Loader2 className="h-10 w-10 animate-spin" />
         </div>
       </div>
       {/* <div className="px-10 flex items-center gap-10 h-10 bg-gray-100 border-t">

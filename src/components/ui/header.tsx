@@ -7,6 +7,7 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { Button } from "./button";
 import { LogoutButton } from "./logout-button";
+import { FilterSheet } from "../common/filter-sheet";
 
 const navigation = [
   { name: "Tenders", href: "/tenders" },
@@ -54,10 +55,8 @@ export default function Header() {
           </button>
         </div>
 
-        <div className="hidden lg:flex">
-          {/* {user?.stRole === "ADMIN" && (
-            <Button className="mr-4">Manage Users</Button>
-          )} */}
+        <div className="hidden lg:flex gap-4">
+          <FilterSheet />
           <LogoutButton />
         </div>
       </nav>

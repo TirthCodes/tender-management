@@ -75,7 +75,7 @@ export const columns: ColumnDef<TenderColumns>[] = [
 
             return (
               <Link
-                className={`${buttonVariants({ variant: "outline" })} w-28`}
+                className={`!h-8 !lg:h-9 w-28 ${buttonVariants({ variant: "outline" })}`}
                 href={url}
                 key={tenderType.value}
               >
