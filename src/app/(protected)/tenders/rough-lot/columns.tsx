@@ -14,6 +14,8 @@ export type RoughLotColumns = {
   dcLabour: number;
   dcNetPercentage: number;
   dcBidPrice: number;
+  dcCostPrice: number;
+  dcCostAmount: number;
   dcTotalAmount: number;
   dcResultPerCt: number;
   dcResultTotal: number;

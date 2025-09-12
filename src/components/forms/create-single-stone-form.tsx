@@ -312,6 +312,7 @@ export function CreateSingleStoneTenderForm({
                 errors.netPercent?.message &&
                   "border border-red-500 placeholder:text-red-500"
               )}
+              disabled
               placeholder="106"
             />
           </div>

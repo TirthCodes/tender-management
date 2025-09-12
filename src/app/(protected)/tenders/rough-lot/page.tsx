@@ -43,6 +43,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
         dcTotalAmount: true,
         dcResultPerCt: true,
         dcResultTotal: true,
+        dcCostPrice: true,
+        dcCostAmount: true,
         stLotNo: true,
       },
       orderBy: {
@@ -71,18 +73,20 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
     })
   }
 
-  const roughLotData = roughLotTenders.map(({ dcRate, dcAmount, dcNetPercentage, dcLabour, dcLotSize, dcBidPrice, dcResultPerCt, dcResultTotal,dcRoughCts, dcTotalAmount, ...rest }) => ({  
+  const roughLotData = roughLotTenders.map(({ dcCostPrice, dcCostAmount, dcRate, dcAmount, dcNetPercentage, dcLabour, dcLotSize, dcBidPrice, dcResultPerCt, dcResultTotal,dcRoughCts, dcTotalAmount, ...rest }) => ({  
     ...rest,
+    dcCostPrice: dcCostPrice?.toNumber() ?? 0,
+    dcCostAmount: dcCostAmount?.toNumber() ?? 0,
     dcRate: dcRate.toNumber(),
     dcAmount: dcAmount.toNumber(),
     dcNetPercentage: dcNetPercentage.toNumber(),
     dcLabour: dcLabour.toNumber(),
     dcLotSize: dcLotSize.toNumber(),
     dcBidPrice: dcBidPrice.toNumber(),
-    dcResultPerCt: dcResultPerCt?.toNumber() || 0,
-    dcResultTotal: dcResultTotal?.toNumber() || 0,
+    dcResultPerCt: dcResultPerCt?.toNumber() ?? 0,
+    dcResultTotal: dcResultTotal?.toNumber() ?? 0,
     dcRoughCts: dcRoughCts.toNumber(),
-    dcTotalAmount: dcTotalAmount?.toNumber() || 0,
+    dcTotalAmount: dcTotalAmount?.toNumber() ?? 0,
   }));
 
   return (

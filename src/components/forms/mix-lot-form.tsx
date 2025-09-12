@@ -74,8 +74,8 @@ const mixLotSchema = z.object({
     (val) => Number(val),
     z.number().min(0, { message: "Lot size is required!" })
   ),
-  rate: z.preprocess((val) => Number(val), z.number().optional()),
-  amount: z.preprocess((val) => Number(val), z.number().optional()),
+  rate: z.preprocess((val) => val ? Number(val) : 0, z.number().optional()),
+  amount: z.preprocess((val) => val ? Number(val) : 0, z.number().optional()),
   // bidPrice: z.number().min(1, { message: "Bid price is required!" }),
   bidPrice: z.preprocess(
     (val) => Number(val),
@@ -86,15 +86,15 @@ const mixLotSchema = z.object({
     z.number().min(0, "Total amount is required!")
   ),
   resultPerCarat: z.preprocess(
-    (val) => Number(val),
+    (val) => val ? Number(val) : 0,
     z.number().min(0, "Result per carat is required!")
   ),
   resultTotal: z.preprocess(
-    (val) => Number(val),
+    (val) => val ? Number(val) : 0,
     z.number().min(0, "Result total is required!")
   ),
   resultCost: z.preprocess(
-    (val) => Number(val),
+    (val) => val ? Number(val) : 0,
     z.number().min(0, "Result cost is required!")
   ),
   salePrice: z.preprocess(
@@ -158,6 +158,7 @@ export function MixLotForm() {
     mode: "onBlur",
     resolver: zodResolver(mixLotSchema),
   });
+  console.log(errors, "errors");
 
   const [isPending, setIsPending] = useState(false);
 
@@ -446,6 +447,7 @@ export function MixLotForm() {
                 errors.labour?.message &&
                   "border border-red-500 placeholder:text-red-500"
               )}
+              disabled
               placeholder="50"
             />
           </div>
@@ -459,6 +461,7 @@ export function MixLotForm() {
                 errors.netPercent?.message &&
                   "border border-red-500 placeholder:text-red-500"
               )}
+              disabled
               placeholder="106"
             />
           </div>
@@ -482,7 +485,7 @@ export function MixLotForm() {
           loadingMixLot ? "animate-pulse bg-neutral-100" : ""
         }`}
       >
-        <div className="grid grid-cols-6 gap-x-3 gap-y-4">
+        <div className="grid grid-cols-4 gap-x-3 gap-y-4">
           <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Lot No.</Label>
             <Input
@@ -532,7 +535,7 @@ export function MixLotForm() {
               className="w-full"
             />
           </div>
-          <div className="flex w-full items-center gap-2">
+          {/* <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap shrink-0">Rate</Label>
             <Input
               {...register("rate", { valueAsNumber: true })}
@@ -555,7 +558,7 @@ export function MixLotForm() {
                   "border border-red-500 placeholder:text-red-500"
               )}
             />
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -607,7 +610,6 @@ export function MixLotForm() {
               type="number"
               {...register("resultTotal", { valueAsNumber: true })}
               step={0.01}
-              placeholder="10000"
               className={cn(
                 errors.resultTotal?.message &&
                   "border border-red-500 placeholder:text-red-500"
@@ -685,7 +687,7 @@ export function MixLotForm() {
               step={0.01}
               className={cn(
                 errors.resultPerCarat?.message &&
-                  "w-full border border-red-500 placeholder:text-red-500"
+                  "w-full border border-rexd-500 placeholder:text-red-500"
               )}
               onChange={(e) => {
                 const value = e.target.value
