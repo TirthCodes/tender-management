@@ -14,3 +14,12 @@ export async function getBaseTenderById(id: number) {
   const response = await fetchData(`/base-tender/${id}`);
   return response;
 }
+
+export async function getBaseTenderFiltered(data: {
+  shapes: number[];
+  colors: number[];
+  clarities: number[];
+  fluorescences: number[];
+}) {
+  return await postData("/base-tender/filter", data);
+}
