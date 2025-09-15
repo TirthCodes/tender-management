@@ -37,6 +37,7 @@ export async function POST(req: Request) {
       salePrice,
       saleAmount,
       resultCost,
+      isWon,
     } = await req.json() as MixLotPaylod;
 
     if (!baseTenderId || !roughPcs || !roughCts || !labour || !netPercent) {
@@ -78,6 +79,7 @@ export async function POST(req: Request) {
           stCertId: "",
           dcSalePrice: salePrice || 0,
           dcSaleAmount: saleAmount || 0,
+          isWon,
         },
       });
       
@@ -190,6 +192,7 @@ export async function POST(req: Request) {
         dcNetPercentage: netPercent,
         dcSalePrice: salePrice || 0,
         dcSaleAmount: saleAmount || 0,
+        isWon,
         otherTenderDetails: {
           createMany: {
             data: parsedTenderDetails.map((detail: MixLotTenderDetails) => ({

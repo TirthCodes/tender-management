@@ -91,6 +91,9 @@ model SingleTenderDetails {
   dcDepth           Decimal?        @db.Decimal(10, 2)
   dcTable           Decimal?        @db.Decimal(10, 2)
   dcRatio           Decimal?        @db.Decimal(10, 2)
+  dcLength          Decimal?        @db.Decimal(10, 2)
+  dcWidth           Decimal?        @db.Decimal(10, 2)
+  dcHeight          Decimal?        @db.Decimal(10, 2)
   dcSalePrice       Decimal?        @db.Decimal(10, 2)
   dcSaleAmount      Decimal?        @db.Decimal(10, 2)
   dcCostPrice       Decimal?        @db.Decimal(10, 2)
@@ -101,6 +104,7 @@ model SingleTenderDetails {
   dcResultCost      Decimal?        @db.Decimal(10, 2)
   dcResultPerCt     Decimal?        @db.Decimal(10, 2)
   dcResultTotal     Decimal?        @db.Decimal(10, 2)
+  isWon             Boolean         @default(false)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 }
@@ -131,6 +135,8 @@ model OtherTender {
 	dcLabour             Decimal                @db.Decimal(10, 2)
   dcNetPercentage      Decimal                @db.Decimal(10, 2)
   stCertId             String?
+  isWon                Boolean                @default(false)
+  margin               Decimal?               @db.Decimal(10, 2)
   otherTenderDetails   OtherTenderDetails[]
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt

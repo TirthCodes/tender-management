@@ -27,6 +27,8 @@ import { MixLotDetails } from "../data-table/mix-lot-details";
 import { createMixLot, getMixLotById } from "@/services/mix-lot";
 import { toast } from "react-toastify";
 import useEffectAfterMount from "@/hooks/useEffectAfterMount";
+import { Switch } from "../ui/switch";
+import { invalidateQuery } from "@/lib/invalidate";
 
 export const initialRow: MixLotTenderDetails = {
   inRoughPcs: 0,
@@ -74,8 +76,8 @@ const mixLotSchema = z.object({
     (val) => Number(val),
     z.number().min(0, { message: "Lot size is required!" })
   ),
-  rate: z.preprocess((val) => val ? Number(val) : 0, z.number().optional()),
-  amount: z.preprocess((val) => val ? Number(val) : 0, z.number().optional()),
+  rate: z.preprocess((val) => (val ? Number(val) : 0), z.number().optional()),
+  amount: z.preprocess((val) => (val ? Number(val) : 0), z.number().optional()),
   // bidPrice: z.number().min(1, { message: "Bid price is required!" }),
   bidPrice: z.preprocess(
     (val) => Number(val),
@@ -86,15 +88,15 @@ const mixLotSchema = z.object({
     z.number().min(0, "Total amount is required!")
   ),
   resultPerCarat: z.preprocess(
-    (val) => val ? Number(val) : 0,
+    (val) => (val ? Number(val) : 0),
     z.number().min(0, "Result per carat is required!")
   ),
   resultTotal: z.preprocess(
-    (val) => val ? Number(val) : 0,
+    (val) => (val ? Number(val) : 0),
     z.number().min(0, "Result total is required!")
   ),
   resultCost: z.preprocess(
-    (val) => val ? Number(val) : 0,
+    (val) => (val ? Number(val) : 0),
     z.number().min(0, "Result cost is required!")
   ),
   salePrice: z.preprocess(
@@ -105,6 +107,7 @@ const mixLotSchema = z.object({
     (val) => Number(val),
     z.number().min(0, "Sale amount is required!")
   ),
+  isWon: z.boolean().optional(),
 });
 
 type MixLotFormValues = z.infer<typeof mixLotSchema>;
@@ -158,7 +161,6 @@ export function MixLotForm() {
     mode: "onBlur",
     resolver: zodResolver(mixLotSchema),
   });
-  console.log(errors, "errors");
 
   const [isPending, setIsPending] = useState(false);
 
@@ -196,6 +198,7 @@ export function MixLotForm() {
         dcSalePrice,
         dcSaleAmount,
         stRemark,
+        isWon,
       } = mixLotTender.data;
       reset({
         roughPcs: inRoughPcs,
@@ -214,6 +217,7 @@ export function MixLotForm() {
         salePrice: dcSalePrice,
         saleAmount: dcSaleAmount,
         lotNo: stLotNo,
+        isWon,
       });
 
       const tenderDetails = otherTenderDetails.map((tender: any) => {
@@ -255,7 +259,7 @@ export function MixLotForm() {
 
       const calculatedBidPrice = parseFloat(
         (
-          (((salePrice * 0.97 - 180) * totalValues.polCts) /
+          (((salePrice * 0.97 - 230) * totalValues.polCts) /
             totalValues.carats -
             labour) /
           netPercentage
@@ -318,7 +322,7 @@ export function MixLotForm() {
           (((resultPerCarat * resultPercent + resultPerCarat + labour) *
             totalValues.carats) /
             totalValues.polCts +
-            180) /
+            230) /
           0.97
         ).toFixed(2)
       );
@@ -380,6 +384,7 @@ export function MixLotForm() {
 
     const payload: MixLotPaylod = {
       ...data,
+      isWon: data.isWon ?? false,
       baseTenderId: parseInt(baseTenderId),
       tenderDetails: JSON.stringify(tenderDetails),
     };
@@ -392,11 +397,12 @@ export function MixLotForm() {
       payload.mainLotId = parseInt(mainLotId);
     }
 
-    console.log(payload, "payload");
+    console.log({ payload });
 
     const response = await createMixLot(payload);
     if (response.success) {
       toast.success(response.message);
+      invalidateQuery("mix-lot-tenders")
       if (mainLotId) {
         router.push(
           "/tenders/mix-lot?baseTenderId=" +
@@ -427,17 +433,79 @@ export function MixLotForm() {
     <form onSubmit={handleSubmit(onSubmit)} onKeyDown={handleKeyDown}>
       <div className="flex items-center flex-col md:flex-row md:justify-between p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
         <div className="flex flex-col gap-2">
-          <h1 className="text-lg font-semibold">Mix Lot Tender</h1>
-          <div className="flex items-center gap-2 text-neutral-700">
-            <p className="pr-2 border-r-2">
-              {new Date(baseTender?.data?.dtVoucherDate).toDateString()}
-            </p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-semibold">Mix Lot Tender</h1>
+            <p className="text-neutral-500">{new Date(baseTender?.data?.dtVoucherDate).toDateString()}</p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-neutral-700">
             <p className="pr-2 border-r-2">{baseTender?.data?.stTenderName}</p>
             <p>{baseTender?.data?.stPersonName}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="">
+        <div className="flex lg:flex-row flex-wrap lg:items-center gap-2 lg:gap-4">
+          <div className="w-24">
+            <Label className="text-nowrap shrink-0 text-neutral-700">
+              Lot No.
+            </Label>
+            <Input
+              type="text"
+              {...register("lotNo")}
+              placeholder="FS39"
+              onChange={(e) => {
+                const value = e.target.value.toUpperCase();
+                e.target.value = value;
+                setValue("lotNo", value);
+              }}
+              className={cn(
+                errors.lotNo?.message &&
+                  "border border-red-500 placeholder:text-red-500"
+              )}
+            />
+          </div>
+          <div className="w-36">
+            <Label className="text-nowrap shrink-0 text-neutral-700">
+              Rough Pcs. & Cts.
+            </Label>
+            <div className="flex items-center gap-[1px]">
+              <Input
+                type="number"
+                {...register("roughPcs", { valueAsNumber: true })}
+                placeholder="4"
+                className={`rounded-r-none ${cn(
+                  errors.roughPcs?.message &&
+                    "border border-red-500 placeholder:text-red-500"
+                )}`}
+              />
+              <Input
+                type="number"
+                {...register("roughCts", { valueAsNumber: true })}
+                placeholder="24.4"
+                step={0.01}
+                className={`rounded-l-none ${cn(
+                  errors.roughCts?.message &&
+                    "border border-red-500 placeholder:text-red-500"
+                )}`}
+              />
+            </div>
+          </div>
+          <div className="w-20">
+            <Label className="text-nowrap shrink-0 text-neutral-700">
+              Lot Size
+            </Label>
+            <Input
+              {...register("lotSize", { valueAsNumber: true })}
+              disabled
+              readOnly
+              type="number"
+              step={0.01}
+              placeholder="4.96"
+              className={cn(
+                errors.lotSize?.message &&
+                  "w-14 border border-red-500 placeholder:text-red-500"
+              )}
+            />
+          </div>
+          <div className="w-20">
             <Label>Labour</Label>
             <Input
               type="number"
@@ -451,7 +519,7 @@ export function MixLotForm() {
               placeholder="50"
             />
           </div>
-          <div className="">
+          <div className="w-20">
             <Label>Net %</Label>
             <Input
               type="number"
@@ -465,7 +533,7 @@ export function MixLotForm() {
               placeholder="106"
             />
           </div>
-          <div className="w-full">
+          <div className="w-80">
             <Label>Remark</Label>
             <Input
               type="text"
@@ -480,7 +548,7 @@ export function MixLotForm() {
         </div>
       </div>
 
-      <div
+      {/* <div
         className={`p-3 border border-neutral-300 rounded-lg shadow-sm mb-4 ${
           loadingMixLot ? "animate-pulse bg-neutral-100" : ""
         }`}
@@ -535,32 +603,8 @@ export function MixLotForm() {
               className="w-full"
             />
           </div>
-          {/* <div className="flex w-full items-center gap-2">
-            <Label className="text-nowrap shrink-0">Rate</Label>
-            <Input
-              {...register("rate", { valueAsNumber: true })}
-              type="number"
-              placeholder="243"
-              step={0.01}
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex w-full items-center gap-2">
-            <Label className="text-nowrap shrink-0">Amount</Label>
-            <Input
-              {...register("amount", { valueAsNumber: true })}
-              type="number"
-              placeholder="999"
-              step={0.01}
-              className={cn(
-                errors.amount?.message &&
-                  "border border-red-500 placeholder:text-red-500"
-              )}
-            />
-          </div> */}
         </div>
-      </div>
+      </div> */}
 
       <div className="mt-4 overflow-hidden rounded-lg border border-neutral-300 shadow-sm">
         <MixLotDetails
@@ -582,7 +626,7 @@ export function MixLotForm() {
           loadingMixLot ? "animate-pulse bg-neutral-100" : ""
         }`}
       >
-        <div className="grid grid-cols-3 gap-x-6 gap-y-3">
+        <div className="grid grid-cols-4 gap-x-6 gap-y-3">
           <div className="flex w-full max-w-sm items-center gap-2">
             <Label className="text-nowrap w-32">Sale Price</Label>
             <Input
@@ -644,7 +688,7 @@ export function MixLotForm() {
                               labour) *
                               totalValues.carats) /
                               totalValues.polCts +
-                              180) /
+                              230) /
                             0.97
                           ).toFixed(2)
                         );
@@ -657,6 +701,16 @@ export function MixLotForm() {
                 }
               }}
             />
+          </div>
+          <div className="flex w-full items-center justify-center gap-2">
+            <label className="font-semibold text-red-600">Loss</label>
+            <Switch
+              checked={watch("isWon") ? true : false}
+              onCheckedChange={(value) => {
+                setValue("isWon", value);
+              }}
+            />
+            <label className="font-semibold text-green-600">Win</label>
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">
             <Label className="text-nowrap w-32">Sale Amount</Label>
@@ -708,7 +762,7 @@ export function MixLotForm() {
                     ((((value ?? 0) * resultPercent + (value ?? 0) + labour) *
                       totalValues.carats) /
                       totalValues.polCts +
-                      180) /
+                      230) /
                     0.97
                   ).toFixed(2)
                 );
@@ -716,6 +770,7 @@ export function MixLotForm() {
               }}
             />
           </div>
+          <div />
           <div />
           <div />
           <div className="flex w-full max-w-sm items-center gap-2">

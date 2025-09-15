@@ -22,6 +22,8 @@ import { getBaseTenderById } from "@/services/base-tender";
 import { createRoughLot, getRoughLotById } from "@/services/rough-lot";
 import { toast } from "react-toastify";
 import useEffectAfterMount from "@/hooks/useEffectAfterMount";
+import { Switch } from "../ui/switch";
+import { invalidateQuery } from "@/lib/invalidate";
 
 export const initialRow: RoughLotTenderDetails = {
   inRoughPcs: 0,
@@ -77,8 +79,8 @@ const createRoughLotSchema = z.object({
     (val) => Number(val),
     z.number().min(0, { message: "Lot size is required!" })
   ),
-  rate: z.preprocess((val) => val ? Number(val) : 0, z.number().optional()),
-  amount: z.preprocess((val) => val ? Number(val) : 0, z.number().optional()),
+  rate: z.preprocess((val) => (val ? Number(val) : 0), z.number().optional()),
+  amount: z.preprocess((val) => (val ? Number(val) : 0), z.number().optional()),
   bidPrice: z.preprocess(
     (val) => Number(val),
     z.number().min(0, "Bid price is required!")
@@ -88,11 +90,11 @@ const createRoughLotSchema = z.object({
     z.number().min(0, "Total amount is required!")
   ),
   resultPerCarat: z.preprocess(
-    (val) => val ? Number(val) : 0,
+    (val) => (val ? Number(val) : 0),
     z.number().optional()
   ),
   resultTotal: z.preprocess(
-    (val) => val ? Number(val) : 0,
+    (val) => (val ? Number(val) : 0),
     z.number().optional()
   ),
   costPrice: z.preprocess(
@@ -103,6 +105,7 @@ const createRoughLotSchema = z.object({
     (val) => Number(val),
     z.number().min(0, "Cost amount is required!")
   ),
+  isWon: z.boolean().optional(),
 });
 
 type CreateRoughLotFormValues = z.infer<typeof createRoughLotSchema>;
@@ -193,6 +196,7 @@ export function RoughLotForm() {
         dcCostPrice,
         dcCostAmount,
         stRemark,
+        isWon
       } = roughLotTender.data;
       reset({
         roughPcs: inRoughPcs,
@@ -210,6 +214,7 @@ export function RoughLotForm() {
         costPrice: dcCostPrice,
         costAmount: dcCostAmount,
         lotNo: stLotNo,
+        isWon,
       });
 
       const tenderDetails = otherTenderDetails.map((details: any) => ({
@@ -274,13 +279,7 @@ export function RoughLotForm() {
         setValue("totalAmount", totalAmount);
       }
     }
-  }, [
-    totalValues,
-    setValue,
-    netPercent,
-    roughCts,
-    costPrice,
-  ]);
+  }, [totalValues, setValue, netPercent, roughCts, costPrice]);
 
   const resultPerCarat = watch("resultPerCarat");
 
@@ -393,6 +392,7 @@ export function RoughLotForm() {
 
     const payload: RoughLotPaylod = {
       ...data,
+      isWon: data.isWon ?? false,
       baseTenderId: parseInt(baseTenderId),
       tenderDetails: JSON.stringify(tenderDetails),
     };
@@ -411,6 +411,7 @@ export function RoughLotForm() {
     if (response.success) {
       toast.success(response.message);
       reset();
+      invalidateQuery("rough-lot-tenders")
 
       if (mainLotId) {
         router.push(
@@ -440,20 +441,80 @@ export function RoughLotForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} onKeyDown={handleKeyDown}>
-      <div className="flex items-center flex-col md:flex-row md:justify-between p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
+      <div className="flex lg:items-center flex-col lg:flex-row lg:justify-between gap-4 lg:gap-10 p-3 border border-neutral-300 rounded-lg shadow-sm mb-4">
         <div className="flex flex-col gap-2">
-          <h1 className="text-lg font-semibold">Rough Lot Tender</h1>
-          <div className="flex items-center gap-2 text-neutral-700">
-            <p className="pr-2 border-r-2">
+          <div className="flex items-center text-nowrap gap-2">
+            <h1 className="text-lg font-semibold">Rough Lot Tender</h1>
+            <p className="text-neutral-500">
               {new Date(baseTender?.data?.dtVoucherDate).toDateString()}
             </p>
-            <p className="pr-2 border-r-2">{baseTender?.data?.stTenderName}</p>
-            <p>{baseTender?.data?.stPersonName}</p>
+          </div>
+          <div className="flex items-center gap-2 text-neutral-700">
+            <p className="pr-2 border-r-2 text-sm">
+              {baseTender?.data?.stTenderName}
+            </p>
+            <p className="text-sm">{baseTender?.data?.stPersonName}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="">
-            <Label>Labour</Label>
+        <div className="flex lg:flex-row flex-wrap lg:items-center gap-2 lg:gap-4">
+          <div className="w-24">
+            <Label className="text-nowrap shrink-0 text-neutral-700">Lot No.</Label>
+            <Input
+              type="text"
+              {...register("lotNo")}
+              placeholder="FS39"
+              onChange={(e) => {
+                const value = e.target.value.toUpperCase();
+                e.target.value = value;
+                setValue("lotNo", value);
+              }}
+              className={cn(
+                errors.lotNo?.message &&
+                  "border border-red-500 placeholder:text-red-500"
+              )}
+            />
+          </div>
+          <div className="w-36">
+            <Label className="text-nowrap shrink-0 text-neutral-700">Rough Pcs. & Cts.</Label>
+            <div className="flex items-center gap-[1px]">
+              <Input
+                type="number"
+                {...register("roughPcs", { valueAsNumber: true })}
+                placeholder="4"
+                className={`rounded-r-none ${cn(
+                  errors.roughPcs?.message &&
+                    "border border-red-500 placeholder:text-red-500"
+                )}`}
+              />
+              <Input
+                type="number"
+                {...register("roughCts", { valueAsNumber: true })}
+                placeholder="24.4"
+                step={0.01}
+                className={`rounded-l-none ${cn(
+                  errors.roughCts?.message &&
+                    "border border-red-500 placeholder:text-red-500"
+                )}`}
+              />
+            </div>
+          </div>
+          <div className="w-20">
+            <Label className="text-nowrap shrink-0 text-neutral-700">Lot Size</Label>
+            <Input
+              {...register("lotSize", { valueAsNumber: true })}
+              disabled
+              readOnly
+              type="number"
+              step={0.01}
+              placeholder="4.96"
+              className={cn(
+                errors.lotSize?.message &&
+                  "w-14 border border-red-500 placeholder:text-red-500"
+              )}
+            />
+          </div>
+          <div className="w-20">
+            <Label className="text-nowrap shrink-0 text-neutral-700">Labour</Label>
             <Input
               type="number"
               step="0.01"
@@ -466,8 +527,8 @@ export function RoughLotForm() {
               placeholder="50"
             />
           </div>
-          <div className="">
-            <Label>Net %</Label>
+          <div className="w-20">
+            <Label className="text-nowrap shrink-0 text-neutral-700">Net %</Label>
             <Input
               type="number"
               step="0.01"
@@ -480,8 +541,8 @@ export function RoughLotForm() {
               placeholder="106"
             />
           </div>
-          <div className="w-full">
-            <Label>Remark</Label>
+          <div className="w-80">
+            <Label className="text-nowrap shrink-0 text-neutral-700">Remark</Label>
             <Input
               type="text"
               {...register("remark")}
@@ -495,7 +556,7 @@ export function RoughLotForm() {
         </div>
       </div>
 
-      <div
+      {/* <div
         className={`p-3 border border-neutral-300 rounded-lg shadow-sm mb-4 ${
           loadingRoughLot ? "animate-pulse bg-neutral-100" : ""
         }`}
@@ -558,29 +619,8 @@ export function RoughLotForm() {
               )}
             />
           </div>
-          {/* <div className="flex w-full items-center gap-2">
-            <Label className="text-nowrap shrink-0">Rate</Label>
-            <Input
-              {...register("rate", { valueAsNumber: true })}
-              type="number"
-              placeholder="243"
-              step={0.01}
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex w-full items-center gap-2">
-            <Label className="text-nowrap shrink-0">Amount</Label>
-            <Input
-              {...register("amount", { valueAsNumber: true })}
-              type="number"
-              placeholder="999"
-              step={0.01}
-              className="w-full"
-            />
-          </div> */}
         </div>
-      </div>
+      </div> */}
 
       <div className="mt-4 overflow-hidden rounded-lg border border-neutral-300 shadow-sm">
         <RoughLotDetails
@@ -603,7 +643,7 @@ export function RoughLotForm() {
           loadingRoughLot ? "animate-pulse bg-neutral-100" : ""
         }`}
       >
-        <div className="grid grid-cols-3 gap-x-6 gap-y-3">
+        <div className="grid grid-cols-4 gap-x-6 gap-y-3">
           <div className="flex w-full max-w-sm items-center gap-2">
             <Label className="text-nowrap w-32">Cost Price</Label>
             <Input
@@ -625,7 +665,7 @@ export function RoughLotForm() {
               className="w-full"
             />
           </div>
-          <div className="flex w-full max-w-sm items-center gap-2">
+          <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap w-40">Result Total</Label>
             <Input
               type="number"
@@ -634,6 +674,16 @@ export function RoughLotForm() {
               // placeholder="10000"
               className="w-full"
             />
+          </div>
+          <div className="flex w-full items-center justify-center gap-2">
+            <label className="font-semibold text-red-600">Loss</label>
+            <Switch
+              checked={watch("isWon") ? true : false}
+              onCheckedChange={(value) => {
+                setValue("isWon", value);
+              }}
+            />
+            <label className="font-semibold text-green-600">Win</label>
           </div>
           <div className="flex w-full max-w-sm items-center gap-2">
             <Label className="text-nowrap w-32">Cost Amount</Label>
@@ -656,7 +706,7 @@ export function RoughLotForm() {
             />
           </div>
 
-          <div className="flex w-full max-w-sm items-center gap-2">
+          <div className="flex w-full items-center gap-2">
             <Label className="text-nowrap w-40">Result Per Cts.</Label>
             <Input
               type="number"
@@ -665,6 +715,10 @@ export function RoughLotForm() {
               className="w-full"
             />
           </div>
+          {/* <div className="flex w-full items-center opacity-50 justify-center gap-2">
+            <p className="font-semibold">Margin:</p>     
+            <p className="font-semibold">0%</p>
+          </div> */}
         </div>
       </div>
       <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 items-center">

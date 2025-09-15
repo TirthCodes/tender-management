@@ -20,6 +20,7 @@ export type RoughLotColumns = {
   dcResultPerCt: number;
   dcResultTotal: number;
   dcLotSize: number;
+  isWon: boolean;
 };
 
 export const columns: ColumnDef<RoughLotColumns>[] = [

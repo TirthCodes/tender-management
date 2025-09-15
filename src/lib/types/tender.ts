@@ -47,6 +47,8 @@ type OtherTednerBasePayload = {
   costPrice?: number;
   costAmount?: number;
   bidPrice: number;
+  isWon: boolean;
+  margin?: number;
   totalAmount: number; // Bid Amount
   resultPerCarat?: number;
   resultTotal?: number;
@@ -144,6 +146,9 @@ export interface SingleStoneTenderDetails {
   shape: Option;
   polCts: number;
   polPercent: number;
+  length: number;
+  width: number;
+  height: number;
   depth: number;
   table: number;
   ratio: number;
@@ -157,4 +162,6 @@ export interface SingleStoneTenderDetails {
   resultCost: number;
   resultPerCarat: number;
   resultTotal: number;
+  isWon: boolean;
+  margin: number;
 }

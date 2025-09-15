@@ -46,6 +46,7 @@ export default async function Page({
         dcResultTotal: true,
         dcResultCost: true,
         stLotNo: true,
+        isWon: true,
       },
       orderBy: {
         createdAt: "desc",

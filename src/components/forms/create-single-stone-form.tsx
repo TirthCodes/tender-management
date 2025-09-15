@@ -38,6 +38,9 @@ export const singleInitialRow: SingleStoneTenderDetails = {
   shape: { id: 0, stShortName: "" },
   polCts: 0,
   polPercent: 0,
+  length: 0,
+  width: 0,
+  height: 0,
   depth: 0,
   table: 0,
   ratio: 0,
@@ -51,6 +54,8 @@ export const singleInitialRow: SingleStoneTenderDetails = {
   resultCost: 0,
   resultPerCarat: 0,
   resultTotal: 0,
+  isWon: false,
+  margin: 0,
 };
 
 interface CreateTenderFormProps {
@@ -241,6 +246,7 @@ export function CreateSingleStoneTenderForm({
 
     const payload = {
       ...data,
+      id: tenderRowsData?.data?.id ?? null,
       //id: baseTenderData.id, // replace with actual singleTenderID
       baseTenderId: baseTenderData.id,
       roughPcs: totalValues.pcs,

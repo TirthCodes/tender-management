@@ -45,6 +45,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
         dcResultTotal: true,
         dcCostPrice: true,
         dcCostAmount: true,
+        isWon: true,
         stLotNo: true,
       },
       orderBy: {
