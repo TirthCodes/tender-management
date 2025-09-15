@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Printer } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
@@ -390,11 +390,16 @@ export function CreateSingleStoneTenderForm({
         </div>
       </div>
 
-      <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 items-center">
-        <Button className="mt-4" type="button" asChild>
+      <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 mt-4 items-center">
+        {!isRowsLoading && (
+          <Button className="bg-red-700" type="button">
+            Print <Printer /> 
+          </Button>
+        )}
+        <Button type="button" asChild>
           <Link href={"/tenders"}>Cancel</Link>
         </Button>
-        <Button disabled={isPending} className="mt-4" type="submit">
+        <Button disabled={isPending} type="submit">
           Submit {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
         </Button>
       </div>

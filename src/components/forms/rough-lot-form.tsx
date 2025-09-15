@@ -281,33 +281,33 @@ export function RoughLotForm() {
     }
   }, [totalValues, setValue, netPercent, roughCts, costPrice]);
 
-  const resultPerCarat = watch("resultPerCarat");
+  // const resultPerCarat = watch("resultPerCarat");
 
-  useEffectAfterMount(() => {
-    if (resultPerCarat) {
-      const resultTotal = parseFloat((resultPerCarat * roughCts).toFixed(1));
-      setValue("resultTotal", resultTotal);
-    }
-  }, [resultPerCarat, setValue]);
+  // useEffectAfterMount(() => {
+  //   if (resultPerCarat) {
+  //     const resultTotal = parseFloat((resultPerCarat * roughCts).toFixed(1));
+  //     setValue("resultTotal", resultTotal);
+  //   }
+  // }, [resultPerCarat, setValue]);
 
-  const resultTotal = watch("resultTotal");
+  // const resultTotal = watch("resultTotal");
 
-  useEffectAfterMount(() => {
-    if (resultTotal) {
-      if (!isNaN(resultTotal)) {
-        let resultPerCarat = 0;
-        if (roughCts) {
-          if (!isNaN(roughCts)) {
-            resultPerCarat = parseFloat((resultTotal / roughCts).toFixed(2));
-          }
-        }
+  // useEffectAfterMount(() => {
+  //   if (resultTotal) {
+  //     if (!isNaN(resultTotal)) {
+  //       let resultPerCarat = 0;
+  //       if (roughCts) {
+  //         if (!isNaN(roughCts)) {
+  //           resultPerCarat = parseFloat((resultTotal / roughCts).toFixed(2));
+  //         }
+  //       }
 
-        if (!isNaN(resultPerCarat)) {
-          setValue("resultPerCarat", resultPerCarat);
-        }
-      }
-    }
-  }, [resultTotal, roughCts, setValue]);
+  //       if (!isNaN(resultPerCarat)) {
+  //         setValue("resultPerCarat", resultPerCarat);
+  //       }
+  //     }
+  //   }
+  // }, [resultTotal, roughCts, setValue]);
 
   const roughPcs = watch("roughPcs");
 
@@ -673,6 +673,17 @@ export function RoughLotForm() {
               step={0.01}
               // placeholder="10000"
               className="w-full"
+              onChange={(e) => {
+                const value = e.target.value
+                  ? parseFloat(e.target.value)
+                  : undefined;
+
+                const resultPerCarat = parseFloat(
+                  ((value ?? 0) * roughCts).toFixed(2)
+                );
+
+                setValue("resultPerCarat", resultPerCarat);
+              }}
             />
           </div>
           <div className="flex w-full items-center justify-center gap-2">
@@ -713,6 +724,17 @@ export function RoughLotForm() {
               {...register("resultPerCarat", { valueAsNumber: true })}
               step={0.01}
               className="w-full"
+              onChange={(e) => {
+                const value = e.target.value
+                  ? parseFloat(e.target.value)
+                  : undefined;
+
+                const resultTotal = parseFloat(
+                  ((value ?? 0) * roughCts).toFixed(2)
+                );
+
+                setValue("resultTotal", resultTotal);
+              }}
             />
           </div>
           {/* <div className="flex w-full items-center opacity-50 justify-center gap-2">
