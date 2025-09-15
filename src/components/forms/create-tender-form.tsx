@@ -212,7 +212,7 @@ export function CreateTenderForm({
       if (tendetType === "singleStone") {
         calculatedBidPrice = parseFloat(
           (
-            ((((totalValues.costPrice + (totalValues?.topsAmount ?? 0)) * 0.97 - 180) *
+            ((((totalValues.costPrice + (totalValues?.topsAmount ?? 0)) * 0.97 - 230) *
               totalValues.polCts) /
               totalValues.carats -
               labourValue) /
@@ -222,7 +222,7 @@ export function CreateTenderForm({
       } else if (tendetType === "mixLot") {
         calculatedBidPrice = parseFloat(
           (
-            (((totalValues.salePrice * 0.97 - 180) * totalValues.polCts) /
+            (((totalValues.salePrice * 0.97 - 230) * totalValues.polCts) /
               totalValues.carats -
               labourValue) /
             netPercentage
@@ -284,7 +284,7 @@ export function CreateTenderForm({
                   (((resultPerCarat * 0.06 + resultPerCarat + labourValue) *
                     totalValues.carats) /
                     totalValues.polCts +
-                    180) /
+                    230) /
                     0.97 -
                   (totalValues?.topsAmount ?? 0)
                 ).toFixed(2)
@@ -295,7 +295,7 @@ export function CreateTenderForm({
                   (((resultPerCarat * 0.06 + resultPerCarat + labourValue) *
                     totalValues.carats) /
                     totalValues.polCts +
-                    180) /
+                    230) /
                   0.97
                 ).toFixed(2)
               );
@@ -317,7 +317,7 @@ export function CreateTenderForm({
                 (((finalBidPriceValue * 0.06 + finalBidPriceValue + labourValue) *
                   totalValues.carats) /
                   totalValues.polCts +
-                  180) /
+                  230) /
                   0.97 -
                 (totalValues?.topsAmount ?? 0)
               ).toFixed(2)
@@ -328,7 +328,7 @@ export function CreateTenderForm({
                 (((finalBidPriceValue * 0.06 + finalBidPriceValue + labourValue) *
                   totalValues.carats) /
                   totalValues.polCts +
-                  180) /
+                  230) /
                 0.97
               ).toFixed(2)
             );

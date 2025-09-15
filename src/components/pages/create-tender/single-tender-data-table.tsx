@@ -28,6 +28,7 @@ import {
   calculateResultPerCarat,
   calculateTotalAmount,
 } from "@/lib/formula";
+import { Switch } from "@/components/ui/switch";
 
 const columns = [
   "Lot",
@@ -41,6 +42,9 @@ const columns = [
   "Shape",
   "Pol. Cts.",
   "Pol. %",
+  "Length",
+  "Width",
+  "Height",
   "Depth",
   "Table",
   "Ratio",
@@ -54,7 +58,14 @@ const columns = [
   "Result Total",
   "Result/Ct",
   "Result Cost",
-  <Button key={1} className="p-1 h-fit hover:bg-green-100 hover:text-green-900" variant="ghost" type="button">
+  "Is Won",
+  "Margin",
+  <Button
+    key={1}
+    className="p-1 h-fit hover:bg-green-100 hover:text-green-900"
+    variant="ghost"
+    type="button"
+  >
     <PlusCircle />
   </Button>,
 ];
@@ -121,8 +132,8 @@ export function SingleTenderDataTable({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if(event.shiftKey && event.key === "A") {
-        handleValueChange(singleInitialRow, data?.length + 1 || 1)
+      if (event.shiftKey && event.key === "A") {
+        handleValueChange(singleInitialRow, data?.length + 1 || 1);
       }
     };
 
@@ -147,11 +158,18 @@ export function SingleTenderDataTable({
                       onClick={
                         isLast
                           ? () =>
-                              handleValueChange(singleInitialRow, data?.length + 1 || 1)
+                              handleValueChange(
+                                singleInitialRow,
+                                data?.length + 1 || 1
+                              )
                           : undefined
                       }
                       className={`text-nowrap border-collapse border border-gray-300 border-t-0 
-                        ${isLast ? "sticky right-0 bg-green-50 text-green-800 z-40 text-center border-r-0" : ""}`}
+                        ${
+                          isLast
+                            ? "sticky right-0 bg-green-50 text-green-800 z-40 text-center border-r-0"
+                            : ""
+                        }`}
                       style={{ borderTopWidth: 0 }}
                     >
                       {header}
@@ -221,7 +239,7 @@ export function SingleTenderDataTable({
                               ...row,
                               roughPcs: value,
                               roughSize: parseFloat(
-                                (value / row.roughCts).toFixed(2)
+                                (row.roughCts / value).toFixed(2)
                               ),
                             },
                             index
@@ -276,7 +294,7 @@ export function SingleTenderDataTable({
                               ...row,
                               roughCts: value,
                               roughSize: parseFloat(
-                                (row.roughPcs / value).toFixed(2)
+                                (value / row.roughPcs).toFixed(2)
                               ),
                               polCts,
                               polPercent,
@@ -517,8 +535,89 @@ export function SingleTenderDataTable({
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-14 px-1 text-right"
+                        name="length"
+                        type="number"
+                        value={row.length || ""}
+                        step={0.01}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            ? parseFloat(e.target.value)
+                            : 0;
+                          
+                          const ratio = parseFloat((value / row.width).toFixed(2))
+
+                          handleValueChange(
+                            {
+                              ...row,
+                              length: value,
+                              ratio,
+                            },
+                            index
+                          );
+                        }}
+                        placeholder="0"
+                      />
+                    </TableCell>
+                    <TableCell className="border-collapse border border-gray-300">
+                      <Input
+                        className="w-14 px-1 text-right"
+                        name="width"
+                        type="number"
+                        value={row.width || ""}
+                        step={0.01}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            ? parseFloat(e.target.value)
+                            : 0;
+                          
+                          const depth = parseFloat((row.height / value).toFixed(2))
+                          const ratio = parseFloat((row.length / value).toFixed(2))
+
+                          handleValueChange(
+                            {
+                              ...row,
+                              width: value,
+                              depth,
+                              ratio
+                            },
+                            index
+                          );
+                        }}
+                        placeholder="0"
+                      />
+                    </TableCell>
+                    <TableCell className="border-collapse border border-gray-300">
+                      <Input
+                        className="w-14 px-1 text-right"
+                        name="height"
+                        type="number"
+                        value={row.height || ""}
+                        step={0.01}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            ? parseFloat(e.target.value)
+                            : 0;
+                          
+                          const depth = parseFloat((value / row.length).toFixed(2))
+
+                          handleValueChange(
+                            {
+                              ...row,
+                              height: value,
+                              depth,
+                            },
+                            index
+                          );
+                        }}
+                        placeholder="0"
+                      />
+                    </TableCell>
+                    <TableCell className="border-collapse border border-gray-300">
+                      <Input
+                        className="w-14 px-1 text-right"
                         name="depth"
                         type="number"
+                        disabled
                         value={row.depth || ""}
                         step={0.01}
                         onChange={(e) => {
@@ -563,6 +662,7 @@ export function SingleTenderDataTable({
                         className="w-10 px-1 text-right"
                         name="ratio"
                         type="number"
+                        disabled
                         value={row.ratio || ""}
                         step={0.01}
                         onChange={(e) => {
@@ -691,6 +791,8 @@ export function SingleTenderDataTable({
                             netPercent
                           );
 
+                          // const margin = parseFloat(((value - row.costPrice) / row.salePrice).toFixed(2))
+
                           const totalAmount = calculateTotalAmount(
                             bidPrice,
                             row.roughCts
@@ -717,10 +819,10 @@ export function SingleTenderDataTable({
                         value={row.topsAmount || ""}
                         step={0.01}
                         onChange={(e) => {
-                          const value = e.target.value      
+                          const value = e.target.value
                             ? parseFloat(e.target.value)
                             : 0;
-                          
+
                           const bidPrice = calculateBidPrice(
                             row.costPrice,
                             value,
@@ -791,14 +893,17 @@ export function SingleTenderDataTable({
                             netPercent
                           );
 
-                          const totalAmount = calculateTotalAmount(value, row.roughCts);
+                          const totalAmount = calculateTotalAmount(
+                            value,
+                            row.roughCts
+                          );
 
                           handleValueChange(
                             {
                               ...row,
                               costPrice,
                               bidPrice: value,
-                              totalAmount
+                              totalAmount,
                             },
                             index
                           );
@@ -823,11 +928,21 @@ export function SingleTenderDataTable({
                             row.roughCts
                           );
 
+                          const costPrice = calculateCostPrice(
+                            bidPrice,
+                            labourValue,
+                            row.roughCts,
+                            row.polCts,
+                            row.topsAmount,
+                            netPercent
+                          );
+
                           handleValueChange(
                             {
                               ...row,
                               bidPrice,
                               totalAmount: value,
+                              costPrice,
                             },
                             index
                           );
@@ -885,9 +1000,10 @@ export function SingleTenderDataTable({
                             ? parseFloat(e.target.value)
                             : 0;
 
-                          const resultTotal = parseFloat((value * row.roughCts).toFixed(2))
+                          const resultTotal = parseFloat(
+                            (value * row.roughCts).toFixed(2)
+                          );
 
-                          console.log(netPercent, "----")
                           const resultCost = calculateResultCost(
                             value,
                             labourValue,
@@ -932,6 +1048,27 @@ export function SingleTenderDataTable({
                         }}
                         placeholder="0"
                       />
+                    </TableCell>
+                    <TableCell className="border-collapse border border-gray-300">
+                      <div className="flex items-center gap-2">
+                        <label className="text-red-600 font-semibold">L</label>
+                        <Switch 
+                          checked={row.isWon}
+                          onCheckedChange={(value) => {
+                            handleValueChange(
+                              {
+                                ...row,
+                                isWon: value,
+                              },
+                              index
+                            );
+                          }}
+                        />
+                        <label className="text-green-600 font-semibold">W</label>
+                      </div>
+                    </TableCell>
+                    <TableCell className="border-collapse border border-gray-300">
+                      {/* {(row.margin / row.salePrice).toFixed(2)} */}
                     </TableCell>
                     <TableCell className="sticky right-0 bg-red-50 text-red-800 text-center z-40 border-collapse border border-r-0 border-gray-300">
                       <Button

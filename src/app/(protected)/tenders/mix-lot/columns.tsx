@@ -19,6 +19,7 @@ export type MixLotColumns = {
   dcResultTotal: number;
   dcResultCost: number;
   dcLotSize: number;
+  isWon: boolean;
 };
 
 export const columns: ColumnDef<MixLotColumns>[] = [

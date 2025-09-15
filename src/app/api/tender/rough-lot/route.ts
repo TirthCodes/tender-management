@@ -36,6 +36,7 @@ export async function POST(req: Request) {
       mainLotId,
       costPrice,
       costAmount,
+      isWon,
     } = (await req.json()) as RoughLotPaylod;
 
     if (!baseTenderId || !roughPcs || !roughCts || !netPercent) {
@@ -76,6 +77,7 @@ export async function POST(req: Request) {
           stCertId: "",
           dcCostPrice: costPrice ?? 0,
           dcCostAmount: costAmount ?? 0,
+          isWon,
         },
       });
 
@@ -196,6 +198,7 @@ export async function POST(req: Request) {
         dcCostAmount: costAmount ?? 0,
         dcSalePrice: 0,
         dcSaleAmount: 0,
+        isWon,
         mainLotId,
         otherTenderDetails: {
           createMany: {
