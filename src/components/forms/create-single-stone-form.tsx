@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Printer } from "lucide-react";
+import { ChevronLeft, Loader2, Printer } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,7 @@ import { createSingleTender } from "@/services/single-stone";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { getSingleStoneTender } from "@/services/single-stone";
+import { PDFViewer } from "@react-pdf/renderer";
 
 export const singleInitialRow: SingleStoneTenderDetails = {
   lotNo: "",
@@ -58,19 +59,21 @@ export const singleInitialRow: SingleStoneTenderDetails = {
   margin: 0,
 };
 
+export interface SingleBaseTender {
+  dtVoucherDate: Date;
+  stTenderName: string;
+  stPersonName: string;
+  dcNetPercentage: number;
+  dcLabour: number;
+  id: number;
+};
+
 interface CreateTenderFormProps {
   colorOptions: Option[];
   clarityOptions: Option[];
   fluorescenceOptions: Option[];
   shapeOptions: Option[];
-  baseTenderData: {
-    dtVoucherDate: Date;
-    stTenderName: string;
-    stPersonName: string;
-    dcNetPercentage: number;
-    dcLabour: number;
-    id: number;
-  };
+  baseTenderData: SingleBaseTender;
 }
 
 const createTenderSchema = z.object({
@@ -99,6 +102,8 @@ export function CreateSingleStoneTenderForm({
     queryFn: () => getSingleStoneTender(baseTenderData.id),
     enabled: !!baseTenderData.id,
   });
+
+  const [showPDFPreview, setShowPDFPreview] = useState(false);
 
   const { data: colorsOptions } = useQuery({
     queryKey: ["color-options"],
@@ -277,132 +282,161 @@ export function CreateSingleStoneTenderForm({
   // }
 
   return (
-    <form
-      ref={formRef}
-      onSubmit={handleSubmit(onSubmit)}
-      onKeyDown={handleKeyDown}
-    >
-      <div className="flex items-center flex-col md:flex-row md:justify-between px-4 py-2 border border-neutral-300 rounded-lg shadow-sm">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-lg font-semibold">Single Stone Tender</h1>
-          <div className="flex items-center gap-2 text-neutral-700">
-            <p className="pr-2 border-r-2">
-              {baseTenderData.dtVoucherDate.toDateString()}
-            </p>
-            <p className="pr-2 border-r-2">{baseTenderData.stTenderName}</p>
-            <p>{baseTenderData.stPersonName}</p>
+    <>
+      {showPDFPreview ? (
+        <>
+          <div className="w-full h-[calc(100dvh-130px)]">
+            <Button
+              onClick={() => setShowPDFPreview(false)}
+              variant={"outline"}
+              className="mb-2"
+              type="button"
+            >
+              <ChevronLeft /> Go Back
+            </Button>
+            <PDFViewer className="w-full h-full">
+              {/* <TenderPDF singleTender={tenderRowsData?.data} baseTender={baseTenderData} roughtLotTenders={ro} /> */}
+            </PDFViewer>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="">
-            <Label>Labour</Label>
-            <Input
-              type="number"
-              step="0.01"
-              {...register("labour", { valueAsNumber: true })}
-              className={cn(
-                errors.labour?.message &&
-                  "border border-red-500 placeholder:text-red-500"
-              )}
-              defaultValue={50}
-              placeholder="50"
-            />
+        </>
+      ) : (
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit(onSubmit)}
+          onKeyDown={handleKeyDown}
+        >
+          <div className="flex items-center flex-col md:flex-row md:justify-between px-4 py-2 border border-neutral-300 rounded-lg shadow-sm">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-lg font-semibold">Single Stone Tender</h1>
+              <div className="flex items-center gap-2 text-neutral-700">
+                <p className="pr-2 border-r-2">
+                  {baseTenderData.dtVoucherDate.toDateString()}
+                </p>
+                <p className="pr-2 border-r-2">{baseTenderData.stTenderName}</p>
+                <p>{baseTenderData.stPersonName}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="">
+                <Label>Labour</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  {...register("labour", { valueAsNumber: true })}
+                  className={cn(
+                    errors.labour?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                  defaultValue={50}
+                  placeholder="50"
+                />
+              </div>
+              <div className="">
+                <Label>Net %</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  {...register("netPercent", { valueAsNumber: true })}
+                  className={cn(
+                    errors.netPercent?.message &&
+                      "border border-red-500 placeholder:text-red-500"
+                  )}
+                  disabled
+                  placeholder="106"
+                />
+              </div>
+              <div className="w-full">
+                <Label>Remark</Label>
+                <Input
+                  type="text"
+                  {...register("remark")}
+                  className={cn(
+                    "w-full",
+                    errors.remark?.message && "border border-red-500"
+                  )}
+                  placeholder="MIX SAWABLE-MAKEABLE YELLOW (AVG - 1.83)"
+                />
+              </div>
+            </div>
           </div>
-          <div className="">
-            <Label>Net %</Label>
-            <Input
-              type="number"
-              step="0.01"
-              {...register("netPercent", { valueAsNumber: true })}
-              className={cn(
-                errors.netPercent?.message &&
-                  "border border-red-500 placeholder:text-red-500"
-              )}
-              disabled
-              placeholder="106"
-            />
-          </div>
-          <div className="w-full">
-            <Label>Remark</Label>
-            <Input
-              type="text"
-              {...register("remark")}
-              className={cn(
-                "w-full",
-                errors.remark?.message && "border border-red-500"
-              )}
-              placeholder="MIX SAWABLE-MAKEABLE YELLOW (AVG - 1.83)"
-            />
-          </div>
-        </div>
-      </div>
 
-      <div className="mt-4 overflow-hidden rounded-lg border border-neutral-300 shadow-sm">
-        <SingleTenderDataTable
-          // totalValues={totalValues}
-          isRowsLoading={isRowsLoading}
-          setTotalValues={setTotalValues}
-          handleValueChange={handleDetailsValueChange}
-          data={tenderDetails}
-          colors={colorsOptions?.data}
-          clarities={claritiesOptions?.data}
-          fluorescences={fluorescencesOptions?.data}
-          shapes={shapesOptions?.data}
-          labourValue={labour}
-          netPercent={netPercent}
-        />
-      </div>
-      {/* total values */}
-      <div
-        className={`mt-2 flex items-center justify-around gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm ${
-          isRowsLoading ? "animate-pulse bg-neutral-50" : ""
-        }`}
-      >
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Rows:</p>
-          <p className="font-semibold">{tenderDetails.length}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Pcs:</p>
-          <p className="font-semibold">{totalValues.pcs}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Carats:</p>
-          <p className="font-semibold">{totalValues.carats?.toFixed(2)}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Polish Carats:</p>
-          <p className="font-semibold">{totalValues.polCts?.toFixed(2)}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Sale Price:</p>
-          <p className="font-semibold">
-            {isNaN(totalSalePrice) ? 0 : totalSalePrice.toFixed(2)}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Cost Price:</p>
-          <p className="font-semibold">{totalValues.costPrice?.toFixed(2)}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <p className="text-nowrap">Total Amount:</p>
-          <p className="font-semibold">{totalValues.totalAmount?.toFixed(2)}</p>
-        </div>
-      </div>
+          <div className="mt-4 overflow-hidden rounded-lg border border-neutral-300 shadow-sm">
+            <SingleTenderDataTable
+              // totalValues={totalValues}
+              isRowsLoading={isRowsLoading}
+              setTotalValues={setTotalValues}
+              handleValueChange={handleDetailsValueChange}
+              data={tenderDetails}
+              colors={colorsOptions?.data}
+              clarities={claritiesOptions?.data}
+              fluorescences={fluorescencesOptions?.data}
+              shapes={shapesOptions?.data}
+              labourValue={labour}
+              netPercent={netPercent}
+            />
+          </div>
+          {/* total values */}
+          <div
+            className={`mt-2 flex items-center justify-around gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm ${
+              isRowsLoading ? "animate-pulse bg-neutral-50" : ""
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Rows:</p>
+              <p className="font-semibold">{tenderDetails.length}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Pcs:</p>
+              <p className="font-semibold">{totalValues.pcs}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Carats:</p>
+              <p className="font-semibold">{totalValues.carats?.toFixed(2)}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Polish Carats:</p>
+              <p className="font-semibold">{totalValues.polCts?.toFixed(2)}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Sale Price:</p>
+              <p className="font-semibold">
+                {isNaN(totalSalePrice) ? 0 : totalSalePrice.toFixed(2)}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Cost Price:</p>
+              <p className="font-semibold">
+                {totalValues.costPrice?.toFixed(2)}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Total Amount:</p>
+              <p className="font-semibold">
+                {totalValues.totalAmount?.toFixed(2)}
+              </p>
+            </div>
+          </div>
 
-      <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 mt-4 items-center">
-        {!isRowsLoading && (
-          <Button className="bg-red-700" type="button">
-            Print <Printer /> 
-          </Button>
-        )}
-        <Button type="button" asChild>
-          <Link href={"/tenders"}>Cancel</Link>
-        </Button>
-        <Button disabled={isPending} type="submit">
-          Submit {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-        </Button>
-      </div>
-    </form>
+          <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 mt-4 items-center">
+            {!isRowsLoading &&
+              tenderRowsData?.data?.singleTenderDetails?.length > 0 && (
+                <Button
+                  onClick={() => setShowPDFPreview(true)}
+                  className="bg-red-700"
+                  type="button"
+                >
+                  Print <Printer />
+                </Button>
+              )}
+            <Button type="button" asChild>
+              <Link href={"/tenders"}>Cancel</Link>
+            </Button>
+            <Button disabled={isPending} type="submit">
+              Submit {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            </Button>
+          </div>
+        </form>
+      )}
+    </>
   );
 }

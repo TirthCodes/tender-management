@@ -15,6 +15,11 @@ export async function getRoughLots(baseTenderId: number, page: number, mainLotId
   return response;
 }
 
+export async function getRoughLotByBaseTenderId(baseTenderId: number) {
+  const response = await fetchData(`/tender/rough-lot/base-tender/${baseTenderId}`);
+  return response;
+}
+
 export async function getRoughLotById(id: number) {
   const response = await fetchData(`/tender/rough-lot/${id}`);
   return response;

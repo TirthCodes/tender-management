@@ -327,7 +327,6 @@ export function MixLotDetails({
                         className="w-20 text-right"
                         name="polCts"
                         type="number"
-                        disabled
                         value={row.dcPolCts}
                         step={0.01}
                         onChange={(e) => {
@@ -335,9 +334,9 @@ export function MixLotDetails({
                             ? parseFloat(e.target.value)
                             : undefined;
 
-                          const polPercent = parseFloat(
+                          const polPercent = parseFloat((parseFloat(
                             ((value ?? 0) / (row.dcRoughCts ?? 0)).toFixed(2)
-                          );
+                          ) * 100).toFixed(2));
 
                           handleValueChange(
                             {
