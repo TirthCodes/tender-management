@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, Pencil, Trash } from "lucide-react";
+import { Loader2, Pencil, Printer, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { deleteFn } from "@/services/delete";
@@ -34,6 +34,9 @@ interface DataTableProps<TData extends { id?: number }> {
   editPath?: string;
   deleteEndpoint?: string;
   queryKey: string;
+  isPdf?: boolean;
+  handlePdf?: (id: number) => void;
+  loadingPdf?: boolean;
 }
 
 export function TenderDataTable<TData extends { id?: number }>({
@@ -45,8 +48,13 @@ export function TenderDataTable<TData extends { id?: number }>({
   editPath,
   deleteEndpoint,
   queryKey,
+  isPdf,
+  handlePdf,
+  loadingPdf,
 }: DataTableProps<TData>) {
   const [deletingId, setDeletingId] = React.useState<number | null>(null);
+  const [pdfId, setPdfId] = React.useState<number | null>(null);
+
   const table = useReactTable({
     data,
     columns,
@@ -95,7 +103,10 @@ export function TenderDataTable<TData extends { id?: number }>({
               >
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} style={(header.column.columnDef.meta as any)?.style}>
+                    <TableHead
+                      key={header.id}
+                      style={(header.column.columnDef.meta as any)?.style}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -116,9 +127,25 @@ export function TenderDataTable<TData extends { id?: number }>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} style={(cell.column.columnDef.meta as any)?.style}>
+                    <TableCell
+                      key={cell.id}
+                      style={(cell.column.columnDef.meta as any)?.style}
+                    >
                       {cell.column.id === "actions" ? (
                         <div className="flex items-center gap-1.5 w-fit">
+                          {isPdf && (
+                            <Button
+                              variant={"outline"}
+                              className="text-neutral-600 bg-neutral-50 p-1.5 h-fit shadow-sm border-neutral-200 hover:bg-neutral-100 hover:border-neutral-300 hover:text-neutral-700 [&_svg]:size-3.5"
+                              disabled={loadingPdf && pdfId === row.original?.id}
+                              onClick={() => {
+                                setPdfId(row.original?.id as number);
+                                handlePdf?.(row.original?.id as number);
+                              }}
+                            >
+                              {loadingPdf && pdfId === row.original?.id ? <Loader2 className="animate-spin" /> : <Printer />}
+                            </Button>
+                          )}
                           <Button
                             variant={"outline"}
                             className="text-blue-600 bg-blue-50 p-1.5 h-fit shadow-sm border-blue-200 hover:bg-blue-100 hover:border-blue-300 hover:text-blue-700 [&_svg]:size-3.5"
@@ -127,7 +154,7 @@ export function TenderDataTable<TData extends { id?: number }>({
                                 setEditDialogOpen?.(true);
                                 setEditData?.(row.original);
                               } else if (editPath) {
-                                if(editPath.includes("?")) {
+                                if (editPath.includes("?")) {
                                   router.push(
                                     `${editPath}&id=${row.original?.id}`
                                   );
@@ -149,7 +176,11 @@ export function TenderDataTable<TData extends { id?: number }>({
                               isPending && deletingId === row.original?.id
                             }
                           >
-                            {isPending && deletingId === row.original?.id ? <Loader2  className="animate-spin" /> : <Trash />} 
+                            {isPending && deletingId === row.original?.id ? (
+                              <Loader2 className="animate-spin" />
+                            ) : (
+                              <Trash />
+                            )}
                           </Button>
                         </div>
                       ) : (

@@ -10,6 +10,18 @@ import { getBaseTenders } from "@/services/base-tender";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { BaseTenderForm } from "../forms/base-tender-form";
+import { PDFViewer } from "@react-pdf/renderer";
+import { TenderPDF } from "../pdf-preview/tender-pdf";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { getSingleStoneTender } from "@/services/single-stone";
+import { getRoughLotByBaseTenderId } from "@/services/rough-lot";
+import { getMixLotByBaseTenderId } from "@/services/mix-lot";
 
 export function BaseTendersPage({
   tenders,
@@ -20,7 +32,12 @@ export function BaseTendersPage({
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editData, setEditData] = useState<TenderColumns | null>(null);
+  const [pdfData, setPdfData] = useState<TenderColumns | null>(null);
+  const [tenderId, setTenderId] = useState<number | null>(null);
+
   const [page, setPage] = useState(1);
+
+  const [showPDFPreview, setShowPDFPreview] = useState(false);
 
   const queryKey = "tenders";
 
@@ -41,8 +58,58 @@ export function BaseTendersPage({
     setDialogOpen?.(true);
   };
 
+  const { data: singleStoneTender, isLoading: isSingleStoneLoading } = useQuery({
+    queryKey: ["single-stone-tender", tenderId],
+    queryFn: () => getSingleStoneTender(tenderId as number),
+    enabled: !!tenderId,
+  });
+
+  const { data: roughLotTender, isLoading: isRoughLotLoading } = useQuery({
+    queryKey: ["rough-lot-by-base-tender", tenderId],
+    queryFn: () => getRoughLotByBaseTenderId(tenderId as number),
+    enabled: !!tenderId,
+  });
+
+  const { data: mixLotTender, isLoading: isMixLotLoading } = useQuery({
+    queryKey: ["mix-lot-by-base-tender", tenderId],
+    queryFn: () => getMixLotByBaseTenderId(tenderId as number),
+    enabled: !!tenderId,
+  });
+
+  const handlePdf = (id: number) => {
+    setTenderId(id)
+    const tender = tendersResponse?.data?.find((i: TenderColumns) => i.id === id);
+    if (!tender) {
+      return;
+    }
+    setPdfData(tender);
+    setShowPDFPreview(true);
+  };
+
+  const isPdfDataLoading = isSingleStoneLoading || isRoughLotLoading || isMixLotLoading; 
+
   return (
     <PageWrapper>
+      {showPDFPreview && pdfData && !isPdfDataLoading  && (
+        <Dialog open={showPDFPreview} onOpenChange={setShowPDFPreview}>
+          <DialogContent className="min-w-[90dvw] h-[calc(100dvh-130px)]">
+            <DialogHeader className="h-fit">
+              <DialogTitle>Tender PDF Report</DialogTitle>
+              <DialogDescription>
+                {pdfData.stTenderName} | {pdfData.stPersonName}
+              </DialogDescription>
+            </DialogHeader>
+            <PDFViewer className="w-full h-[calc(100dvh-230px)]">
+              <TenderPDF
+                baseTender={pdfData}
+                singleTender={singleStoneTender?.data}
+                roughtLotTenders={roughLotTender?.data}
+                mixLotTenders={mixLotTender?.data}
+              />
+            </PDFViewer>
+          </DialogContent>
+        </Dialog>
+      )}
       <PageHeader
         title="Base Tenders"
         handleDialog={handleDialog}
@@ -64,6 +131,9 @@ export function BaseTendersPage({
         setEditDialogOpen={setDialogOpen}
         setEditData={setEditData}
         queryKey={queryKey}
+        isPdf={true}
+        handlePdf={handlePdf}
+        loadingPdf={isPdfDataLoading}
         deleteEndpoint="base-tender"
       />
       <Pagination

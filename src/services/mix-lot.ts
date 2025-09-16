@@ -21,6 +21,11 @@ export async function getMixLotById(id: number) {
   return response;
 }
 
+export async function getMixLotByBaseTenderId(baseTenderId: number) {
+  const response = await fetchData(`/tender/mix-lot/base-tender/${baseTenderId}`);
+  return response;
+}
+
 export async function deleteMixLot(id: number) {
   const response = await fetchDelete(`/tender/mix-lot/${id}`);
   return response;

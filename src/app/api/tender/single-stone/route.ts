@@ -480,6 +480,7 @@ export async function GET(req: Request) {
             dcResultPerCt: true,
             dcResultTotal: true,
             isWon: true,
+            margin: true,
           },
         },
       },
@@ -528,6 +529,7 @@ export async function GET(req: Request) {
         resultPerCarat: decimalToNumber(details.dcResultPerCt),
         resultTotal: decimalToNumber(details.dcResultTotal),
         isWon: details.isWon,
+        margin: decimalToNumber(details.margin),
       })) as SingleStoneTenderDetails[],
     };
 

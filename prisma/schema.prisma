@@ -105,6 +105,7 @@ model SingleTenderDetails {
   dcResultPerCt     Decimal?        @db.Decimal(10, 2)
   dcResultTotal     Decimal?        @db.Decimal(10, 2)
   isWon             Boolean         @default(false)
+  margin            Decimal?        @db.Decimal(10, 2)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 }
