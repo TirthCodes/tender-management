@@ -402,7 +402,7 @@ export function MixLotForm() {
     const response = await createMixLot(payload);
     if (response.success) {
       toast.success(response.message);
-      invalidateQuery("mix-lot-tenders")
+      invalidateQuery("mix-lot-tenders");
       if (mainLotId) {
         router.push(
           "/tenders/mix-lot?baseTenderId=" +
@@ -435,7 +435,9 @@ export function MixLotForm() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-semibold">Mix Lot Tender</h1>
-            <p className="text-neutral-500">{new Date(baseTender?.data?.dtVoucherDate).toDateString()}</p>
+            <p className="text-neutral-500">
+              {new Date(baseTender?.data?.dtVoucherDate).toDateString()}
+            </p>
           </div>
           <div className="flex items-center gap-2 text-sm text-neutral-700">
             <p className="pr-2 border-r-2">{baseTender?.data?.stTenderName}</p>
@@ -621,170 +623,172 @@ export function MixLotForm() {
         />
       </div>
 
-      <div
-        className={`p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10 ${
-          loadingMixLot ? "animate-pulse bg-neutral-100" : ""
-        }`}
-      >
-        <div className="grid grid-cols-4 gap-x-6 gap-y-3">
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Sale Price</Label>
-            <Input
-              type="number"
-              {...register("salePrice", { valueAsNumber: true })}
-              step={0.01}
-              className="w-full"
-            />
-          </div>
+      {!mainLotId && (
+        <div
+          className={`p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10 ${
+            loadingMixLot ? "animate-pulse bg-neutral-100" : ""
+          }`}
+        >
+          <div className="grid grid-cols-4 gap-x-6 gap-y-3">
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Sale Price</Label>
+              <Input
+                type="number"
+                {...register("salePrice", { valueAsNumber: true })}
+                step={0.01}
+                className="w-full"
+              />
+            </div>
 
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Bid Price</Label>
-            <Input
-              type="number"
-              step={0.01}
-              {...register("bidPrice", { valueAsNumber: true })}
-              readOnly
-              disabled
-              className="w-full"
-            />
-          </div>
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Result Total</Label>
-            <Input
-              type="number"
-              {...register("resultTotal", { valueAsNumber: true })}
-              step={0.01}
-              className={cn(
-                errors.resultTotal?.message &&
-                  "border border-red-500 placeholder:text-red-500"
-              )}
-              onChange={(e) => {
-                const value = e.target.value
-                  ? parseFloat(e.target.value)
-                  : undefined;
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Bid Price</Label>
+              <Input
+                type="number"
+                step={0.01}
+                {...register("bidPrice", { valueAsNumber: true })}
+                readOnly
+                disabled
+                className="w-full"
+              />
+            </div>
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Result Total</Label>
+              <Input
+                type="number"
+                {...register("resultTotal", { valueAsNumber: true })}
+                step={0.01}
+                className={cn(
+                  errors.resultTotal?.message &&
+                    "border border-red-500 placeholder:text-red-500"
+                )}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
 
-                if (value) {
-                  if (!isNaN(value)) {
-                    let resultPerCarat = 0;
-                    if (roughCts) {
-                      if (!isNaN(roughCts)) {
-                        resultPerCarat = parseFloat(
-                          (value / roughCts).toFixed(2)
-                        );
-                      }
-                    }
-
-                    if (!isNaN(resultPerCarat)) {
-                      setValue("resultPerCarat", resultPerCarat);
-                      const resultPercent = parseFloat(
-                        ((netPercent - 100) / 100).toFixed(2)
-                      );
-                      let resultCost = 0;
+                  if (value) {
+                    if (!isNaN(value)) {
+                      let resultPerCarat = 0;
                       if (roughCts) {
-                        resultCost = parseFloat(
-                          (
-                            (((resultPerCarat * resultPercent +
-                              resultPerCarat +
-                              labour) *
-                              totalValues.carats) /
-                              totalValues.polCts +
-                              230) /
-                            0.97
-                          ).toFixed(2)
-                        );
+                        if (!isNaN(roughCts)) {
+                          resultPerCarat = parseFloat(
+                            (value / roughCts).toFixed(2)
+                          );
+                        }
                       }
-                      if (!isNaN(resultCost)) {
-                        setValue("resultCost", resultCost);
+
+                      if (!isNaN(resultPerCarat)) {
+                        setValue("resultPerCarat", resultPerCarat);
+                        const resultPercent = parseFloat(
+                          ((netPercent - 100) / 100).toFixed(2)
+                        );
+                        let resultCost = 0;
+                        if (roughCts) {
+                          resultCost = parseFloat(
+                            (
+                              (((resultPerCarat * resultPercent +
+                                resultPerCarat +
+                                labour) *
+                                totalValues.carats) /
+                                totalValues.polCts +
+                                230) /
+                              0.97
+                            ).toFixed(2)
+                          );
+                        }
+                        if (!isNaN(resultCost)) {
+                          setValue("resultCost", resultCost);
+                        }
                       }
                     }
                   }
-                }
-              }}
-            />
-          </div>
-          <div className="flex w-full items-center justify-center gap-2">
-            <label className="font-semibold text-red-600">Loss</label>
-            <Switch
-              checked={watch("isWon") ? true : false}
-              onCheckedChange={(value) => {
-                setValue("isWon", value);
-              }}
-            />
-            <label className="font-semibold text-green-600">Win</label>
-          </div>
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Sale Amount</Label>
-            <Input
-              type="number"
-              {...register("saleAmount", { valueAsNumber: true })}
-              step={0.01}
-              className="w-full"
-            />
-          </div>
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Total Amount</Label>
-            <Input
-              type="number"
-              step={0.01}
-              {...register("totalAmount", { valueAsNumber: true })}
-              readOnly
-              disabled
-              className="w-full"
-            />
-          </div>
+                }}
+              />
+            </div>
+            <div className="flex w-full items-center justify-center gap-2">
+              <label className="font-semibold text-red-600">Loss</label>
+              <Switch
+                checked={watch("isWon") ? true : false}
+                onCheckedChange={(value) => {
+                  setValue("isWon", value);
+                }}
+              />
+              <label className="font-semibold text-green-600">Win</label>
+            </div>
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Sale Amount</Label>
+              <Input
+                type="number"
+                {...register("saleAmount", { valueAsNumber: true })}
+                step={0.01}
+                className="w-full"
+              />
+            </div>
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Total Amount</Label>
+              <Input
+                type="number"
+                step={0.01}
+                {...register("totalAmount", { valueAsNumber: true })}
+                readOnly
+                disabled
+                className="w-full"
+              />
+            </div>
 
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Result / Cts</Label>
-            <Input
-              type="number"
-              {...register("resultPerCarat", { valueAsNumber: true })}
-              step={0.01}
-              className={cn(
-                errors.resultPerCarat?.message &&
-                  "w-full border border-rexd-500 placeholder:text-red-500"
-              )}
-              onChange={(e) => {
-                const value = e.target.value
-                  ? parseFloat(e.target.value)
-                  : undefined;
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Result / Cts</Label>
+              <Input
+                type="number"
+                {...register("resultPerCarat", { valueAsNumber: true })}
+                step={0.01}
+                className={cn(
+                  errors.resultPerCarat?.message &&
+                    "w-full border border-rexd-500 placeholder:text-red-500"
+                )}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
 
-                const resultTotal = parseFloat(
-                  ((value ?? 0) * roughCts).toFixed(2)
-                );
-                setValue("resultTotal", resultTotal);
+                  const resultTotal = parseFloat(
+                    ((value ?? 0) * roughCts).toFixed(2)
+                  );
+                  setValue("resultTotal", resultTotal);
 
-                const resultPercent = parseFloat(
-                  ((netPercent - 100) / 100).toFixed(2)
-                );
+                  const resultPercent = parseFloat(
+                    ((netPercent - 100) / 100).toFixed(2)
+                  );
 
-                const resultCost = parseFloat(
-                  (
-                    ((((value ?? 0) * resultPercent + (value ?? 0) + labour) *
-                      totalValues.carats) /
-                      totalValues.polCts +
-                      230) /
-                    0.97
-                  ).toFixed(2)
-                );
-                setValue("resultCost", resultCost);
-              }}
-            />
-          </div>
-          <div />
-          <div />
-          <div />
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Result Cost</Label>
-            <Input
-              type="number"
-              step={0.01}
-              {...register("resultCost", { valueAsNumber: true })}
-              readOnly
-              disabled
-            />
+                  const resultCost = parseFloat(
+                    (
+                      ((((value ?? 0) * resultPercent + (value ?? 0) + labour) *
+                        totalValues.carats) /
+                        totalValues.polCts +
+                        230) /
+                      0.97
+                    ).toFixed(2)
+                  );
+                  setValue("resultCost", resultCost);
+                }}
+              />
+            </div>
+            <div />
+            <div />
+            <div />
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Result Cost</Label>
+              <Input
+                type="number"
+                step={0.01}
+                {...register("resultCost", { valueAsNumber: true })}
+                readOnly
+                disabled
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
       <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 items-center">
         <Button className="mt-4" type="button" onClick={() => router.back()}>
           Cancel
