@@ -187,7 +187,7 @@ model MainLot {
   id                Int               @id @default(autoincrement())
   stName            String
   stRemarks         String?           @db.Text
-  stLotNo           String            @unique
+  stLotNo           String
   stTenderType      String
   inPcs             Int               @default(0)
   inRemainingPcs    Int               @default(0)
@@ -199,6 +199,8 @@ model MainLot {
   tender            OtherTender[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
+  
+  @@unique([stLotNo, stTenderType])
 }
 
 model Color {
