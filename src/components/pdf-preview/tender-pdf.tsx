@@ -311,7 +311,7 @@ export function TenderPDF({
   );
 
   return (
-    <Document>
+    <Document title={`Tender Report - ${baseTender.stTenderName} | ${baseTender.stPersonName}`} author={baseTender.stPersonName} creator="Tender Management">
       <Page size="A4" style={styles.page} orientation="landscape">
         {/* Header Section */}
         <View style={styles.header}>
@@ -466,7 +466,7 @@ export function TenderPDF({
                         {detail.length} x {detail.width} x {detail.height}
                       </Text>
                       <Text style={[styles.tableCellCenter, styles.centerCell]}>
-                        D:{detail.depth} T:{detail.table} R:{detail.ratio}
+                        D: {detail.depth} T: {detail.table} R: {detail.ratio}
                       </Text>
                     </View>
 
