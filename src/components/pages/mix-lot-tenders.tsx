@@ -13,17 +13,37 @@ import {
   MixLotColumns,
 } from "@/app/(protected)/tenders/mix-lot/columns";
 import { MainLot } from "@/lib/types/tender";
+import { Input } from "../ui/input";
+import { Switch } from "../ui/switch";
 
 export function MixLotTendersPage({
   mixLotTenders,
   totalCount,
   mainLot,
+  totalValues,
 }: {
   mixLotTenders: MixLotColumns[];
   totalCount: number;
   mainLot: MainLot | null;
+  totalValues: {
+    pcs: number;
+    carats: number;
+    polCts: number;
+    salePrice: number;
+    saleAmount: number;
+    bidPrice: number;
+    bidAmount: number;
+    resultCost: number;
+    resultTotal: number;
+    resultPerCarat: number;
+  };
 }) {
   const [page, setPage] = useState(1);
+  const [resultTotal, setResultTotal] = useState<number | undefined>(0);
+  const [resultPerCarat, setResultPerCarat] = useState<number | undefined>(0);
+  const [resultCost, setResultCost] = useState<number | undefined>(
+    totalValues?.resultCost
+  );
 
   const searchParams = useSearchParams();
   const id = searchParams.get("baseTenderId") as string;
@@ -42,7 +62,6 @@ export function MixLotTendersPage({
       totalCount,
     },
   });
-  
 
   let createPath = ``;
   if (id) {
@@ -64,9 +83,9 @@ export function MixLotTendersPage({
 
   return (
     <PageWrapper>
-      <PageHeader 
-        title={title} 
-        createPath={createPath} 
+      <PageHeader
+        title={title}
+        createPath={createPath}
         mainLotInfo={
           <>
             {mainLot?.stLotNo && (
@@ -86,10 +105,7 @@ export function MixLotTendersPage({
                     <span className="text-red-800">
                       {mainLot.dcRemainingCts}
                     </span>{" "}
-                    /{" "}
-                    <span className="font-semibold">
-                      {mainLot.dcRemainingCts}
-                    </span>
+                    / <span className="font-semibold">{mainLot.dcCts}</span>
                   </p>
                 </div>
               </div>
@@ -110,6 +126,131 @@ export function MixLotTendersPage({
         nextPage={mixLotResponse?.nextPage}
         page={page}
       />
+      {mainLotId && (
+        <>
+          <div
+            className={`mt-2 flex items-center justify-around gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
+          >
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Pcs:</p>
+              <p className="font-semibold">{totalValues?.pcs}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Cts.:</p>
+              <p className="font-semibold">{totalValues?.carats}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Pol Cts.:</p>
+              <p className="font-semibold">{totalValues?.polCts}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Sale Price:</p>
+              <p className="font-semibold">{totalValues?.salePrice}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Sale Amount:</p>
+              <p className="font-semibold">{totalValues?.saleAmount}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Bid Price:</p>
+              <p className="font-semibold">{totalValues?.bidPrice}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap">Bid Amount:</p>
+              <p className="font-semibold">{totalValues?.bidAmount}</p>
+            </div>
+          </div>
+          <div
+            className={`mt-2 grid grid-cols-4 gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <p className="text-nowrap">Result Cost:</p>
+              <Input
+                type="number"
+                step={0.01}
+                value={resultCost}
+                disabled
+                className="py-1 h-10 px-2 w-44 font-semibold"
+              />
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <p className="text-nowrap">Result Total:</p>
+              <Input
+                type="number"
+                step={0.01}
+                value={resultTotal ?? 0}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+
+                  setResultTotal(value);
+                  const resultPerCarat = parseFloat(
+                    ((value ?? 0) * totalValues?.carats).toFixed(2)
+                  );
+
+                  setResultPerCarat(resultPerCarat);
+                  const resultCost = parseFloat(
+                    (
+                      (((resultPerCarat * 1.15 +
+                        resultPerCarat +
+                        50) *
+                        totalValues.carats) /
+                        totalValues.polCts +
+                        230) /
+                      0.97
+                    ).toFixed(2)
+                  );
+
+                  setResultCost(resultCost);
+                }}
+                className="py-1 h-10 px-2 w-44 font-semibold"
+              />
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <p className="text-nowrap">Result Per Carat:</p>
+              <Input
+                type="number"
+                step={0.01}
+                value={resultPerCarat ?? 0}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+                  setResultPerCarat(value);
+                  const resultTotal = parseFloat(
+                    ((value ?? 0) * totalValues?.carats).toFixed(2)
+                  );
+
+                  setResultTotal(resultTotal);
+                  const resultCost = parseFloat(
+                    (
+                      (((resultTotal * 1.15 + resultTotal + 50) *
+                        totalValues.carats) /
+                        totalValues.polCts +
+                        230) /
+                      0.97
+                    ).toFixed(2)
+                  );
+
+                  setResultCost(resultCost);
+                }}
+                className="py-1 h-10 px-2 w-44 font-semibold"
+              />
+            </div>
+            <div className="flex w-full items-center justify-center gap-2">
+              <label className="font-semibold text-red-600">Loss</label>
+              <Switch
+                // checked={watch("isWon") ? true : false}
+                // onCheckedChange={(value) => {
+                //   setValue("isWon", value);
+                // }}
+              />
+              <label className="font-semibold text-green-600">Win</label>
+            </div>
+          </div>
+        </>
+      )}
     </PageWrapper>
   );
 }
