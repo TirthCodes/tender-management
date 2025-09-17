@@ -116,7 +116,7 @@ export function MultiLotForm({
     >
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1 col-span-2">
-          <label className="text-sm font-medium">Tender Name</label>
+          <label className="text-sm font-medium">Main Lot Name</label>
           <Input {...register("stName")} required />
           {errors?.stName && (
             <p className="text-sm text-red-500">
@@ -125,14 +125,14 @@ export function MultiLotForm({
           )}
         </div>
         <div className="space-y-1 col-span-2">
-          <label className="text-sm font-medium">Lot No</label>
+          <label className="text-sm font-medium">Main Lot No</label>
           <Input {...register("stLotNo")} required />
           {errors?.stLotNo && (
             <p className="text-sm text-red-500">{errors.stLotNo?.message}</p>
           )}
         </div>
         <div className="space-y-1 col-span-2">
-          <label className="text-sm font-medium">Tender Remark</label>
+          <label className="text-sm font-medium">Lot Remark</label>
           <Input {...register("stRemarks")} required />
           {errors.stRemarks && (
             <p className="text-sm text-red-500">{errors?.stRemarks.message}</p>
@@ -158,7 +158,7 @@ export function MultiLotForm({
 
       <FormButtons
         isPending={isPending}
-        submitText={editData?.id ? "Update Tender" : "Create Tender"}
+        submitText={"Submit"}
       />
     </form>
   );
