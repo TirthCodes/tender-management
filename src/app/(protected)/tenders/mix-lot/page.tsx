@@ -12,7 +12,7 @@ export default async function Page({
 
   const whereCondition: {
     baseTenderId?: number;
-    mainLotId?: number;
+    mainLotId?: number | null;
     stTenderType: "mix-lot";
   } = {
     stTenderType: "mix-lot",
@@ -20,6 +20,7 @@ export default async function Page({
 
   if (baseTenderId) {
     whereCondition.baseTenderId = parseInt(baseTenderId);
+    whereCondition.mainLotId = null;
   }
 
   if (mainLotId) {

@@ -10,7 +10,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
 
   const whereCondition: {
     baseTenderId?: number;
-    mainLotId?: number;
+    mainLotId?: number | null;
     stTenderType: "rough-lot";
   } = {
     stTenderType: "rough-lot"
@@ -18,6 +18,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
 
   if(baseTenderId) {
     whereCondition.baseTenderId = parseInt(baseTenderId);
+    whereCondition.mainLotId = null;
   }
 
   if(mainLotId) {
