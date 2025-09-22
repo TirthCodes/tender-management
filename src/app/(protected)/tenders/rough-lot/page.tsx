@@ -1,11 +1,15 @@
-import { RoughLotTendersPage } from '@/components/pages/rough-lot-tenders'
-import { prisma } from '@/lib/prisma'
-import React from 'react'
+import { OtherBaseTender, RoughLotTendersPage } from "@/components/pages/rough-lot-tenders";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import React from "react";
 
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ baseTenderId?: string, mainLotId?: string }> }) {
-
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ baseTenderId?: string; mainLotId?: string }>;
+}) {
   const { baseTenderId, mainLotId } = await searchParams;
 
   const whereCondition: {
@@ -13,15 +17,36 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
     mainLotId?: number | null;
     stTenderType: "rough-lot";
   } = {
-    stTenderType: "rough-lot"
-  }
+    stTenderType: "rough-lot",
+  };
 
-  if(baseTenderId) {
+  let baseTenderData: OtherBaseTender = {
+    dtVoucherDate: new Date(),
+    stTenderName: "",
+    stPersonName: "",
+  };
+
+  if (baseTenderId) {
     whereCondition.baseTenderId = parseInt(baseTenderId);
     whereCondition.mainLotId = null;
+    const baseTender = await prisma.baseTender.findUnique({
+      select: {
+        dtVoucherDate: true,
+        stTenderName: true,
+        stPersonName: true,
+      },
+      where: {
+        id: Number(baseTenderId),
+      },
+    });
+
+    if (!baseTender) {
+      redirect("/tenders");
+    }
+    baseTenderData = baseTender;
   }
 
-  if(mainLotId) {
+  if (mainLotId) {
     whereCondition.mainLotId = parseInt(mainLotId);
   }
 
@@ -51,18 +76,18 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
       },
       orderBy: {
         createdAt: "desc",
-      }
+      },
     }),
     prisma.otherTender.count({
-      where: whereCondition
-    })
-  ])
+      where: whereCondition,
+    }),
+  ]);
 
-  let mainLotDetails = null 
-  if(mainLotId) {
+  let mainLotDetails = null;
+  if (mainLotId) {
     mainLotDetails = await prisma.mainLot.findUnique({
       where: {
-        id: parseInt(mainLotId)
+        id: parseInt(mainLotId),
       },
       select: {
         stLotNo: true,
@@ -72,29 +97,46 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
         dcRemainingCts: true,
         inRemainingPcs: true,
       },
-    })
+    });
   }
 
-  const roughLotData = roughLotTenders.map(({ dcCostPrice, dcCostAmount, dcRate, dcAmount, dcNetPercentage, dcLabour, dcLotSize, dcBidPrice, dcResultPerCt, dcResultTotal,dcRoughCts, dcTotalAmount, ...rest }) => ({  
-    ...rest,
-    dcCostPrice: dcCostPrice?.toNumber() ?? 0,
-    dcCostAmount: dcCostAmount?.toNumber() ?? 0,
-    dcRate: dcRate.toNumber(),
-    dcAmount: dcAmount.toNumber(),
-    dcNetPercentage: dcNetPercentage.toNumber(),
-    dcLabour: dcLabour.toNumber(),
-    dcLotSize: dcLotSize.toNumber(),
-    dcBidPrice: dcBidPrice.toNumber(),
-    dcResultPerCt: dcResultPerCt?.toNumber() ?? 0,
-    dcResultTotal: dcResultTotal?.toNumber() ?? 0,
-    dcRoughCts: dcRoughCts.toNumber(),
-    dcTotalAmount: dcTotalAmount?.toNumber() ?? 0,
-  }));
+  const roughLotData = roughLotTenders.map(
+    ({
+      dcCostPrice,
+      dcCostAmount,
+      dcRate,
+      dcAmount,
+      dcNetPercentage,
+      dcLabour,
+      dcLotSize,
+      dcBidPrice,
+      dcResultPerCt,
+      dcResultTotal,
+      dcRoughCts,
+      dcTotalAmount,
+      ...rest
+    }) => ({
+      ...rest,
+      dcCostPrice: dcCostPrice?.toNumber() ?? 0,
+      dcCostAmount: dcCostAmount?.toNumber() ?? 0,
+      dcRate: dcRate.toNumber(),
+      dcAmount: dcAmount.toNumber(),
+      dcNetPercentage: dcNetPercentage.toNumber(),
+      dcLabour: dcLabour.toNumber(),
+      dcLotSize: dcLotSize.toNumber(),
+      dcBidPrice: dcBidPrice.toNumber(),
+      dcResultPerCt: dcResultPerCt?.toNumber() ?? 0,
+      dcResultTotal: dcResultTotal?.toNumber() ?? 0,
+      dcRoughCts: dcRoughCts.toNumber(),
+      dcTotalAmount: dcTotalAmount?.toNumber() ?? 0,
+    })
+  );
 
   return (
-    <RoughLotTendersPage 
-      roughLotTenders={roughLotData} 
-      totalCount={totalCount} 
+    <RoughLotTendersPage
+      roughLotTenders={roughLotData}
+      totalCount={totalCount}
+      baseTender={baseTenderData}
       mainLot={{
         stLotNo: mainLotDetails?.stLotNo ?? "",
         stName: mainLotDetails?.stName ?? "",
@@ -104,5 +146,5 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ b
         dcRemainingCts: mainLotDetails?.dcRemainingCts.toNumber() ?? 0,
       }}
     />
-  )
+  );
 }

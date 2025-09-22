@@ -7,12 +7,24 @@ import { PageWrapper } from "../common/page-wrapper";
 import { PageHeader } from "../common/page-header";
 import { TenderDataTable } from "../ui/tender-data-table";
 import { Pagination } from "../common/pagination";
-import { columns, RoughMultiLotColumns } from "@/app/(protected)/tenders/multi-lot/rough/columns";
+import {
+  columns,
+  RoughMultiLotColumns,
+} from "@/app/(protected)/tenders/multi-lot/rough/columns";
 import { FormDialog } from "../common/form-dialog";
 import { MultiLotForm } from "../forms/multi-lot-form";
 import { getMultiLotTenders } from "@/services/multi-lot";
+import { OtherBaseTender } from "./rough-lot-tenders";
 
-export function RoughMultiLotTendersPage({ tenders, totalCount }: { tenders: RoughMultiLotColumns[], totalCount: number }) {
+export function RoughMultiLotTendersPage({
+  tenders,
+  totalCount,
+  baseTender,
+}: {
+  tenders: RoughMultiLotColumns[];
+  totalCount: number;
+  baseTender: OtherBaseTender;
+}) {
   const [page, setPage] = useState(1);
 
   const searchParams = useSearchParams();
@@ -46,6 +58,14 @@ export function RoughMultiLotTendersPage({ tenders, totalCount }: { tenders: Rou
         title="Rough Multi Lot Tenders (Main Lot)"
         handleDialog={handleDialog}
       />
+      <div className="flex items-center gap-2 text-neutral-700">
+        <p className="pr-2 border-r-2">
+          {baseTender.dtVoucherDate.toDateString()}
+        </p>
+        <p className="pr-2 border-r-2">{baseTender.stTenderName}</p>
+        <p>{baseTender.stPersonName}</p>
+      </div>
+
       <FormDialog
         open={dialogOpen}
         setOpen={setDialogOpen}
@@ -53,7 +73,11 @@ export function RoughMultiLotTendersPage({ tenders, totalCount }: { tenders: Rou
         title={editData ? editData.stName : "Main Lot"}
         widthClass="md:max-w-[35dvw] md:w-[35dvw]"
       >
-        <MultiLotForm editData={editData} setDialogOpen={setDialogOpen} tenderType="rough" />
+        <MultiLotForm
+          editData={editData}
+          setDialogOpen={setDialogOpen}
+          tenderType="rough"
+        />
       </FormDialog>
       <TenderDataTable
         columns={columns}
@@ -64,7 +88,11 @@ export function RoughMultiLotTendersPage({ tenders, totalCount }: { tenders: Rou
         queryKey={queryKey}
         deleteEndpoint="multi-lot-tender"
       />
-      <Pagination setPage={setPage} nextPage={multiLotResponse?.nextPage} page={page} />
+      <Pagination
+        setPage={setPage}
+        nextPage={multiLotResponse?.nextPage}
+        page={page}
+      />
     </PageWrapper>
   );
 }

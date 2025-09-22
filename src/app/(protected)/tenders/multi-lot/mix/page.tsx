@@ -1,10 +1,31 @@
-import { MixMultiLotTendersPage } from '@/components/pages/mix-multi-lot-tenders';
-import { prisma } from '@/lib/prisma';
-import React, { Suspense } from 'react'
+import { MixMultiLotTendersPage } from "@/components/pages/mix-multi-lot-tenders";
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import React, { Suspense } from "react";
 
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ baseTenderId: string }>;
+}) {
+  const { baseTenderId } = await searchParams;
+
+  const baseTender = await prisma.baseTender.findUnique({
+    select: {
+      dtVoucherDate: true,
+      stTenderName: true,
+      stPersonName: true,
+    },
+    where: {
+      id: parseInt(baseTenderId),
+    },
+  });
+
+  if (!baseTender) {
+    redirect("/tenders");
+  }
 
   const [tenders, totalCount] = await Promise.all([
     prisma.mainLot.findMany({
@@ -20,17 +41,23 @@ export default async function Page() {
         stTenderType: true,
       },
       where: {
-        stTenderType: 'mix',
+        baseTenderId: parseInt(baseTenderId),
+        stTenderType: "mix",
       },
       orderBy: {
         createdAt: "desc",
       },
       take: 10,
     }),
-    prisma.mainLot.count(),
+    prisma.mainLot.count({
+      where: {
+        baseTenderId: parseInt(baseTenderId),
+        stTenderType: "mix",
+      },
+    }),
   ]);
 
-  const tendersData = tenders.map(({ dcCts, dcRemainingCts, ...rest }) => ({  
+  const tendersData = tenders.map(({ dcCts, dcRemainingCts, ...rest }) => ({
     ...rest,
     dcCts: dcCts.toNumber(),
     dcRemainingCts: dcRemainingCts.toNumber(),
@@ -38,7 +65,11 @@ export default async function Page() {
 
   return (
     <Suspense>
-      <MixMultiLotTendersPage tenders={tendersData} totalCount={totalCount} />
+      <MixMultiLotTendersPage
+        tenders={tendersData}
+        totalCount={totalCount}
+        baseTender={baseTender}
+      />
     </Suspense>
-  )
+  );
 }

@@ -79,6 +79,12 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
       },
     });
 
+    await prisma.mainLot.deleteMany({
+      where: {
+        baseTenderId: intId,
+      },
+    });
+
     await prisma.baseTender.delete({
       where: {
         id: intId,
