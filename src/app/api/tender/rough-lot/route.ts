@@ -84,6 +84,7 @@ export async function POST(req: Request) {
       // Then handle the tender details
       if (parsedTenderDetails && parsedTenderDetails.length > 0) {
         // Process each detail in the array
+        const newDetailsId: number[] = [];
         for (const detail of parsedTenderDetails) {
           if (detail.id) {
             // Update existing detail
@@ -112,7 +113,7 @@ export async function POST(req: Request) {
             });
           } else {
             // Create new detail for this tender
-            await prisma.otherTenderDetails.create({
+            const newDetail = await prisma.otherTenderDetails.create({
               data: {
                 otherTenderId: id,
                 inRoughPcs: detail.inRoughPcs ?? 0,
@@ -135,6 +136,10 @@ export async function POST(req: Request) {
                 dcCostAmount: detail.dcCostAmount,
               },
             });
+
+            if(newDetail.id) {
+              newDetailsId.push(newDetail.id);
+            }
           }
         }
 
@@ -147,9 +152,15 @@ export async function POST(req: Request) {
 
         // Find IDs that exist in the database but not in the incoming details
         const existingIds = existingDetails.map((d) => d.id);
-        const incomingIds = parsedTenderDetails
+
+        const idsFromPayload = parsedTenderDetails
           .filter((d) => d.id)
           .map((d) => d.id as number);
+
+        const incomingIds = [
+          ...idsFromPayload,
+          ...newDetailsId,
+        ];
 
         const detailsToDelete = existingIds.filter(
           (id) => !incomingIds.includes(id)

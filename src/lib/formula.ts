@@ -83,7 +83,6 @@ export const calculateResultCost = (
   netPercent: number
 ) => {
   const resultPercent = parseFloat(((netPercent - 100) / 100).toFixed(2));
-  console.log(netPercent, "netPercernt");
   if (resultPerCarat) {
     const resultCost = parseFloat(
       (

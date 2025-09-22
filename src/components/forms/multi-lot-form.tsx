@@ -130,8 +130,6 @@ export function MultiLotForm({
     }
   };
 
-  console.log(editData ,"editData");
-
   const inPcs = watch("inPcs");
   const dcCts = watch("dcCts");
 

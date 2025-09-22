@@ -26,6 +26,13 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     fontSize: 11,
   },
+  keepTogether: {
+    breakInside: "avoid",
+    minHeight: 100,
+  },
+  breakBefore: {
+    breakBefore: "page",
+  },
   table: {
     width: "100%",
     borderStyle: "solid",
@@ -311,7 +318,11 @@ export function TenderPDF({
   );
 
   return (
-    <Document title={`Tender Report - ${baseTender.stTenderName} | ${baseTender.stPersonName}`} author={baseTender.stPersonName} creator="Tender Management">
+    <Document
+      title={`Tender Report - ${baseTender.stTenderName} | ${baseTender.stPersonName}`}
+      author={baseTender.stPersonName}
+      creator="Tender Management"
+    >
       <Page size="A4" style={styles.page} orientation="landscape">
         {/* Header Section */}
         <View style={styles.header}>
@@ -342,14 +353,14 @@ export function TenderPDF({
                   padding: 4,
                 }}
               >
-                <Text style={{ fontSize: 11, fontWeight: "bold" }}>
-                  Single Stone Tender
-                </Text>
                 <View
                   style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
                 >
                   <Text style={{ fontSize: 11 }}>{singleTender?.stRemark}</Text>
                 </View>
+                <Text style={{ fontSize: 11, fontWeight: "bold" }}>
+                  Single Stone Tender
+                </Text>
               </View>
               <View style={styles.table}>
                 {/* Table Header */}
@@ -454,19 +465,16 @@ export function TenderPDF({
 
                     {/* Measurement - Multi-line */}
                     <View
-                      style={[styles.tableCol, styles.singleColMeasurement]}
+                      style={[
+                        styles.tableCol,
+                        styles.singleColMeasurement,
+                      ]}
                     >
-                      <Text
-                        style={[
-                          styles.tableCellCenter,
-                          styles.cellBorderBottom,
-                          styles.centerCell,
-                        ]}
-                      >
-                        {detail.length} x {detail.width} x {detail.height}
+                      <Text style={[styles.tableCellCenter, styles.cellBorderBottom, styles.centerCell]}>
+                        D: {detail.depth} T: {detail.table} R: {detail.ratio}
                       </Text>
                       <Text style={[styles.tableCellCenter, styles.centerCell]}>
-                        D: {detail.depth} T: {detail.table} R: {detail.ratio}
+                        {detail.length} x {detail.width} x {detail.height}
                       </Text>
                     </View>
 
@@ -561,43 +569,42 @@ export function TenderPDF({
                         },
                       ]}
                     >
+                      <Text
+                        style={[
+                          styles.rightCell,
+                          { width: "50%", paddingRight: 2 },
+                        ]}
+                      >
+                        {detail.resultCost.toFixed(2)}
+                      </Text>
                       <View
                         style={{
-                          borderRight: 0.5,
-                          borderRightColor: "#444",
-                          borderRightStyle: "solid",
+                          borderLeft: 0.5,
+                          borderLeftColor: "#444",
+                          borderLeftStyle: "solid",
                           width: "50%",
                         }}
                       >
                         <Text
                           style={[
                             styles.tableCellCenter,
+                            styles.rightCell,
                             styles.cellBorderBottom,
-                            styles.rightCell,
-                            { paddingTop: 2 },
-                          ]}
-                        >
-                          {detail.resultCost.toFixed(2)}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.tableCellCenter,
-                            { paddingBottom: 2 },
-                            styles.rightCell,
+                            { paddingTop: 2, paddingRight: 2 },
                           ]}
                         >
                           {detail.resultPerCarat.toFixed(2)}
                         </Text>
+                        <Text
+                          style={[
+                            styles.fontBold,
+                            styles.rightCell,
+                            { paddingBottom: 2, paddingRight: 2 },
+                          ]}
+                        >
+                          {detail.resultTotal.toFixed(2)}
+                        </Text>
                       </View>
-                      <Text
-                        style={[
-                          styles.fontBold,
-                          styles.rightCell,
-                          { width: "50%", paddingRight: 2 },
-                        ]}
-                      >
-                        {detail.resultTotal.toFixed(2)}
-                      </Text>
                     </View>
 
                     {/* Description */}
@@ -753,43 +760,42 @@ export function TenderPDF({
                       },
                     ]}
                   >
+                    <Text
+                      style={[
+                        styles.rightCell,
+                        { width: "50%", paddingRight: 2 },
+                      ]}
+                    >
+                      {singleTotalValues?.resultCost?.toFixed(2)}
+                    </Text>
                     <View
                       style={{
-                        borderRight: 0.5,
-                        borderRightColor: "#444",
-                        borderRightStyle: "solid",
+                        borderLeft: 0.5,
+                        borderLeftColor: "#444",
+                        borderLeftStyle: "solid",
                         width: "50%",
                       }}
                     >
                       <Text
                         style={[
                           styles.tableCellCenter,
+                          styles.rightCell,
                           styles.cellBorderBottom,
-                          styles.rightCell,
-                          { paddingTop: 2 },
-                        ]}
-                      >
-                        {singleTotalValues?.resultCost?.toFixed(2)}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.tableCellCenter,
-                          { paddingBottom: 2 },
-                          styles.rightCell,
+                          { paddingTop: 2, paddingRight: 2 },
                         ]}
                       >
                         {singleTotalValues?.resultPerCarat?.toFixed(2)}
                       </Text>
+                      <Text
+                        style={[
+                          styles.fontBold,
+                          styles.rightCell,
+                          { paddingBottom: 2, paddingRight: 2 },
+                        ]}
+                      >
+                        {singleTotalValues?.resultTotal?.toFixed(2)}
+                      </Text>
                     </View>
-                    <Text
-                      style={[
-                        styles.fontBold,
-                        styles.rightCell,
-                        { width: "50%", paddingRight: 2 },
-                      ]}
-                    >
-                      {singleTotalValues?.resultTotal?.toFixed(2)}
-                    </Text>
                   </View>
 
                   {/* Description */}
@@ -835,9 +841,6 @@ export function TenderPDF({
                       marginTop: 10,
                     }}
                   >
-                    <Text style={{ fontSize: 11, fontWeight: "bold" }}>
-                      Rough Lot Tender {idx + 1}
-                    </Text>
                     <View
                       style={{
                         flexDirection: "row",
@@ -858,6 +861,9 @@ export function TenderPDF({
                         {lot.inRoughPcs} pcs
                       </Text>
                     </View>
+                    <Text style={{ fontSize: 11, fontWeight: "bold" }}>
+                      Rough Lot Tender {idx + 1}
+                    </Text>
                   </View>
                   <View style={styles.table}>
                     <View style={styles.tableHeader}>
@@ -1153,7 +1159,7 @@ export function TenderPDF({
 
         {/* Mix Lot Tender */}
         {mixLotTenders?.length > 0 && (
-          <View break>
+          <View style={styles.keepTogether}>
             {mixLotTenders?.map((lot, idx) => {
               const mixTotalValues = lot.otherTenderDetails.reduce(
                 (acc, curr) => {
@@ -1181,9 +1187,6 @@ export function TenderPDF({
                       marginTop: 10,
                     }}
                   >
-                    <Text style={{ fontSize: 11, fontWeight: "bold" }}>
-                      Mix Lot Tender {idx + 1}
-                    </Text>
                     <View
                       style={{
                         flexDirection: "row",
@@ -1204,6 +1207,9 @@ export function TenderPDF({
                         {lot.inRoughPcs} pcs
                       </Text>
                     </View>
+                    <Text style={{ fontSize: 11, fontWeight: "bold" }}>
+                      Mix Lot Tender {idx + 1}
+                    </Text>
                   </View>
                   <View style={styles.table}>
                     <View style={styles.tableHeader}>

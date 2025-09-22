@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       saleAmount,
       resultCost,
       isWon,
-    } = await req.json() as MixLotPaylod;
+    } = (await req.json()) as MixLotPaylod;
 
     if (!baseTenderId || !roughPcs || !roughCts || !labour || !netPercent) {
       return Response.json(
@@ -50,9 +50,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const parsedTenderDetails: Array<MixLotTenderDetails> = 
-      typeof tenderDetails === 'string' 
-        ? JSON.parse(tenderDetails) 
+    const parsedTenderDetails: Array<MixLotTenderDetails> =
+      typeof tenderDetails === "string"
+        ? JSON.parse(tenderDetails)
         : tenderDetails;
 
     if (id) {
@@ -82,10 +82,37 @@ export async function POST(req: Request) {
           isWon,
         },
       });
-      
+
+      if (mainLotId) {
+        const mainLot = await prisma.mainLot.findUnique({
+          where: {
+            id: mainLotId,
+          },
+          select: {
+            dcRemainingCts: true,
+            inRemainingPcs: true,
+          },
+        });
+
+        await prisma.mainLot.update({
+          where: {
+            id: mainLotId,
+          },
+          data: {
+            dcRemainingCts: mainLot?.dcRemainingCts
+              ? mainLot?.dcRemainingCts.toNumber() - roughCts
+              : 0,
+            inRemainingPcs: mainLot?.inRemainingPcs
+              ? mainLot?.inRemainingPcs - roughPcs
+              : 0,
+          },
+        });
+      }
+
       // Then handle the tender details
       if (parsedTenderDetails && parsedTenderDetails.length > 0) {
         // Process each detail in the array
+        const newDetailsId: number[] = [];
         for (const detail of parsedTenderDetails) {
           if (detail.id) {
             // Update existing detail
@@ -107,11 +134,11 @@ export async function POST(req: Request) {
                 // dcRatio: detail.dcRatio,
                 dcSalePrice: detail.dcSalePrice,
                 dcSaleAmount: detail.dcSaleAmount,
-              }
+              },
             });
           } else {
             // Create new detail for this tender
-            await prisma.otherTenderDetails.create({
+            const newDetail = await prisma.otherTenderDetails.create({
               data: {
                 otherTenderId: id,
                 inRoughPcs: detail.inRoughPcs ?? 0,
@@ -129,38 +156,52 @@ export async function POST(req: Request) {
                 dcRatio: 0,
                 dcSalePrice: detail.dcSalePrice,
                 dcSaleAmount: detail.dcSaleAmount,
-              }
+              },
+              select: {
+                id: true,
+              },
             });
+            if(newDetail.id) {
+              newDetailsId.push(newDetail.id);
+            }
           }
         }
-        
+
         // Optional: Handle deletion of details that are no longer in the array
         // First get all existing detail IDs for this tender
         const existingDetails = await prisma.otherTenderDetails.findMany({
           where: { otherTenderId: id },
-          select: { id: true }
+          select: { id: true },
         });
-        
+
         // Find IDs that exist in the database but not in the incoming details
-        const existingIds = existingDetails.map(d => d.id);
-        const incomingIds = parsedTenderDetails
-          .filter(d => d.id)
-          .map(d => d.id as number);
-        
-        const detailsToDelete = existingIds.filter(id => !incomingIds.includes(id));
-        
+        const existingIds = existingDetails.map((d) => d.id);
+
+        const idsFromPayload = parsedTenderDetails
+          .filter((d) => d.id)
+          .map((d) => d.id as number);
+
+        const incomingIds = [
+          ...idsFromPayload,
+          ...newDetailsId,
+        ];
+
+        const detailsToDelete = existingIds.filter(
+          (id) => !incomingIds.includes(id)
+        );
+
         // Delete details that are no longer needed
         if (detailsToDelete.length > 0) {
           await prisma.otherTenderDetails.deleteMany({
             where: {
               id: {
-                in: detailsToDelete
-              }
-            }
+                in: detailsToDelete,
+              },
+            },
           });
         }
       }
-      
+
       return Response.json(
         {
           success: true,
@@ -211,32 +252,36 @@ export async function POST(req: Request) {
               dcRatio: 0,
               dcSalePrice: detail.dcSalePrice ?? 0,
               dcSaleAmount: detail.dcSaleAmount ?? 0,
-            }))
-          }
-        }
+            })),
+          },
+        },
       },
     });
 
-    if(mainLotId) {
+    if (mainLotId) {
       const mainLot = await prisma.mainLot.findUnique({
         where: {
-          id: mainLotId
+          id: mainLotId,
         },
         select: {
           dcRemainingCts: true,
           inRemainingPcs: true,
-        }
-      })
+        },
+      });
 
       await prisma.mainLot.update({
         where: {
-          id: mainLotId
+          id: mainLotId,
         },
         data: {
-          dcRemainingCts: mainLot?.dcRemainingCts ? (mainLot?.dcRemainingCts.toNumber() - roughCts) : 0,
-          inRemainingPcs: mainLot?.inRemainingPcs ? (mainLot?.inRemainingPcs - roughPcs) : 0,
-        }
-      })
+          dcRemainingCts: mainLot?.dcRemainingCts
+            ? mainLot?.dcRemainingCts.toNumber() - roughCts
+            : 0,
+          inRemainingPcs: mainLot?.inRemainingPcs
+            ? mainLot?.inRemainingPcs - roughPcs
+            : 0,
+        },
+      });
     }
 
     return Response.json(
@@ -278,8 +323,8 @@ export async function GET(req: Request) {
   const page = url.searchParams.get("page");
   const baseTenderId = url.searchParams.get("baseTenderId") as string;
   const mainLotId = url.searchParams.get("mainLotId") as string;
-  
-  if(!baseTenderId) {
+
+  if (!baseTenderId) {
     return Response.json(
       {
         success: false,
@@ -300,9 +345,9 @@ export async function GET(req: Request) {
   } = {
     baseTenderId: parseInt(baseTenderId),
     stTenderType: "mix-lot",
-  }
+  };
 
-  if(mainLotId) {
+  if (mainLotId) {
     whereCondition.mainLotId = parseInt(mainLotId);
   }
 
@@ -331,11 +376,11 @@ export async function GET(req: Request) {
       },
       orderBy: {
         createdAt: "desc",
-      }
-    })
+      },
+    });
 
     const totalCount = await prisma.otherTender.count({
-      where: whereCondition
+      where: whereCondition,
     });
 
     const hasNextPage = limit * pageNumber < totalCount;
