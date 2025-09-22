@@ -380,11 +380,7 @@ export function RoughLotDetails({
 
                           const polPercent = parseFloat(
                             (
-                              parseFloat(
-                                ((value ?? 0) / (row.dcRoughCts ?? 0)).toFixed(
-                                  2
-                                )
-                              ) * 100
+                              ((value ?? 0) / (row.dcRoughCts ?? 0)) * 100
                             ).toFixed(2)
                           );
 
@@ -394,7 +390,7 @@ export function RoughLotDetails({
                             (
                               (row.dcSalePrice ?? 0) *
                                 (polPercent
-                                  ? parseFloat((polPercent / 100).toFixed(2))
+                                  ? (polPercent / 100)
                                   : 0) -
                               (row.dcLabour ?? 0)
                             ).toFixed(2)
@@ -534,7 +530,7 @@ export function RoughLotDetails({
                             (
                               (value ?? 0) *
                                 (row.dcPolPer
-                                  ? parseFloat((row.dcPolPer / 100).toFixed(2))
+                                  ? (row.dcPolPer / 100)
                                   : 0) -
                               (row.dcLabour ?? 0)
                             ).toFixed(2)
@@ -612,7 +608,7 @@ export function RoughLotDetails({
                             (
                               (row.dcSalePrice ?? 0) *
                                 (row.dcPolPer
-                                  ? parseFloat((row.dcPolPer / 100).toFixed(2))
+                                  ? (row.dcPolPer / 100)
                                   : 0) -
                               (value ?? 0)
                             ).toFixed(2)

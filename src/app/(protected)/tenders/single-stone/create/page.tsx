@@ -14,57 +14,19 @@ export default async function CreateTenderPage({ searchParams }: { searchParams:
   const { tenderId } = await searchParams;
   const intId = parseInt(tenderId);
 
-  const [colors, clarities, fluorescence, shapes, baseTender] = await Promise.all([
-    prisma.color.findMany({
-      select: {
-        id: true,
-        stShortName: true,
-      },
-      orderBy: {
-        inSerial: "asc",
-      },
-    }),
-    prisma.clarity.findMany({
-      select: {
-        id: true,
-        stShortName: true,
-      },
-      orderBy: {
-        inSerial: "asc",
-      },
-    }),
-    prisma.fluorescence.findMany({
-      select: {
-        id: true,
-        stShortName: true,
-      },
-      orderBy: {
-        inSerial: "asc",
-      },
-    }),
-    prisma.shape.findMany({
-      select: {
-        id: true,
-        stShortName: true,
-      },
-      orderBy: {
-        inSerial: "asc",
-      },
-    }),
-    prisma.baseTender.findUnique({
-      select: {
-        dtVoucherDate: true,
-        stTenderName: true,
-        stPersonName: true,
-        dcNetPercentage: true,
-        dcLabour: true,
-        id: true,
-      },
-      where: {
-        id: intId,
-      },
-    }),
-  ]);
+  const baseTender = await prisma.baseTender.findUnique({
+    select: {
+      dtVoucherDate: true,
+      stTenderName: true,
+      stPersonName: true,
+      dcNetPercentage: true,
+      dcLabour: true,
+      id: true,
+    },
+    where: {
+      id: intId,
+    },
+  })
 
   if(!baseTender) {
     redirect("/tenders")
@@ -78,10 +40,6 @@ export default async function CreateTenderPage({ searchParams }: { searchParams:
 
   return (
     <CreateSingleStoneTenderForm
-      colorOptions={colors}
-      clarityOptions={clarities}
-      fluorescenceOptions={fluorescence}
-      shapeOptions={shapes}
       baseTenderData={baseTenderData}
     />
   );

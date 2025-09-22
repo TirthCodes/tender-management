@@ -679,7 +679,7 @@ export function RoughLotForm() {
                   : undefined;
 
                 const resultPerCarat = parseFloat(
-                  ((value ?? 0) * roughCts).toFixed(2)
+                  ((value ?? 0) / roughCts).toFixed(2)
                 );
 
                 setValue("resultPerCarat", resultPerCarat);

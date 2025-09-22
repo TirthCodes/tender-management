@@ -8,6 +8,9 @@ export type MultiLotTender = {
   stRemarks?: string;
   inPcs: number;
   dcCts: number;
+  baseTenderId: number;
+  inRemainingPcs: number;
+  dcRemainingCts: number;
   stTenderType: string;
 };
 
@@ -27,7 +30,7 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as MultiLotTender;
 
-    const { id, stLotNo, stName, stRemarks, inPcs, dcCts, stTenderType } =
+    const { id, stLotNo, stName, stRemarks, inPcs, inRemainingPcs, dcRemainingCts,dcCts, stTenderType, baseTenderId } =
       body;
 
     if (id) {
@@ -41,6 +44,9 @@ export async function POST(req: Request) {
           inPcs,
           dcCts,
           stTenderType,
+          inRemainingPcs: inRemainingPcs,
+          dcRemainingCts: dcRemainingCts,
+          baseTenderId: Number(baseTenderId),
         },
       });
     }else{
@@ -56,6 +62,7 @@ export async function POST(req: Request) {
           dcRate: 0,
           dcAmount: 0,
           stTenderType,
+          baseTenderId: Number(baseTenderId),
         }
       });
     }

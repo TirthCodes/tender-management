@@ -15,13 +15,9 @@ import {
 import { MainLot } from "@/lib/types/tender";
 import { Input } from "../ui/input";
 import { Switch } from "../ui/switch";
+import { OtherBaseTender } from "./rough-lot-tenders";
 
-export function MixLotTendersPage({
-  mixLotTenders,
-  totalCount,
-  mainLot,
-  totalValues,
-}: {
+interface MixLotTendersPageProps {
   mixLotTenders: MixLotColumns[];
   totalCount: number;
   mainLot: MainLot | null;
@@ -37,7 +33,16 @@ export function MixLotTendersPage({
     resultTotal: number;
     resultPerCarat: number;
   };
-}) {
+  baseTender: OtherBaseTender;
+}
+
+export function MixLotTendersPage({
+  mixLotTenders,
+  totalCount,
+  mainLot,
+  totalValues,
+  baseTender
+}: MixLotTendersPageProps) {
   const [page, setPage] = useState(1);
   const [resultTotal, setResultTotal] = useState<number | undefined>(0);
   const [resultPerCarat, setResultPerCarat] = useState<number | undefined>(0);
@@ -113,6 +118,13 @@ export function MixLotTendersPage({
           </>
         }
       />
+      <div className="flex items-center gap-2 text-neutral-700">
+        <p className="pr-2 border-r-2">
+          {baseTender.dtVoucherDate.toDateString()}
+        </p>
+        <p className="pr-2 border-r-2">{baseTender.stTenderName}</p>
+        <p>{baseTender.stPersonName}</p>
+      </div>
       <TenderDataTable
         columns={columns}
         data={mixLotResponse?.data || []}

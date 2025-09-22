@@ -12,6 +12,7 @@ import { invalidateQuery } from "@/lib/invalidate";
 import { RoughMultiLotColumns } from "@/app/(protected)/tenders/multi-lot/rough/columns";
 import { createMultiLotTender } from "@/services/multi-lot";
 import { MixMultiLotColumns } from "@/app/(protected)/tenders/multi-lot/mix/columns";
+import { useSearchParams } from "next/navigation";
 
 const multiLotFormSchema = z.object({
   stName: z.string().min(1, "Name is required"),
@@ -24,6 +25,14 @@ const multiLotFormSchema = z.object({
   dcCts: z.preprocess(
     (val) => Number(val),
     z.number().min(0, "Carats is required")
+  ),
+  inRemainingPcs: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, "Remaining Pcs is required")
+  ),
+  dcRemainingCts: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, "Remaining Carats is required")
   ),
 });
 
@@ -40,11 +49,16 @@ export function MultiLotForm({
   setDialogOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   tenderType: string;
 }) {
+  const searchParams = useSearchParams();
+  const baseTenderId = searchParams.get("baseTenderId") as string;
+
   const {
     handleSubmit,
     register,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm({
     resolver: zodResolver(multiLotFormSchema),
     defaultValues: editData
@@ -58,6 +72,8 @@ export function MultiLotForm({
           stLotNo: "",
           inPcs: 0,
           dcCts: 0,
+          inRemainingPcs: 0,
+          dcRemainingCts: 0,
         },
   });
 
@@ -85,7 +101,7 @@ export function MultiLotForm({
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
     }
-  
+
     // Submit on Shift+Enter
     if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
@@ -95,10 +111,16 @@ export function MultiLotForm({
 
   const onSubmit = async (data: TenderFormSchema) => {
     try {
+      const tenderId = parseInt(baseTenderId);
       if (editData?.id) {
-        mutate({ ...data, stTenderType: tenderType, id: editData.id });
+        mutate({
+          ...data,
+          stTenderType: tenderType,
+          id: editData.id,
+          baseTenderId: tenderId,
+        });
       } else {
-        mutate({ ...data, stTenderType: tenderType });
+        mutate({ ...data, stTenderType: tenderType, baseTenderId: tenderId });
       }
     } catch (error) {
       console.error(
@@ -107,6 +129,11 @@ export function MultiLotForm({
       );
     }
   };
+
+  console.log(editData ,"editData");
+
+  const inPcs = watch("inPcs");
+  const dcCts = watch("dcCts");
 
   return (
     <form
@@ -154,12 +181,53 @@ export function MultiLotForm({
             <p className="text-sm text-red-500">{errors?.dcCts.message}</p>
           )}
         </div>
+        {editData?.id && (
+          <>
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Remaining Pcs</label>
+              <Input
+                type="number"
+                {...(register("inRemainingPcs"))}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    const remainingPcs = Number(e.target.value);
+                    setValue("inRemainingPcs", remainingPcs > inPcs ? inPcs : remainingPcs);
+                  }
+                }}
+                required
+              />
+              {errors.inRemainingPcs && (
+                <p className="text-sm text-red-500">
+                  {errors?.inRemainingPcs.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Remaining Carats</label>
+              <Input
+                type="number"
+                step="0.01"
+                {...(register("dcRemainingCts"))}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    const remainingCts = parseFloat(e.target.value);
+                    setValue("dcRemainingCts", remainingCts > dcCts ? dcCts : remainingCts);
+                  }
+                }}
+                required
+              />
+              {errors.dcRemainingCts && (
+                <p className="text-sm text-red-500">
+                  {errors?.dcRemainingCts.message}
+                </p>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
-      <FormButtons
-        isPending={isPending}
-        submitText={"Submit"}
-      />
+      <FormButtons isPending={isPending} submitText={"Submit"} />
     </form>
   );
 }

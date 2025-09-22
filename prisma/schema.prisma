@@ -46,6 +46,7 @@ model BaseTender {
   dcLabour             Decimal                @db.Decimal(10, 2)
   otherTender          OtherTender[]
   singleTender         SingleTender[]
+  mainLot              MainLot[]
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
 }
@@ -207,6 +208,8 @@ model MainLot {
   isWon             Boolean?          @default(false)
   margin            Decimal?          @db.Decimal(10, 2)
   tender            OtherTender[]
+  baseTender        BaseTender        @relation(fields: [baseTenderId], references: [id])
+  baseTenderId      Int
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   

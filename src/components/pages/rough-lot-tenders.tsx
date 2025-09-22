@@ -14,14 +14,22 @@ import {
 import { getRoughLots } from "@/services/rough-lot";
 import { MainLot } from "@/lib/types/tender";
 
+export interface OtherBaseTender {
+  dtVoucherDate: Date;
+  stTenderName: string;
+  stPersonName: string;
+}
+
 export function RoughLotTendersPage({
   roughLotTenders,
   totalCount,
   mainLot,
+  baseTender,
 }: {
   roughLotTenders: RoughLotColumns[];
   totalCount: number;
   mainLot: MainLot | null;
+  baseTender: OtherBaseTender;
 }) {
   const [page, setPage] = useState(1);
 
@@ -94,6 +102,13 @@ export function RoughLotTendersPage({
           </>
         }
       />
+      <div className="flex items-center gap-2 text-neutral-700">
+        <p className="pr-2 border-r-2">
+          {baseTender.dtVoucherDate.toDateString()}
+        </p>
+        <p className="pr-2 border-r-2">{baseTender.stTenderName}</p>
+        <p>{baseTender.stPersonName}</p>
+      </div>
 
       <TenderDataTable
         columns={columns}

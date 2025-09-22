@@ -7,12 +7,24 @@ import { PageWrapper } from "../common/page-wrapper";
 import { PageHeader } from "../common/page-header";
 import { TenderDataTable } from "../ui/tender-data-table";
 import { Pagination } from "../common/pagination";
-import { columns, MixMultiLotColumns } from "@/app/(protected)/tenders/multi-lot/mix/columns";
+import {
+  columns,
+  MixMultiLotColumns,
+} from "@/app/(protected)/tenders/multi-lot/mix/columns";
 import { FormDialog } from "../common/form-dialog";
 import { MultiLotForm } from "../forms/multi-lot-form";
 import { getMultiLotTenders } from "@/services/multi-lot";
+import { OtherBaseTender } from "./rough-lot-tenders";
 
-export function MixMultiLotTendersPage({ tenders, totalCount }: { tenders: MixMultiLotColumns[], totalCount: number }) {
+export function MixMultiLotTendersPage({
+  tenders,
+  totalCount,
+  baseTender,
+}: {
+  tenders: MixMultiLotColumns[];
+  totalCount: number;
+  baseTender: OtherBaseTender;
+}) {
   const [page, setPage] = useState(1);
 
   const searchParams = useSearchParams();
@@ -46,6 +58,13 @@ export function MixMultiLotTendersPage({ tenders, totalCount }: { tenders: MixMu
         title="Mix Multi Lot Tenders (Main Lot)"
         handleDialog={handleDialog}
       />
+      <div className="flex items-center gap-2 text-neutral-700">
+        <p className="pr-2 border-r-2">
+          {baseTender.dtVoucherDate.toDateString()}
+        </p>
+        <p className="pr-2 border-r-2">{baseTender.stTenderName}</p>
+        <p>{baseTender.stPersonName}</p>
+      </div>
       <FormDialog
         open={dialogOpen}
         setOpen={setDialogOpen}
@@ -53,7 +72,11 @@ export function MixMultiLotTendersPage({ tenders, totalCount }: { tenders: MixMu
         title={editData ? editData.stName : "Main Lot"}
         widthClass="md:max-w-[35dvw] md:w-[35dvw]"
       >
-        <MultiLotForm editData={editData} setDialogOpen={setDialogOpen} tenderType="mix" />
+        <MultiLotForm
+          editData={editData}
+          setDialogOpen={setDialogOpen}
+          tenderType="mix"
+        />
       </FormDialog>
       <TenderDataTable
         columns={columns}
@@ -64,7 +87,11 @@ export function MixMultiLotTendersPage({ tenders, totalCount }: { tenders: MixMu
         queryKey={queryKey}
         deleteEndpoint="multi-lot-tender"
       />
-      <Pagination setPage={setPage} nextPage={multiLotResponse?.nextPage} page={page} />
+      <Pagination
+        setPage={setPage}
+        nextPage={multiLotResponse?.nextPage}
+        page={page}
+      />
     </PageWrapper>
   );
 }

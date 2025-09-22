@@ -1,6 +1,8 @@
 import { MixLotTendersPage } from "@/components/pages/mix-lot-tenders";
+import { OtherBaseTender } from "@/components/pages/rough-lot-tenders";
 import { prisma } from "@/lib/prisma";
 import { Decimal } from "@prisma/client/runtime/library";
+import { redirect } from "next/navigation";
 import React from "react";
 
 export default async function Page({
@@ -18,9 +20,31 @@ export default async function Page({
     stTenderType: "mix-lot",
   };
 
+  let baseTenderData: OtherBaseTender = {
+    dtVoucherDate: new Date(),
+    stTenderName: "",
+    stPersonName: "",
+  };
+
   if (baseTenderId) {
     whereCondition.baseTenderId = parseInt(baseTenderId);
     whereCondition.mainLotId = null;
+
+    const baseTender = await prisma.baseTender.findUnique({
+      select: {
+        dtVoucherDate: true,
+        stTenderName: true,
+        stPersonName: true,
+      },
+      where: {
+        id: Number(baseTenderId),
+      },
+    });
+
+    if (!baseTender) {
+      redirect("/tenders");
+    }
+    baseTenderData = baseTender;
   }
 
   if (mainLotId) {
@@ -177,6 +201,7 @@ export default async function Page({
       mixLotTenders={mixLotData}
       totalCount={totalCount}
       totalValues={totalValues}
+      baseTender={baseTenderData}
       mainLot={{
         stLotNo: mainLotDetails?.stLotNo ?? "",
         stName: mainLotDetails?.stName ?? "",

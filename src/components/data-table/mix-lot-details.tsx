@@ -342,9 +342,7 @@ export function MixLotDetails({
                             ? parseFloat(e.target.value)
                             : undefined;
 
-                          const polPercent = parseFloat((parseFloat(
-                            ((value ?? 0) / (row.dcRoughCts ?? 0)).toFixed(2)
-                          ) * 100).toFixed(2));
+                          const polPercent = parseFloat((((value ?? 0) / (row.dcRoughCts ?? 0)) * 100).toFixed(2));
 
                           handleValueChange(
                             {
@@ -370,6 +368,7 @@ export function MixLotDetails({
                             ? parseFloat(e.target.value)
                             : undefined;
 
+                          //polish percentage * rough carats
                           const polCts = parseFloat(
                             (
                               ((value ?? 0) * (row.dcRoughCts ?? 0)) /
