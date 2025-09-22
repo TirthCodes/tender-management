@@ -1,5 +1,6 @@
 import { OtherBaseTender, RoughLotTendersPage } from "@/components/pages/rough-lot-tenders";
 import { prisma } from "@/lib/prisma";
+import { Decimal } from "@prisma/client/runtime/library";
 import { redirect } from "next/navigation";
 import React from "react";
 
@@ -24,6 +25,8 @@ export default async function Page({
     dtVoucherDate: new Date(),
     stTenderName: "",
     stPersonName: "",
+    dcNetPercentage: 0,
+    dcLabour: 0,
   };
 
   if (baseTenderId) {
@@ -34,6 +37,8 @@ export default async function Page({
         dtVoucherDate: true,
         stTenderName: true,
         stPersonName: true,
+        dcNetPercentage: true,
+        dcLabour: true,
       },
       where: {
         id: Number(baseTenderId),
@@ -43,7 +48,11 @@ export default async function Page({
     if (!baseTender) {
       redirect("/tenders");
     }
-    baseTenderData = baseTender;
+    baseTenderData = {
+      ...baseTender,
+      dcNetPercentage: Number(baseTender.dcNetPercentage),
+      dcLabour: Number(baseTender.dcLabour),
+    };
   }
 
   if (mainLotId) {
@@ -53,7 +62,7 @@ export default async function Page({
   const [roughLotTenders, totalCount] = await Promise.all([
     prisma.otherTender.findMany({
       where: whereCondition,
-      take: 10,
+      take: 50,
       select: {
         id: true,
         baseTenderId: true,
@@ -82,23 +91,6 @@ export default async function Page({
       where: whereCondition,
     }),
   ]);
-
-  let mainLotDetails = null;
-  if (mainLotId) {
-    mainLotDetails = await prisma.mainLot.findUnique({
-      where: {
-        id: parseInt(mainLotId),
-      },
-      select: {
-        stLotNo: true,
-        stName: true,
-        inPcs: true,
-        dcCts: true,
-        dcRemainingCts: true,
-        inRemainingPcs: true,
-      },
-    });
-  }
 
   const roughLotData = roughLotTenders.map(
     ({
@@ -132,11 +124,84 @@ export default async function Page({
     })
   );
 
+  let mainLotDetails = null;
+  let totalValues = {
+    pcs: 0,
+    carats: 0,
+    polCts: 0,
+    costPrice: 0,
+    costAmount: 0,
+    bidPrice: 0,
+    bidAmount: 0,
+    resultCost: 0,
+    resultTotal: 0,
+    resultPerCarat: 0,
+  };
+  if (mainLotId) {
+    mainLotDetails = await prisma.mainLot.findUnique({
+      where: {
+        id: parseInt(mainLotId),
+      },
+      select: {
+        stLotNo: true,
+        stName: true,
+        inPcs: true,
+        dcCts: true,
+        dcRemainingCts: true,
+        inRemainingPcs: true,
+      },
+    });
+
+    if(mainLotDetails) {
+      const roughLotDataTotal = roughLotData?.reduce(
+        (acc, cur) => {
+          return {
+            pcs: acc.pcs + cur.inRoughPcs,
+            carats: acc.carats + cur.dcRoughCts,
+            costAmount: acc.costAmount + cur.dcCostAmount,
+          };
+        },
+        {
+          pcs: 0,
+          carats: 0,
+          costAmount: 0
+        }
+      );
+  
+      const result = await prisma.$queryRawUnsafe<{ total: Decimal }[]>(
+        `
+          SELECT SUM(otd."dcPolCts") AS total
+          FROM "OtherTender" ot
+          JOIN "OtherTenderDetails" otd ON otd."otherTenderId" = ot.id
+          WHERE ot."mainLotId" = $1 AND ot."baseTenderId" = $2 AND ot."stTenderType" = 'rough-lot'
+        `,
+        parseInt(mainLotId),
+        baseTenderId ? parseInt(baseTenderId) : null
+      );
+
+      const totalPolCts = result?.[0]?.total ? result[0].total.toNumber() : 0;
+  
+      totalValues = {
+        pcs: roughLotDataTotal?.pcs ?? 0,
+        carats: roughLotDataTotal?.carats ?? 0,
+        polCts: totalPolCts,
+        costPrice: 0,
+        costAmount: roughLotDataTotal?.costAmount ?? 0,
+        bidPrice: 0,
+        bidAmount: 0,
+        resultCost: 0,
+        resultTotal: 0,
+        resultPerCarat: 0,
+      };
+    }
+  }
+
   return (
     <RoughLotTendersPage
       roughLotTenders={roughLotData}
       totalCount={totalCount}
       baseTender={baseTenderData}
+      totalValues={totalValues}
       mainLot={{
         stLotNo: mainLotDetails?.stLotNo ?? "",
         stName: mainLotDetails?.stName ?? "",
