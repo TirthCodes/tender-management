@@ -133,7 +133,6 @@ export default async function Page({
     costAmount: 0,
     bidPrice: 0,
     bidAmount: 0,
-    resultCost: 0,
     resultTotal: 0,
     resultPerCarat: 0,
   };
@@ -181,15 +180,24 @@ export default async function Page({
 
       const totalPolCts = result?.[0]?.total ? result[0].total.toNumber() : 0;
   
+      const { pcs, carats, costAmount } = roughLotDataTotal;
+
+      const costPrice = parseFloat(
+        (costAmount / carats).toFixed(2)
+      );
+
+      const netPercent = baseTenderData.dcNetPercentage / 100;
+      const bidPrice = parseFloat((costPrice / netPercent).toFixed(2))
+      const bidAmount = parseFloat(((bidPrice * carats).toFixed(2)));
+
       totalValues = {
-        pcs: roughLotDataTotal?.pcs ?? 0,
-        carats: roughLotDataTotal?.carats ?? 0,
+        pcs,
+        carats,
         polCts: totalPolCts,
-        costPrice: 0,
-        costAmount: roughLotDataTotal?.costAmount ?? 0,
-        bidPrice: 0,
-        bidAmount: 0,
-        resultCost: 0,
+        costPrice,
+        costAmount: costAmount ?? 0,
+        bidPrice,
+        bidAmount,
         resultTotal: 0,
         resultPerCarat: 0,
       };

@@ -343,8 +343,8 @@ export function RoughLotForm() {
     const costPrice = parseFloat(
       (
         (totalValues.costAmount
-          ? parseFloat(totalValues?.costAmount?.toFixed(2))
-          : 0) / parseFloat(totalValues.carats?.toFixed(2))
+          ? totalValues?.costAmount
+          : 0) / totalValues.carats
       ).toFixed(2)
     );
     setValue("costPrice", costPrice);
