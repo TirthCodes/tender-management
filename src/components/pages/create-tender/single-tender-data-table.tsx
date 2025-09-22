@@ -617,7 +617,6 @@ export function SingleTenderDataTable({
                         className="w-14 px-1 text-right"
                         name="depth"
                         type="number"
-                        disabled
                         value={row.depth || ""}
                         step={0.01}
                         onChange={(e) => {
@@ -662,7 +661,6 @@ export function SingleTenderDataTable({
                         className="w-10 px-1 text-right"
                         name="ratio"
                         type="number"
-                        disabled
                         value={row.ratio || ""}
                         step={0.01}
                         onChange={(e) => {
