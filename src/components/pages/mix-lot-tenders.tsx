@@ -41,7 +41,7 @@ export function MixLotTendersPage({
   totalCount,
   mainLot,
   totalValues,
-  baseTender
+  baseTender,
 }: MixLotTendersPageProps) {
   const [page, setPage] = useState(1);
   const [resultTotal, setResultTotal] = useState<number | undefined>(0);
@@ -202,11 +202,13 @@ export function MixLotTendersPage({
                   );
 
                   setResultPerCarat(resultPerCarat);
+                  const netPercent = baseTender.dcNetPercentage / 100;
+
                   const resultCost = parseFloat(
                     (
-                      (((resultPerCarat * 1.15 +
+                      (((resultPerCarat * netPercent +
                         resultPerCarat +
-                        50) *
+                        baseTender.dcLabour) *
                         totalValues.carats) /
                         totalValues.polCts +
                         230) /
@@ -233,11 +235,14 @@ export function MixLotTendersPage({
                   const resultTotal = parseFloat(
                     ((value ?? 0) * totalValues?.carats).toFixed(2)
                   );
-
                   setResultTotal(resultTotal);
+
+                  const netPercent = baseTender.dcNetPercentage / 100;
                   const resultCost = parseFloat(
                     (
-                      (((resultTotal * 1.15 + resultTotal + 50) *
+                      (((resultTotal * netPercent +
+                        resultTotal +
+                        baseTender.dcLabour) *
                         totalValues.carats) /
                         totalValues.polCts +
                         230) /
@@ -253,10 +258,10 @@ export function MixLotTendersPage({
             <div className="flex w-full items-center justify-center gap-2">
               <label className="font-semibold text-red-600">Loss</label>
               <Switch
-                // checked={watch("isWon") ? true : false}
-                // onCheckedChange={(value) => {
-                //   setValue("isWon", value);
-                // }}
+              // checked={watch("isWon") ? true : false}
+              // onCheckedChange={(value) => {
+              //   setValue("isWon", value);
+              // }}
               />
               <label className="font-semibold text-green-600">Win</label>
             </div>

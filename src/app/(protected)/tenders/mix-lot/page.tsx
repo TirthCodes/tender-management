@@ -24,6 +24,8 @@ export default async function Page({
     dtVoucherDate: new Date(),
     stTenderName: "",
     stPersonName: "",
+    dcNetPercentage: 0,
+    dcLabour: 0,
   };
 
   if (baseTenderId) {
@@ -35,6 +37,8 @@ export default async function Page({
         dtVoucherDate: true,
         stTenderName: true,
         stPersonName: true,
+        dcNetPercentage: true,
+        dcLabour: true,
       },
       where: {
         id: Number(baseTenderId),
@@ -44,7 +48,11 @@ export default async function Page({
     if (!baseTender) {
       redirect("/tenders");
     }
-    baseTenderData = baseTender;
+    baseTenderData = {
+      ...baseTender,
+      dcNetPercentage: Number(baseTender.dcNetPercentage),
+      dcLabour: Number(baseTender.dcLabour),
+    };
   }
 
   if (mainLotId) {
@@ -54,7 +62,7 @@ export default async function Page({
   const [mixLotTenders, totalCount] = await Promise.all([
     prisma.otherTender.findMany({
       where: whereCondition,
-      take: 10,
+      take: 50,
       select: {
         id: true,
         baseTenderId: true,
@@ -144,22 +152,21 @@ export default async function Page({
       },
     });
     if (mainLotDetails) {
-      const pcs = mainLotDetails?.inPcs - mainLotDetails?.inRemainingPcs;
-      const carats =
-        mainLotDetails?.dcCts?.toNumber() -
-        mainLotDetails?.dcRemainingCts?.toNumber();
-
       const mixLotDataTotal = mixLotData.reduce(
         (acc, cur) => {
           return {
+            pcs: acc.pcs + cur.inRoughPcs,
+            carats: acc.carats + cur.dcRoughCts,
             saleAmount: acc.saleAmount + cur.dcSaleAmount,
           };
         },
         {
+          pcs: 0,
+          carats: 0,
           saleAmount: 0,
         }
       );
-
+  
       const result = await prisma.$queryRawUnsafe<{ total: Decimal }[]>(
         `
           SELECT SUM(otd."dcPolCts") AS total
@@ -170,20 +177,20 @@ export default async function Page({
         parseInt(mainLotId),
         baseTenderId ? parseInt(baseTenderId) : null
       );
-
+  
       const totalPolCts = result?.[0]?.total ? result[0].total.toNumber() : 0;
-
+  
       const saleAmount = parseFloat(mixLotDataTotal.saleAmount.toFixed(2));
       const salePrice = parseFloat(
         (mixLotDataTotal.saleAmount / totalPolCts).toFixed(2)
       );
-
-      const bidPrice = parseFloat(((((((salePrice * 0.97) - 180) * totalPolCts) / carats) - 50) / 1.15).toFixed(2)); 
+  
+      const bidPrice = parseFloat(((((((salePrice * 0.97) - 230) * totalPolCts) / mixLotDataTotal?.carats) - 50) / 1.15).toFixed(2)); 
       const bidAmount = parseFloat(((bidPrice * mainLotDetails?.dcCts?.toNumber()).toFixed(2)));
-
+  
       totalValues = {
-        pcs: pcs ?? 0,
-        carats: carats ? parseFloat(carats.toFixed(2)) : 0,
+        pcs: mixLotDataTotal?.pcs ?? 0,
+        carats: mixLotDataTotal?.pcs ? parseFloat(mixLotDataTotal?.carats.toFixed(2)) : 0,
         polCts: totalPolCts,
         salePrice,
         saleAmount,

@@ -18,6 +18,8 @@ export default async function Page({
       dtVoucherDate: true,
       stTenderName: true,
       stPersonName: true,
+      dcNetPercentage: true,
+      dcLabour: true,
     },
     where: {
       id: parseInt(baseTenderId),
@@ -66,7 +68,11 @@ export default async function Page({
 
   return (
     <Suspense>
-      <RoughMultiLotTendersPage tenders={tendersData} totalCount={totalCount} baseTender={baseTender} />
+      <RoughMultiLotTendersPage tenders={tendersData} totalCount={totalCount} baseTender={{
+        ...baseTender,
+        dcNetPercentage: Number(baseTender.dcNetPercentage),
+        dcLabour: Number(baseTender.dcLabour),
+      }} />
     </Suspense>
   )
 }

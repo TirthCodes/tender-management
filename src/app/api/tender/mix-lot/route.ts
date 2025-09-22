@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/server/session";
 import { MixLotPaylod, MixLotTenderDetails } from "@/lib/types/tender";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export async function POST(req: Request) {
   const { session, user } = await getCurrentSession();
@@ -89,22 +90,37 @@ export async function POST(req: Request) {
             id: mainLotId,
           },
           select: {
-            dcRemainingCts: true,
-            inRemainingPcs: true,
+            dcCts: true,
+            inPcs: true,
           },
         });
+
+        const result = await prisma.$queryRaw<
+          Array<{
+            total_pcs: number;
+            total_carats: Decimal;
+          }>
+        >`
+          SELECT 
+            COALESCE(SUM("inRoughPcs"), 0)::bigint as total_pcs,
+            COALESCE(SUM("dcRoughCts"), 0) as total_carats
+          FROM "OtherTender"
+          WHERE "baseTenderId" = ${baseTenderId}
+            AND "mainLotId" = ${mainLotId}
+            AND "stTenderType" = 'mix-lot'
+        `;
+
+        const totalPcs = Number(result[0]?.total_pcs || 0);
+        const totalCarats = Number(result[0]?.total_carats ?? 0);
 
         await prisma.mainLot.update({
           where: {
             id: mainLotId,
           },
           data: {
-            dcRemainingCts: mainLot?.dcRemainingCts
-              ? mainLot?.dcRemainingCts.toNumber() - roughCts
-              : 0,
-            inRemainingPcs: mainLot?.inRemainingPcs
-              ? mainLot?.inRemainingPcs - roughPcs
-              : 0,
+            dcRemainingCts:
+              (mainLot?.dcCts ? mainLot?.dcCts.toNumber() : 0) - totalCarats,
+            inRemainingPcs: (mainLot?.inPcs ?? 0) - totalPcs,
           },
         });
       }
@@ -161,7 +177,7 @@ export async function POST(req: Request) {
                 id: true,
               },
             });
-            if(newDetail.id) {
+            if (newDetail.id) {
               newDetailsId.push(newDetail.id);
             }
           }
@@ -181,10 +197,7 @@ export async function POST(req: Request) {
           .filter((d) => d.id)
           .map((d) => d.id as number);
 
-        const incomingIds = [
-          ...idsFromPayload,
-          ...newDetailsId,
-        ];
+        const incomingIds = [...idsFromPayload, ...newDetailsId];
 
         const detailsToDelete = existingIds.filter(
           (id) => !incomingIds.includes(id)
@@ -264,22 +277,37 @@ export async function POST(req: Request) {
           id: mainLotId,
         },
         select: {
-          dcRemainingCts: true,
-          inRemainingPcs: true,
+          dcCts: true,
+          inPcs: true,
         },
       });
+
+      const result = await prisma.$queryRaw<
+        Array<{
+          total_pcs: bigint;
+          total_carats: unknown;
+        }>
+      >`
+        SELECT 
+          COALESCE(SUM("inRoughPcs"), 0)::bigint as total_pcs,
+          COALESCE(SUM("dcRoughCts"), 0) as total_carats
+        FROM "OtherTender"
+        WHERE "baseTenderId" = ${baseTenderId}
+          AND "mainLotId" = ${mainLotId}
+          AND "stTenderType" = 'mix-lot'
+      `;
+
+      const totalPcs = Number(result[0]?.total_pcs || 0);
+      const totalCarats = Number(result[0]?.total_carats ?? 0);
 
       await prisma.mainLot.update({
         where: {
           id: mainLotId,
         },
         data: {
-          dcRemainingCts: mainLot?.dcRemainingCts
-            ? mainLot?.dcRemainingCts.toNumber() - roughCts
-            : 0,
-          inRemainingPcs: mainLot?.inRemainingPcs
-            ? mainLot?.inRemainingPcs - roughPcs
-            : 0,
+          dcRemainingCts:
+            (mainLot?.dcCts ? mainLot?.dcCts.toNumber() : 0) - totalCarats,
+          inPcs: (mainLot?.inPcs ?? 0) - Number(totalPcs),
         },
       });
     }
