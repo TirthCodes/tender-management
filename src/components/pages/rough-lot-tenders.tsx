@@ -42,7 +42,6 @@ export function RoughLotTendersPage({
     costAmount: number;
     bidPrice: number;
     bidAmount: number;
-    resultCost: number;
     resultTotal: number;
     resultPerCarat: number;
   };
@@ -51,9 +50,6 @@ export function RoughLotTendersPage({
   const [page, setPage] = useState(1);
   const [resultTotal, setResultTotal] = useState<number | undefined>(0);
   const [resultPerCarat, setResultPerCarat] = useState<number | undefined>(0);
-  const [resultCost, setResultCost] = useState<number | undefined>(
-    totalValues?.resultCost
-  );
 
   const searchParams = useSearchParams();
   const id = searchParams.get("baseTenderId") as string;
@@ -180,18 +176,8 @@ export function RoughLotTendersPage({
             </div>
           </div>
           <div
-            className={`mt-2 grid grid-cols-4 gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
+            className={`mt-2 grid grid-cols-3 gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
           >
-            <div className="flex items-center justify-center gap-2">
-              <p className="text-nowrap">Result Cost:</p>
-              <Input
-                type="number"
-                step={0.01}
-                value={resultCost}
-                disabled
-                className="py-1 h-10 px-2 w-44 font-semibold"
-              />
-            </div>
             <div className="flex items-center justify-center gap-2">
               <p className="text-nowrap">Result Total:</p>
               <Input
@@ -205,21 +191,10 @@ export function RoughLotTendersPage({
 
                   setResultTotal(value);
                   const resultPerCarat = parseFloat(
-                    ((value ?? 0) * totalValues?.carats).toFixed(2)
+                    ((value ?? 0) / totalValues?.carats).toFixed(2)
                   );
 
                   setResultPerCarat(resultPerCarat);
-                  const resultCost = parseFloat(
-                    (
-                      (((resultPerCarat * 1.15 + resultPerCarat + 50) *
-                        totalValues.carats) /
-                        totalValues.polCts +
-                        230) /
-                      0.97
-                    ).toFixed(2)
-                  );
-
-                  setResultCost(resultCost);
                 }}
                 className="py-1 h-10 px-2 w-44 font-semibold"
               />
@@ -235,22 +210,12 @@ export function RoughLotTendersPage({
                     ? parseFloat(e.target.value)
                     : undefined;
                   setResultPerCarat(value);
+                  
                   const resultTotal = parseFloat(
                     ((value ?? 0) * totalValues?.carats).toFixed(2)
                   );
 
                   setResultTotal(resultTotal);
-                  const resultCost = parseFloat(
-                    (
-                      (((resultTotal * 1.15 + resultTotal + 50) *
-                        totalValues.carats) /
-                        totalValues.polCts +
-                        230) /
-                      0.97
-                    ).toFixed(2)
-                  );
-
-                  setResultCost(resultCost);
                 }}
                 className="py-1 h-10 px-2 w-44 font-semibold"
               />
