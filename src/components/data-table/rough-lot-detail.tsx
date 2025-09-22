@@ -205,36 +205,35 @@ export function RoughLotDetails({
                             ? parseFloat(e.target.value)
                             : undefined;
 
-                          const polPercent = parseFloat(
+                          const polCts = parseFloat(
                             (
-                              parseFloat(
-                                ((row.dcPolCts ?? 0) / (value ?? 0)).toFixed(
-                                  2
-                                )
-                              ) * 100
+                              ((value ?? 0) * (row.dcRoughCts ?? 0)) /
+                              100
                             ).toFixed(2)
                           );
 
-                          const costPrice = parseFloat(
-                            (
-                              (row.dcSalePrice ?? 0) *
-                                (polPercent
-                                  ? parseFloat((polPercent / 100).toFixed(2))
-                                  : 0) -
-                              (row.dcLabour ?? 0)
-                            ).toFixed(2)
-                          );
+                          // const costPrice = parseFloat(
+                          //   (
+                          //     (row.dcSalePrice ?? 0) *
+                          //       (polPercent
+                          //         ? parseFloat((polPercent / 100).toFixed(2))
+                          //         : 0) -
+                          //     (row.dcLabour ?? 0)
+                          //   ).toFixed(2)
+                          // );
 
                           const costAmount = parseFloat(
-                            (costPrice * (value ?? 0)).toFixed(2)
+                            ((row.dcCostPrice ?? 0) * (value ?? 0)).toFixed(2)
                           );
+
+                          const saleAmount = parseFloat(((row.dcSalePrice ?? 0) * (polCts ?? 0)).toFixed(2));
 
                           handleValueChange(
                             {
                               ...row,
-                              dcCostPrice: costPrice,
                               dcCostAmount: costAmount,
-                              dcPolPer: polPercent,
+                              dcSaleAmount: saleAmount,
+                              dcPolCts: polCts,
                               dcRoughCts: value,
                             },
                             index

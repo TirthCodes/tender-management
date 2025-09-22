@@ -335,7 +335,7 @@ export function RoughLotForm() {
 
   useEffectAfterMount(() => {
     if (totalValues.costAmount) {
-      setValue("costAmount", totalValues.costAmount);
+      setValue("costAmount", parseFloat(totalValues.costAmount?.toFixed(2)));
     }
   }, [totalValues.costAmount, setValue]);
 
