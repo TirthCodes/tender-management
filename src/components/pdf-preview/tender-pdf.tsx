@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
     fontSize: 8,
   },
   header: {
-    marginBottom: 14,
+    marginBottom: 10,
     textAlign: "center",
   },
   title: {
@@ -877,7 +877,6 @@ function SingleStoneTender({
                 color: "#fff",
                 paddingHorizontal: 4,
                 paddingVertical: 6,
-                marginTop: 6,
               }}
             >
               <Text style={{ fontSize: 11, fontWeight: "bold" }}>
