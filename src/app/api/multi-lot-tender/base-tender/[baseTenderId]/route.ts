@@ -17,6 +17,19 @@ export async function GET(
         dcCts: true,
         dcRemainingCts: true,
         inRemainingPcs: true,
+        stTenderType: true,
+        dcBidPrice: true,
+        dcBidAmount: true,
+        dcCostPrice: true,
+        dcCostAmount: true,
+        dcSalePrice: true,
+        dcSaleAmount: true,
+        dcPolCts: true,
+        dcResultCost: true,
+        dcResultPerCt: true,
+        dcResultTotal: true,
+        isWon: true,
+        margin: true,
         tender: {
           select: {
             id: true,
@@ -92,9 +105,16 @@ export async function GET(
       },
     });
 
+    function filterByType(tenderType: string) {
+      return mainLotTenders.filter((tender) => tender.stTenderType === tenderType);
+    }
+
     return new Response(
       JSON.stringify({
-        data: mainLotTenders,
+        data: {
+          rough: filterByType("rough"),
+          mix: filterByType("mix"),
+        },
         success: true,
       }),
       { status: 200 }

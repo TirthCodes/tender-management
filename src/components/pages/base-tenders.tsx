@@ -83,8 +83,6 @@ export function BaseTendersPage({
     enabled: !!tenderId,
   });
 
-  console.log(multiLotTenders, "multiLotTenders");
-
   const handlePdf = (id: number) => {
     setTenderId(id)
     const tender = tendersResponse?.data?.find((i: TenderColumns) => i.id === id);
@@ -114,6 +112,7 @@ export function BaseTendersPage({
                 singleTender={singleStoneTender?.data}
                 roughtLotTenders={roughLotTender?.data}
                 mixLotTenders={mixLotTender?.data}
+                multiLotTenders={multiLotTenders?.data}
               />
             </PDFViewer>
           </DialogContent>

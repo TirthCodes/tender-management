@@ -193,7 +193,6 @@ model MainLot {
   stTenderType      String
   inPcs             Int               @default(0)
   inRemainingPcs    Int               @default(0)
-  dcPcs             Decimal           @default(0) @db.Decimal(10, 2)
   dcCts             Decimal           @default(0) @db.Decimal(10, 2)
   dcRemainingCts    Decimal           @default(0) @db.Decimal(10, 2)
   inUsedPcs         Int               @default(0)
