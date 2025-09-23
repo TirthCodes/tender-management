@@ -90,11 +90,11 @@ export function RoughLotDetails({
         pcs: acc.pcs + (row.inRoughPcs || 0),
         carats: acc.carats + (row.dcRoughCts || 0),
         polCts: acc.polCts + (row.dcPolCts || 0),
-        polPercent: acc.polPercent + (row.dcPolPer || 0),
-        salePrice: acc.salePrice + (row.dcSalePrice || 0),
+        polPercent: 0,
+        salePrice: 0,
         saleAmount: acc.saleAmount + (row.dcSaleAmount || 0),
-        costPrice: acc.costPrice + (row.dcCostPrice || 0),
-        costAmount: acc.costAmount + (row.dcCostAmount || 0),
+        costPrice: 0,
+        costAmount: 0,
         totalAmount: 0,
       }),
       {
@@ -716,10 +716,10 @@ export function RoughLotDetails({
           Pcs: {totalValues.pcs}
         </p>
         <p className="text-gray-600 text-sm font-semibold">
-          Cts: {totalValues?.carats?.toFixed(2)}
+          Cts: {totalValues.carats.toFixed(2)}
         </p>
         <p className="text-gray-600 text-sm font-semibold">
-          Pol Cts: {totalValues?.polCts?.toFixed(2)}
+          Pol Cts: {totalValues.polCts.toFixed(2)}
         </p>
         {/* <p className="text-gray-600 text-sm font-semibold">
           Pol %: {totalValues.polPercent}%
@@ -728,10 +728,10 @@ export function RoughLotDetails({
           Sale Price: {totalValues?.salePrice?.toFixed(2)}
         </p> */}
         <p className="text-gray-600 text-sm font-semibold">
-          Cost Price: {totalValues?.costPrice?.toFixed(2)}
+          Sale Price: {(totalValues.saleAmount / totalValues.polCts).toFixed(2)}
         </p>
         <p className="text-gray-600 text-sm font-semibold">
-          Cost Amount: {totalValues?.costAmount?.toFixed(2)}
+          Sale Amount: {totalValues.saleAmount.toFixed(2)}
         </p>
       </div>
     </>
