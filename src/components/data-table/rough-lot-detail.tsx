@@ -205,36 +205,31 @@ export function RoughLotDetails({
                             ? parseFloat(e.target.value)
                             : undefined;
 
-                          const polCts = parseFloat(
+                          const polPercent = parseFloat(
+                            (((row.dcPolCts ?? 0) / (value ?? 0)) * 100).toFixed(2)
+                          );
+
+                          const costPrice = parseFloat(
                             (
-                              ((value ?? 0) * (row.dcRoughCts ?? 0)) /
-                              100
+                              (row.dcSalePrice ?? 0) *
+                                (polPercent
+                                  ? (polPercent / 100)
+                                  : 0) -
+                              (row.dcLabour ?? 0)
                             ).toFixed(2)
                           );
 
-                          // const costPrice = parseFloat(
-                          //   (
-                          //     (row.dcSalePrice ?? 0) *
-                          //       (polPercent
-                          //         ? parseFloat((polPercent / 100).toFixed(2))
-                          //         : 0) -
-                          //     (row.dcLabour ?? 0)
-                          //   ).toFixed(2)
-                          // );
-
                           const costAmount = parseFloat(
-                            ((row.dcCostPrice ?? 0) * (value ?? 0)).toFixed(2)
+                            (costPrice * (value ?? 0)).toFixed(2)
                           );
-
-                          const saleAmount = parseFloat(((row.dcSalePrice ?? 0) * (polCts ?? 0)).toFixed(2));
 
                           handleValueChange(
                             {
                               ...row,
-                              dcCostAmount: costAmount,
-                              dcSaleAmount: saleAmount,
-                              dcPolCts: polCts,
+                              dcPolPer: polPercent,
                               dcRoughCts: value,
+                              dcCostPrice: costPrice,
+                              dcCostAmount: costAmount,
                             },
                             index
                           );

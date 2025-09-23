@@ -23,6 +23,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         stPersonName: true,
         dcNetPercentage: true,
         dcLabour: true,
+        dcGiaCharge: true,
         id: true,
       },
       where: {

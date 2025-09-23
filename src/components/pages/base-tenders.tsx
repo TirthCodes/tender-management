@@ -22,6 +22,7 @@ import {
 import { getSingleStoneTender } from "@/services/single-stone";
 import { getRoughLotByBaseTenderId } from "@/services/rough-lot";
 import { getMixLotByBaseTenderId } from "@/services/mix-lot";
+import { getMultiLotTenderByBaseTenderId } from "@/services/multi-lot";
 
 export function BaseTendersPage({
   tenders,
@@ -76,6 +77,14 @@ export function BaseTendersPage({
     enabled: !!tenderId,
   });
 
+  const { data: multiLotTenders, isLoading: isMultiLotLoading } = useQuery({
+    queryKey: ["multi-lot-tender-by-base-tender", tenderId],
+    queryFn: () => getMultiLotTenderByBaseTenderId(tenderId as number),
+    enabled: !!tenderId,
+  });
+
+  console.log(multiLotTenders, "multiLotTenders");
+
   const handlePdf = (id: number) => {
     setTenderId(id)
     const tender = tendersResponse?.data?.find((i: TenderColumns) => i.id === id);
@@ -86,7 +95,7 @@ export function BaseTendersPage({
     setShowPDFPreview(true);
   };
 
-  const isPdfDataLoading = isSingleStoneLoading || isRoughLotLoading || isMixLotLoading; 
+  const isPdfDataLoading = isSingleStoneLoading || isRoughLotLoading || isMixLotLoading || isMultiLotLoading; 
 
   return (
     <PageWrapper>

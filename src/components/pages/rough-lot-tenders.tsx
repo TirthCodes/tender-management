@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import { PageWrapper } from "../common/page-wrapper";
@@ -15,6 +15,11 @@ import { getRoughLots } from "@/services/rough-lot";
 import { MainLot } from "@/lib/types/tender";
 import { Input } from "../ui/input";
 import { Switch } from "../ui/switch";
+import { Button } from "../ui/button";
+import { updateMainLot } from "@/services/multi-lot";
+import { toast } from "react-toastify";
+import { MainLotUpdate } from "@/app/api/main-lot/[id]/route";
+import { Loader2 } from "lucide-react";
 
 export interface OtherBaseTender {
   dtVoucherDate: Date;
@@ -22,6 +27,7 @@ export interface OtherBaseTender {
   stPersonName: string;
   dcNetPercentage: number;
   dcLabour: number;
+  dcGiaCharge: number;
 }
 
 export function RoughLotTendersPage({
@@ -48,8 +54,9 @@ export function RoughLotTendersPage({
   baseTender: OtherBaseTender;
 }) {
   const [page, setPage] = useState(1);
-  const [resultTotal, setResultTotal] = useState<number | undefined>(0);
-  const [resultPerCarat, setResultPerCarat] = useState<number | undefined>(0);
+  const [resultTotal, setResultTotal] = useState<number | undefined>(totalValues.resultTotal);
+  const [resultPerCarat, setResultPerCarat] = useState<number | undefined>(totalValues.resultPerCarat);
+  const [isWon, setIsWon] = useState<boolean>(mainLot?.isWon ?? false);
 
   const searchParams = useSearchParams();
   const id = searchParams.get("baseTenderId") as string;
@@ -66,6 +73,21 @@ export function RoughLotTendersPage({
       message: "Success",
       nextPage: totalCount > 10 ? 2 : null,
       totalCount,
+    },
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: MainLotUpdate) =>
+      updateMainLot(data, parseInt(mainLotId) as number),
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success("Main lot updated successfully");
+      } else {
+        toast.error(data.message);
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
@@ -90,6 +112,7 @@ export function RoughLotTendersPage({
       <PageHeader
         title={title}
         createPath={createPath}
+        backPath={mainLotId && id ? `/tenders/rough-lot?baseTenderId=${id}` : undefined}
         mainLotInfo={
           <>
             {mainLot?.stLotNo && (
@@ -111,7 +134,7 @@ export function RoughLotTendersPage({
                     </span>{" "}
                     /{" "}
                     <span className="font-semibold">
-                      {mainLot.dcRemainingCts}
+                      {mainLot.dcCts}
                     </span>
                   </p>
                 </div>
@@ -120,7 +143,7 @@ export function RoughLotTendersPage({
           </>
         }
       />
-      <div className="flex items-center gap-2 text-neutral-700">
+      <div className="ml-11 flex items-center gap-2 text-neutral-700">
         <p className="pr-2 border-r-2">
           {baseTender.dtVoucherDate.toDateString()}
         </p>
@@ -176,7 +199,7 @@ export function RoughLotTendersPage({
             </div>
           </div>
           <div
-            className={`mt-2 grid grid-cols-3 gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
+            className={`mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
           >
             <div className="flex items-center justify-center gap-2">
               <p className="text-nowrap">Result Total:</p>
@@ -191,7 +214,7 @@ export function RoughLotTendersPage({
 
                   setResultTotal(value);
                   const resultPerCarat = parseFloat(
-                    ((value ?? 0) / totalValues?.carats).toFixed(2)
+                    ((value ?? 0) / (mainLot?.dcCts ?? 0)).toFixed(2)
                   );
 
                   setResultPerCarat(resultPerCarat);
@@ -210,9 +233,9 @@ export function RoughLotTendersPage({
                     ? parseFloat(e.target.value)
                     : undefined;
                   setResultPerCarat(value);
-                  
+
                   const resultTotal = parseFloat(
-                    ((value ?? 0) * totalValues?.carats).toFixed(2)
+                    ((value ?? 0) * (mainLot?.dcCts ?? 0)).toFixed(2)
                   );
 
                   setResultTotal(resultTotal);
@@ -223,12 +246,37 @@ export function RoughLotTendersPage({
             <div className="flex w-full items-center justify-center gap-2">
               <label className="font-semibold text-red-600">Loss</label>
               <Switch
-              // checked={watch("isWon") ? true : false}
-              // onCheckedChange={(value) => {
-              //   setValue("isWon", value);
-              // }}
+                checked={isWon}
+                onCheckedChange={(value) => {
+                  setIsWon(value);
+                }}
               />
               <label className="font-semibold text-green-600">Win</label>
+            </div>
+            <div className="flex w-full items-center justify-end">
+              <Button
+                onClick={() => {
+                  mutate({
+                    dcPolCts: totalValues.polCts,
+                    dcSalePrice: 0,
+                    dcSaleAmount: 0,
+                    dcCostPrice: totalValues.costPrice,
+                    dcCostAmount: totalValues.costAmount,
+                    isWon: isWon,
+                    dcBidPrice: totalValues.bidPrice,
+                    dcBidAmount: totalValues.bidAmount,
+                    dcResultCost: 0,
+                    dcResultPerCt: resultPerCarat ?? 0,
+                    dcResultTotal: resultTotal ?? 0,
+                    inUsedPcs: totalValues.pcs,
+                    dcUsedCts: totalValues.carats,
+                  });
+                }}
+                disabled={isPending}
+                className="px-2 lg:px-4 h-7 lg:h-9 bg-neutral-800 rounded-sm w-24"
+              >
+                Save {isPending && <Loader2 className="animate-spin" />}
+              </Button>
             </div>
           </div>
         </>

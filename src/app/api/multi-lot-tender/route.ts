@@ -14,7 +14,7 @@ export type MultiLotTender = {
   stTenderType: string;
 };
 
-export async function POST(req: Request) {    
+export async function POST(req: Request) {
   const { session, user } = await getCurrentSession();
 
   if (!session || !user) {
@@ -30,8 +30,16 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as MultiLotTender;
 
-    const { id, stLotNo, stName, stRemarks, inPcs, inRemainingPcs, dcRemainingCts,dcCts, stTenderType, baseTenderId } =
-      body;
+    const {
+      id,
+      stLotNo,
+      stName,
+      stRemarks,
+      inPcs,
+      dcCts,
+      stTenderType,
+      baseTenderId,
+    } = body;
 
     if (id) {
       await prisma.mainLot.update({
@@ -44,12 +52,10 @@ export async function POST(req: Request) {
           inPcs,
           dcCts,
           stTenderType,
-          inRemainingPcs: inRemainingPcs,
-          dcRemainingCts: dcRemainingCts,
           baseTenderId: Number(baseTenderId),
         },
       });
-    }else{
+    } else {
       await prisma.mainLot.create({
         data: {
           stName,
@@ -63,7 +69,7 @@ export async function POST(req: Request) {
           dcAmount: 0,
           stTenderType,
           baseTenderId: Number(baseTenderId),
-        }
+        },
       });
     }
 
@@ -129,6 +135,19 @@ export async function GET(req: Request) {
           dcCts: true,
           dcRemainingCts: true,
           inRemainingPcs: true,
+          dcPolCts: true,
+          dcCostPrice: true,
+          dcCostAmount: true,
+          dcBidPrice: true,
+          dcBidAmount: true,
+          inUsedPcs: true,
+          dcUsedCts: true,
+          dcResultTotal: true,
+          isWon: true,
+          dcResultPerCt: true,
+          dcResultCost: true,
+          dcSalePrice: true,
+          dcSaleAmount: true,
         },
         where: {
           stTenderType: tenderType,
@@ -139,7 +158,11 @@ export async function GET(req: Request) {
         skip: offset,
         take: limit,
       }),
-      prisma.mainLot.count(),
+      prisma.mainLot.count({
+        where: {
+          stTenderType: tenderType,
+        },
+      }),
     ]);
 
     const hasNextPage = limit * pageNumber < totalCount;

@@ -24,6 +24,10 @@ const tenderFormSchema = z.object({
     (val) => Number(val),
     z.number().min(0, "Labour is required")
   ),
+  dcGiaCharge: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, "GIA Charge is required")
+  ),
 });
 
 type TenderFormSchema = z.infer<typeof tenderFormSchema> & {
@@ -57,6 +61,7 @@ export function BaseTenderForm({
           stPersonName: "",
           dcNetPercentage: 0,
           dcLabour: 0,
+          dcGiaCharge: 230,
         },
   });
 
@@ -96,8 +101,8 @@ export function BaseTenderForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1 col-span-2">
+      <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-1 col-span-3">
           <label className="text-sm font-medium">Voucher Date</label>
           <Input type="date" {...register("dtVoucherDate")} required />
           {errors.dtVoucherDate && (
@@ -107,7 +112,7 @@ export function BaseTenderForm({
           )}
         </div>
 
-        <div className="space-y-1 col-span-2">
+        <div className="space-y-1 col-span-3">
           <label className="text-sm font-medium">Tender Name</label>
           <Input {...register("stTenderName")} required />
           {errors.stTenderName && (
@@ -117,7 +122,7 @@ export function BaseTenderForm({
           )}
         </div>
 
-        <div className="space-y-1 col-span-2">
+        <div className="space-y-1 col-span-3">
           <label className="text-sm font-medium">Person Name</label>
           <Input {...register("stPersonName")} required />
           {errors.stPersonName && (
@@ -147,6 +152,13 @@ export function BaseTenderForm({
           <Input type="number" step="0.01" {...register("dcLabour")} required />
           {errors.dcLabour && (
             <p className="text-sm text-red-500">{errors.dcLabour.message}</p>
+          )}
+        </div>
+        <div className="space-y-1">
+          <label className="text-sm font-medium">GIA Charge</label>
+          <Input type="number" step="0.01" {...register("dcGiaCharge")} required />
+          {errors.dcGiaCharge && (
+            <p className="text-sm text-red-500">{errors.dcGiaCharge.message}</p>
           )}
         </div>
       </div>

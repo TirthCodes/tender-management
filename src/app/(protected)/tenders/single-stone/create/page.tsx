@@ -21,6 +21,7 @@ export default async function CreateTenderPage({ searchParams }: { searchParams:
       stPersonName: true,
       dcNetPercentage: true,
       dcLabour: true,
+      dcGiaCharge: true,
       id: true,
     },
     where: {
@@ -35,7 +36,8 @@ export default async function CreateTenderPage({ searchParams }: { searchParams:
   const baseTenderData = {
     ...baseTender,
     dcNetPercentage: Number(baseTender.dcNetPercentage),
-    dcLabour: Number(baseTender.dcLabour)
+    dcLabour: Number(baseTender.dcLabour),
+    dcGiaCharge: Number(baseTender.dcGiaCharge),
   }
 
   return (

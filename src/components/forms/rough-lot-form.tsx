@@ -638,111 +638,114 @@ export function RoughLotForm() {
         />
       </div>
 
-      <div
-        className={`p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10 ${
-          loadingRoughLot ? "animate-pulse bg-neutral-100" : ""
-        }`}
-      >
-        <div className="grid grid-cols-4 gap-x-6 gap-y-3">
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Cost Price</Label>
-            <Input
-              type="number"
-              {...register("costPrice", { valueAsNumber: true })}
-              step={0.01}
-              className="w-full"
-            />
-          </div>
+      {!mainLotId && (
+        <div
+          className={`p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10 ${
+            loadingRoughLot ? "animate-pulse bg-neutral-100" : ""
+          }`}
+        >
+          <div className="grid grid-cols-4 gap-x-6 gap-y-3">
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Cost Price</Label>
+              <Input
+                type="number"
+                {...register("costPrice", { valueAsNumber: true })}
+                step={0.01}
+                className="w-full"
+              />
+            </div>
 
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Bid Price</Label>
-            <Input
-              type="number"
-              {...register("bidPrice", { valueAsNumber: true })}
-              step={0.01}
-              readOnly
-              disabled
-              className="w-full"
-            />
-          </div>
-          <div className="flex w-full items-center gap-2">
-            <Label className="text-nowrap w-40">Result Total</Label>
-            <Input
-              type="number"
-              {...register("resultTotal", { valueAsNumber: true })}
-              step={0.01}
-              // placeholder="10000"
-              className="w-full"
-              onChange={(e) => {
-                const value = e.target.value
-                  ? parseFloat(e.target.value)
-                  : undefined;
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Bid Price</Label>
+              <Input
+                type="number"
+                {...register("bidPrice", { valueAsNumber: true })}
+                step={0.01}
+                readOnly
+                disabled
+                className="w-full"
+              />
+            </div>
+            <div className="flex w-full items-center gap-2">
+              <Label className="text-nowrap w-40">Result Total</Label>
+              <Input
+                type="number"
+                {...register("resultTotal", { valueAsNumber: true })}
+                step={0.01}
+                // placeholder="10000"
+                className="w-full"
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
 
-                const resultPerCarat = parseFloat(
-                  ((value ?? 0) / roughCts).toFixed(2)
-                );
+                  const resultPerCarat = parseFloat(
+                    ((value ?? 0) / roughCts).toFixed(2)
+                  );
 
-                setValue("resultPerCarat", resultPerCarat);
-              }}
-            />
-          </div>
-          <div className="flex w-full items-center justify-center gap-2">
-            <label className="font-semibold text-red-600">Loss</label>
-            <Switch
-              checked={watch("isWon") ? true : false}
-              onCheckedChange={(value) => {
-                setValue("isWon", value);
-              }}
-            />
-            <label className="font-semibold text-green-600">Win</label>
-          </div>
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Cost Amount</Label>
-            <Input
-              type="number"
-              {...register("costAmount", { valueAsNumber: true })}
-              step={0.01}
-              className="w-full"
-            />
-          </div>
-          <div className="flex w-full max-w-sm items-center gap-2">
-            <Label className="text-nowrap w-32">Bid Amount</Label>
-            <Input
-              type="number"
-              {...register("totalAmount", { valueAsNumber: true })}
-              step={0.01}
-              className="w-full"
-              readOnly
-              disabled
-            />
-          </div>
+                  setValue("resultPerCarat", resultPerCarat);
+                }}
+              />
+            </div>
+            <div className="flex w-full items-center justify-center gap-2">
+              <label className="font-semibold text-red-600">Loss</label>
+              <Switch
+                checked={watch("isWon") ? true : false}
+                onCheckedChange={(value) => {
+                  setValue("isWon", value);
+                }}
+              />
+              <label className="font-semibold text-green-600">Win</label>
+            </div>
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Cost Amount</Label>
+              <Input
+                type="number"
+                {...register("costAmount", { valueAsNumber: true })}
+                step={0.01}
+                className="w-full"
+              />
+            </div>
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Bid Amount</Label>
+              <Input
+                type="number"
+                {...register("totalAmount", { valueAsNumber: true })}
+                step={0.01}
+                className="w-full"
+                readOnly
+                disabled
+              />
+            </div>
 
-          <div className="flex w-full items-center gap-2">
-            <Label className="text-nowrap w-40">Result Per Cts.</Label>
-            <Input
-              type="number"
-              {...register("resultPerCarat", { valueAsNumber: true })}
-              step={0.01}
-              className="w-full"
-              onChange={(e) => {
-                const value = e.target.value
-                  ? parseFloat(e.target.value)
-                  : undefined;
+            <div className="flex w-full items-center gap-2">
+              <Label className="text-nowrap w-40">Result Per Cts.</Label>
+              <Input
+                type="number"
+                {...register("resultPerCarat", { valueAsNumber: true })}
+                step={0.01}
+                className="w-full"
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
 
-                const resultTotal = parseFloat(
-                  ((value ?? 0) * roughCts).toFixed(2)
-                );
+                  const resultTotal = parseFloat(
+                    ((value ?? 0) * roughCts).toFixed(2)
+                  );
 
-                setValue("resultTotal", resultTotal);
-              }}
-            />
+                  setValue("resultTotal", resultTotal);
+                }}
+              />
+            </div>
+            {/* <div className="flex w-full items-center opacity-50 justify-center gap-2">
+              <p className="font-semibold">Margin:</p>     
+              <p className="font-semibold">0%</p>
+            </div> */}
           </div>
-          {/* <div className="flex w-full items-center opacity-50 justify-center gap-2">
-            <p className="font-semibold">Margin:</p>     
-            <p className="font-semibold">0%</p>
-          </div> */}
         </div>
-      </div>
+      )}
+
       <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 items-center">
         <Button className="mt-4" type="button" onClick={() => router.back()}>
           Cancel

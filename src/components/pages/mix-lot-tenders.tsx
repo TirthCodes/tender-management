@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import { PageWrapper } from "../common/page-wrapper";
@@ -16,6 +16,11 @@ import { MainLot } from "@/lib/types/tender";
 import { Input } from "../ui/input";
 import { Switch } from "../ui/switch";
 import { OtherBaseTender } from "./rough-lot-tenders";
+import { Button } from "../ui/button";
+import { updateMainLot } from "@/services/multi-lot";
+import { MainLotUpdate } from "@/app/api/main-lot/[id]/route";
+import { toast } from "react-toastify";
+import { Loader2 } from "lucide-react";
 
 interface MixLotTendersPageProps {
   mixLotTenders: MixLotColumns[];
@@ -44,11 +49,12 @@ export function MixLotTendersPage({
   baseTender,
 }: MixLotTendersPageProps) {
   const [page, setPage] = useState(1);
-  const [resultTotal, setResultTotal] = useState<number | undefined>(0);
-  const [resultPerCarat, setResultPerCarat] = useState<number | undefined>(0);
+  const [resultTotal, setResultTotal] = useState<number | undefined>(totalValues.resultTotal);
+  const [resultPerCarat, setResultPerCarat] = useState<number | undefined>(totalValues.resultPerCarat);
   const [resultCost, setResultCost] = useState<number | undefined>(
-    totalValues?.resultCost
+    totalValues.resultCost
   );
+  const [isWon, setIsWon] = useState<boolean>(mainLot?.isWon ?? false);
 
   const searchParams = useSearchParams();
   const id = searchParams.get("baseTenderId") as string;
@@ -68,6 +74,21 @@ export function MixLotTendersPage({
     },
   });
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: MainLotUpdate) =>
+      updateMainLot(data, parseInt(mainLotId) as number),
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success("Main lot updated successfully");
+      } else {
+        toast.error(data.message);
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   let createPath = ``;
   if (id) {
     createPath = `/tenders/mix-lot/create?baseTenderId=${id}`;
@@ -84,13 +105,12 @@ export function MixLotTendersPage({
     title = `Mix Multi Lot (${mainLot.stName} - ${mainLot.stLotNo})`;
   }
 
-  // console.log(mixLotResponse, "mixLotResponse");
-
   return (
     <PageWrapper>
       <PageHeader
         title={title}
         createPath={createPath}
+        backPath={mainLotId && id ? `/tenders/multi-lot/mix?baseTenderId=${id}` : undefined} 
         mainLotInfo={
           <>
             {mainLot?.stLotNo && (
@@ -118,7 +138,7 @@ export function MixLotTendersPage({
           </>
         }
       />
-      <div className="flex items-center gap-2 text-neutral-700">
+      <div className="ml-11 flex items-center gap-2 text-neutral-700">
         <p className="pr-2 border-r-2">
           {baseTender.dtVoucherDate.toDateString()}
         </p>
@@ -198,20 +218,25 @@ export function MixLotTendersPage({
 
                   setResultTotal(value);
                   const resultPerCarat = parseFloat(
-                    ((value ?? 0) * totalValues?.carats).toFixed(2)
+                    ((value ?? 0) / (mainLot?.dcCts ?? 0)).toFixed(2)
                   );
 
                   setResultPerCarat(resultPerCarat);
-                  const netPercent = baseTender.dcNetPercentage / 100;
+                  const netPercent = baseTender.dcNetPercentage - 100;
+                  const resultPercent = parseFloat(
+                    (netPercent / 100).toFixed(2)
+                  );
+
+                  const giaCharge = baseTender.dcGiaCharge;
 
                   const resultCost = parseFloat(
                     (
-                      (((resultPerCarat * netPercent +
+                      (((resultPerCarat * resultPercent +
                         resultPerCarat +
                         baseTender.dcLabour) *
                         totalValues.carats) /
                         totalValues.polCts +
-                        230) /
+                        giaCharge) /
                       0.97
                     ).toFixed(2)
                   );
@@ -233,19 +258,24 @@ export function MixLotTendersPage({
                     : undefined;
                   setResultPerCarat(value);
                   const resultTotal = parseFloat(
-                    ((value ?? 0) * totalValues?.carats).toFixed(2)
+                    ((value ?? 0) * (mainLot?.dcCts ?? 0)).toFixed(2)
                   );
                   setResultTotal(resultTotal);
 
-                  const netPercent = baseTender.dcNetPercentage / 100;
+                  const netPercent = baseTender.dcNetPercentage - 100;
+                  const resultPercent = parseFloat(
+                    (netPercent / 100).toFixed(2)
+                  );
+                  const giaCharge = baseTender.dcGiaCharge;
+
                   const resultCost = parseFloat(
                     (
-                      (((resultTotal * netPercent +
-                        resultTotal +
+                      ((((value ?? 0) * resultPercent +
+                        (value ?? 0) +
                         baseTender.dcLabour) *
                         totalValues.carats) /
                         totalValues.polCts +
-                        230) /
+                        giaCharge) /
                       0.97
                     ).toFixed(2)
                   );
@@ -258,12 +288,37 @@ export function MixLotTendersPage({
             <div className="flex w-full items-center justify-center gap-2">
               <label className="font-semibold text-red-600">Loss</label>
               <Switch
-              // checked={watch("isWon") ? true : false}
-              // onCheckedChange={(value) => {
-              //   setValue("isWon", value);
-              // }}
+                checked={isWon}
+                onCheckedChange={(value) => {
+                  setIsWon(value);
+                }}
               />
               <label className="font-semibold text-green-600">Win</label>
+              <div className="flex w-full items-center justify-end">
+                <Button
+                  disabled={isPending}
+                  onClick={() => {
+                    mutate({
+                      dcPolCts: totalValues.polCts,
+                      dcSalePrice: totalValues.salePrice,
+                      dcSaleAmount: totalValues.saleAmount,
+                      dcCostPrice: 0,
+                      dcCostAmount: 0,
+                      isWon,
+                      dcBidPrice: totalValues.bidPrice,
+                      dcBidAmount: totalValues.bidAmount,
+                      dcResultCost: resultCost ?? 0,
+                      dcResultPerCt: resultPerCarat ?? 0,
+                      dcResultTotal: resultTotal ?? 0,
+                      inUsedPcs: totalValues.pcs,
+                      dcUsedCts: totalValues.carats,
+                    });
+                  }}
+                  className="px-2 lg:px-4 h-7 lg:h-9 bg-neutral-800 rounded-sm w-24"
+                >
+                  Save {isPending && <Loader2 className="animate-spin" />}
+                </Button>
+              </div>
             </div>
           </div>
         </>

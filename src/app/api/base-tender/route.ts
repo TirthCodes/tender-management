@@ -8,6 +8,7 @@ export type BaseTenderPayload = {
   stPersonName: string;
   dcNetPercentage: number;
   dcLabour: number;
+  dcGiaCharge: number;
 };
 
 export async function POST(req: Request) {
@@ -26,8 +27,15 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as BaseTenderPayload;
 
-    const { id, dtVoucherDate, stTenderName, stPersonName, dcNetPercentage, dcLabour } =
-      body;
+    const {
+      id,
+      dtVoucherDate,
+      stTenderName,
+      stPersonName,
+      dcNetPercentage,
+      dcLabour,
+      dcGiaCharge,
+    } = body;
 
     if (id) {
       await prisma.baseTender.update({
@@ -36,20 +44,22 @@ export async function POST(req: Request) {
         },
         data: {
           dtVoucherDate: new Date(dtVoucherDate),
-          stTenderName: stTenderName,
-          stPersonName: stPersonName,
-          dcNetPercentage: Number(dcNetPercentage),
-          dcLabour: dcLabour,
+          stTenderName,
+          stPersonName,
+          dcNetPercentage,
+          dcLabour,
+          dcGiaCharge,
         },
       });
-    }else{
+    } else {
       await prisma.baseTender.create({
         data: {
           dtVoucherDate: new Date(dtVoucherDate),
-          stTenderName: stTenderName,
-          stPersonName: stPersonName,
-          dcNetPercentage: Number(dcNetPercentage),
-          dcLabour: Number(dcLabour),
+          stTenderName,
+          stPersonName,
+          dcNetPercentage,
+          dcLabour,
+          dcGiaCharge,
         },
         select: {
           id: true,
@@ -104,6 +114,7 @@ export async function GET(req: Request) {
           dtVoucherDate: true,
           stTenderName: true,
           dcLabour: true,
+          dcGiaCharge: true,
           dcNetPercentage: true,
           stPersonName: true,
         },

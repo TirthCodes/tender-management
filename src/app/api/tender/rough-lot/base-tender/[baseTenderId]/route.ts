@@ -28,7 +28,6 @@ export async function GET(_req: Request, { params }: { params: Promise<{ baseTen
 
   const whereCondition: {
     baseTenderId: number;
-    mainLotId?: number;
     stTenderType: "rough-lot";
   } = {
     baseTenderId: parseInt(baseTenderId),

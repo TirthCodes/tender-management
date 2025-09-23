@@ -106,6 +106,7 @@ export interface MainLot {
   dcCts: number;
   dcRemainingCts: number;
   inRemainingPcs: number;
+  isWon: boolean;
 }
 
 export interface MixLotTenderDetails {
