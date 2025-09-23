@@ -354,25 +354,63 @@ export function TenderPDF({
         <SingleStoneTender singleTender={singleTender} />
 
         {roughtLotTenders?.length > 0 && (
-          <View
-            style={{
-              borderTopWidth: 1,
-              borderTopStyle: "dashed",
-              borderTopColor: "#888",
-              marginTop: 10,
-            }}
-          ></View>
+          <>
+            <View
+              style={{
+                borderTopWidth: 1,
+                borderTopStyle: "dashed",
+                borderTopColor: "#888",
+                marginTop: 10,
+              }}
+            ></View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                borderWidth: 0.5,
+                backgroundColor: "#262626",
+                color: "#fff",
+                paddingHorizontal: 4,
+                paddingVertical: 6,
+                marginTop: 6,
+              }}
+            >
+              <Text style={{ fontSize: 11, fontWeight: "bold" }}>
+                Rough Lot Tenders
+              </Text>
+            </View>
+          </>
         )}
         <RoughLotTender roughtLotTenders={roughtLotTenders} />
         {mixLotTenders?.length > 0 && (
-          <View
-            style={{
-              borderTopWidth: 1,
-              borderTopStyle: "dashed",
-              borderTopColor: "#888",
-              marginTop: 10,
-            }}
-          ></View>
+          <>
+            <View
+              style={{
+                borderTopWidth: 1,
+                borderTopStyle: "dashed",
+                borderTopColor: "#888",
+                marginTop: 10,
+              }}
+            ></View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                borderWidth: 0.5,
+                backgroundColor: "#262626",
+                color: "#fff",
+                paddingHorizontal: 4,
+                paddingVertical: 6,
+                marginTop: 6,
+              }}
+            >
+              <Text style={{ fontSize: 11, fontWeight: "bold" }}>
+                Mix Lot Tenders
+              </Text>
+            </View>
+          </>
         )}
         <MixLotTender mixLotTenders={mixLotTenders} />
         {multiLotTenders?.rough?.length > 0 && (
@@ -427,7 +465,7 @@ export function TenderPDF({
                         </Text>
                       </View>
                       <Text style={{ fontSize: 11, fontWeight: "600" }}>
-                        Rough Main Lot Details {idx + 1}
+                        Multi Rough Lot {idx + 1}
                       </Text>
                     </View>
                     <RoughLotTender
@@ -630,7 +668,7 @@ export function TenderPDF({
                         </Text>
                       </View>
                       <Text style={{ fontSize: 11, fontWeight: "bold" }}>
-                        Mix Main Lot Details {idx + 1}
+                        Multi Mix Lot {idx + 1}
                       </Text>
                     </View>
                     <MixLotTender mixLotTenders={lot.tender} isMulti={true} />
@@ -833,9 +871,27 @@ function SingleStoneTender({
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: 4,
+                justifyContent: "center",
                 borderWidth: 0.5,
+                backgroundColor: "#262626",
+                color: "#fff",
+                paddingHorizontal: 4,
+                paddingVertical: 6,
+                marginTop: 6,
+              }}
+            >
+              <Text style={{ fontSize: 11, fontWeight: "bold" }}>
+                Single Stone Tenders
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                borderWidth: 0.5,
+                borderTopWidth: 0,
+                borderBottomWidth: 0,
                 backgroundColor: "#fafafa",
                 padding: 4,
               }}
@@ -843,10 +899,19 @@ function SingleStoneTender({
               <View
                 style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
               >
-                <Text style={{ fontSize: 11 }}>{singleTender?.stRemark}</Text>
+                <Text style={{ fontSize: 11 }}>
+                  {singleTender?.inRoughPcs} pcs
+                </Text>
+                <Text style={{ fontSize: 11 }}>
+                  {singleTender?.dcRoughCts} cts
+                </Text>
+                <Text style={{ fontSize: 11 }}>
+                  {singleTender?.dcNetPercentage}%
+                </Text>
+                <Text style={{ fontSize: 11 }}>{singleTender?.dcLabour}</Text>
               </View>
               <Text style={{ fontSize: 11, fontWeight: "bold" }}>
-                Single Stone Tender
+                {singleTender?.stRemark}
               </Text>
             </View>
             <View style={styles.table} wrap={true}>
@@ -1338,7 +1403,7 @@ function RoughLotTender({
                     borderTopWidth: isMulti ? 0 : 0.5,
                     backgroundColor: "#fafafa",
                     padding: 4,
-                    marginTop: isMulti ? 0 : 10,
+                    marginTop: isMulti ? 0 : idx === 0 ? 2 : 10,
                   }}
                 >
                   <View
@@ -1689,7 +1754,7 @@ function MixLotTender({
                     borderTopWidth: isMulti ? 0 : 0.5,
                     backgroundColor: "#fafafa",
                     padding: 4,
-                    marginTop: isMulti ? 0 : 10,
+                    marginTop: isMulti ? 0 : idx === 0 ? 2 : 10,
                   }}
                 >
                   <View

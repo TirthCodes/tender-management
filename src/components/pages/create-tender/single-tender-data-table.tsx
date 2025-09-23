@@ -52,12 +52,12 @@ const columns = [
   "Sale Amnt",
   "Cost Price",
   "Tops Amnt",
-  "Incription",
   "Bid Price",
   "Total Amount",
   "Result Total",
   "Result/Ct",
   "Result Cost",
+  "Description",
   "Is Won",
   "Margin",
   <Button
@@ -880,24 +880,7 @@ export function SingleTenderDataTable({
                         placeholder="0"
                       />
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
-                      <Input
-                        className="w-20"
-                        name="incription"
-                        type="text"
-                        value={row.incription || ""}
-                        onChange={(e) => {
-                          handleValueChange(
-                            {
-                              ...row,
-                              incription: e.target.value,
-                            },
-                            index
-                          );
-                        }}
-                        placeholder="RD-2.35"
-                      />
-                    </TableCell>
+                    
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
@@ -1077,6 +1060,24 @@ export function SingleTenderDataTable({
                           );
                         }}
                         placeholder="0"
+                      />
+                    </TableCell>
+                    <TableCell className="border-collapse border border-gray-300">
+                      <Input
+                        className="w-20"
+                        name="incription"
+                        type="text"
+                        value={row.incription || ""}
+                        onChange={(e) => {
+                          handleValueChange(
+                            {
+                              ...row,
+                              incription: e.target.value,
+                            },
+                            index
+                          );
+                        }}
+                        placeholder="RD-2.35"
                       />
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
