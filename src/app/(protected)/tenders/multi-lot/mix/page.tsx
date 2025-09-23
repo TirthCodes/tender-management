@@ -19,6 +19,7 @@ export default async function Page({
       stPersonName: true,
       dcNetPercentage: true,
       dcLabour: true,
+      dcGiaCharge: true,
     },
     where: {
       id: parseInt(baseTenderId),
@@ -41,6 +42,17 @@ export default async function Page({
         dcRemainingCts: true,
         inRemainingPcs: true,
         stTenderType: true,
+        isWon: true,
+        dcBidPrice: true,
+        dcBidAmount: true,
+        dcResultCost: true,
+        dcSalePrice: true,
+        dcSaleAmount: true,
+        dcResultPerCt: true,
+        dcResultTotal: true,
+        inUsedPcs: true,
+        dcPolCts: true,
+        dcUsedCts: true,
       },
       where: {
         baseTenderId: parseInt(baseTenderId),
@@ -59,11 +71,37 @@ export default async function Page({
     }),
   ]);
 
-  const tendersData = tenders.map(({ dcCts, dcRemainingCts, ...rest }) => ({
-    ...rest,
-    dcCts: dcCts.toNumber(),
-    dcRemainingCts: dcRemainingCts.toNumber(),
-  }));
+  const tendersData = tenders.map(
+    ({
+      dcCts,
+      dcRemainingCts,
+      dcBidPrice,
+      dcBidAmount,
+      dcResultCost,
+      dcSalePrice,
+      dcSaleAmount,
+      dcResultPerCt,
+      dcResultTotal,
+      dcUsedCts,
+      dcPolCts,
+      isWon,
+      ...rest
+    }) => ({
+      ...rest,
+      dcCts: dcCts.toNumber(),
+      dcRemainingCts: dcRemainingCts.toNumber(),
+      isWon: isWon ?? false,
+      dcBidPrice: dcBidPrice?.toNumber() ?? 0,
+      dcBidAmount: dcBidAmount?.toNumber() ?? 0,
+      dcSalePrice: dcSalePrice?.toNumber() ?? 0,
+      dcSaleAmount: dcSaleAmount?.toNumber() ?? 0,
+      dcResultCost: dcResultCost?.toNumber() ?? 0,
+      dcResultPerCt: dcResultPerCt?.toNumber() ?? 0,
+      dcResultTotal: dcResultTotal?.toNumber() ?? 0,
+      dcUsedCts: dcUsedCts?.toNumber() ?? 0,
+      dcPolCts: dcPolCts?.toNumber() ?? 0,
+    })
+  );
 
   return (
     <Suspense>
@@ -74,6 +112,7 @@ export default async function Page({
           ...baseTender,
           dcNetPercentage: Number(baseTender.dcNetPercentage),
           dcLabour: Number(baseTender.dcLabour),
+          dcGiaCharge: Number(baseTender.dcGiaCharge),
         }}
       />
     </Suspense>

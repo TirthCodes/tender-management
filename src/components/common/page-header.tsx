@@ -12,12 +12,14 @@ export function PageHeader({
   handleDialog,
   createPath,
   mainLotInfo,
+  backPath,
   isBackButton = true,
   isSearch = false,
 }: {
   title: string;
   handleDialog?: () => void;
   createPath?: string;
+  backPath?: string;
   mainLotInfo?: React.ReactNode;
   isBackButton?: boolean;
   isSearch?: boolean;
@@ -32,7 +34,13 @@ export function PageHeader({
             variant={"ghost"}
             size="icon"
             className="rounded-full border"
-            onClick={() => router.back()}
+            onClick={() => {
+              if(backPath) {
+                router.push(backPath);
+              } else {
+                router.back();
+              }
+            }}
           >
             <ArrowLeft />
           </Button>
@@ -42,22 +50,20 @@ export function PageHeader({
       </div>
       <div className="flex items-center gap-2"> 
         {isSearch &&
-          <Input
-            
-          />
+          <Input/>
         }
         {createPath ? (
           <Link
             className={`${buttonVariants({
               variant: "default",
-            })} px-2 lg:px-4 h-7 lg:h-9 bg-neutral-800 rounded-sm`}
+            })} px-2 lg:px-4 h-7 lg:h-9 bg-neutral-800 rounded-sm w-24`}
             href={createPath}
           >
             Create <LinkLoadingIndicator element={<PlusCircle />} />
           </Link>
         ) : (
           <Button
-            className="rounded-sm bg-neutral-800 h-7 lg:h-9 px-2 lg:px-4"
+            className="rounded-sm bg-neutral-800 h-7 lg:h-9 px-2 lg:px-4 w-24"
             onClick={() => handleDialog?.()}
           >
             Create <PlusCircle />

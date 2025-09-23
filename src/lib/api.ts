@@ -33,6 +33,26 @@ export const postData = async (endpoint: string, data?: unknown) => {
   }
 };
 
+export const patchData = async (endpoint: string, data?: unknown) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    return await response.json();
+  } catch (error) {
+    console.error(
+      "Error posting data:",
+      error instanceof Error ? error?.message : error
+    );
+    throw error;
+  }
+};
+
 export const fetchDelete = async (url: string) => {
   const response = await fetch(url, {
     method: "DELETE"

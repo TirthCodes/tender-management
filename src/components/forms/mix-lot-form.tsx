@@ -253,13 +253,16 @@ export function MixLotForm() {
     }
   }, [baseTender, loadingBaseTender, setValue]);
 
+  console.log(baseTender?.data, "baseTender?.data");
+
   useEffectAfterMount(() => {
     if (netPercent && labour && salePrice) {
       const netPercentage = netPercent / 100;
+      const giaCharge = Number(baseTender?.data.dcGiaCharge);
 
       const calculatedBidPrice = parseFloat(
         (
-          (((salePrice * 0.97 - 230) * totalValues.polCts) /
+          (((salePrice * 0.97 - giaCharge) * totalValues.polCts) /
             totalValues.carats -
             labour) /
           netPercentage
@@ -322,7 +325,7 @@ export function MixLotForm() {
           (((resultPerCarat * resultPercent + resultPerCarat + labour) *
             totalValues.carats) /
             totalValues.polCts +
-            230) /
+            baseTender) /
           0.97
         ).toFixed(2)
       );
@@ -684,6 +687,7 @@ export function MixLotForm() {
                         );
                         let resultCost = 0;
                         if (roughCts) {
+                          const giaCharge = Number(baseTender?.data.dcGiaCharge);
                           resultCost = parseFloat(
                             (
                               (((resultPerCarat * resultPercent +
@@ -691,7 +695,7 @@ export function MixLotForm() {
                                 labour) *
                                 totalValues.carats) /
                                 totalValues.polCts +
-                                230) /
+                                giaCharge) /
                               0.97
                             ).toFixed(2)
                           );
@@ -760,12 +764,14 @@ export function MixLotForm() {
                     ((netPercent - 100) / 100).toFixed(2)
                   );
 
+                  const giaCharge = Number(baseTender?.data.dcGiaCharge);
+
                   const resultCost = parseFloat(
                     (
                       ((((value ?? 0) * resultPercent + (value ?? 0) + labour) *
                         totalValues.carats) /
                         totalValues.polCts +
-                        230) /
+                        giaCharge) /
                       0.97
                     ).toFixed(2)
                   );

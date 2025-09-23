@@ -44,6 +44,7 @@ model BaseTender {
   stPersonName         String
   dcNetPercentage      Decimal                @db.Decimal(10, 2)   
   dcLabour             Decimal                @db.Decimal(10, 2)
+  dcGiaCharge          Decimal                @db.Decimal(10, 2)   @default(230)
   otherTender          OtherTender[]
   singleTender         SingleTender[]
   mainLot              MainLot[]
@@ -195,11 +196,15 @@ model MainLot {
   dcPcs             Decimal           @default(0) @db.Decimal(10, 2)
   dcCts             Decimal           @default(0) @db.Decimal(10, 2)
   dcRemainingCts    Decimal           @default(0) @db.Decimal(10, 2)
+  inUsedPcs         Int               @default(0)
+  dcUsedCts         Decimal           @default(0) @db.Decimal(10, 2)
   dcRate            Decimal?          @db.Decimal(10, 2) 
   dcAmount          Decimal?          @db.Decimal(10, 2)
   dcPolCts          Decimal?          @db.Decimal(10, 2)
   dcSalePrice       Decimal?          @db.Decimal(10, 2) 
   dcSaleAmount      Decimal?          @db.Decimal(10, 2)
+  dcCostPrice       Decimal?          @db.Decimal(10, 2)
+  dcCostAmount      Decimal?          @db.Decimal(10, 2)
   dcBidPrice        Decimal?          @db.Decimal(10, 2)
   dcBidAmount       Decimal?          @db.Decimal(10, 2)
   dcResultCost      Decimal?          @db.Decimal(10, 2)

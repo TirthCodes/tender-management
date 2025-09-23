@@ -9,6 +9,7 @@ export const getBaseTendersDb = async () => {
         dtVoucherDate: true,
         stTenderName: true,
         dcLabour: true,
+        dcGiaCharge: true,
         dcNetPercentage: true,
         stPersonName: true,
       },
@@ -20,10 +21,11 @@ export const getBaseTendersDb = async () => {
     prisma.baseTender.count(),
   ]);
 
-  const tendersData = tenders.map(({ dcNetPercentage, dcLabour, ...rest }) => ({  
+  const tendersData = tenders.map(({ dcNetPercentage, dcLabour, dcGiaCharge, ...rest }) => ({  
     ...rest,
     dcNetPercentage: dcNetPercentage.toNumber(),
     dcLabour: dcLabour.toNumber(),
+    dcGiaCharge: dcGiaCharge.toNumber(),
   }));
 
   return {

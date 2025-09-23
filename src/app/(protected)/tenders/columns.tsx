@@ -11,6 +11,7 @@ export type TenderColumns = {
   stPersonName: string;
   dcNetPercentage: number;
   dcLabour: number;
+  dcGiaCharge: number;
   dtVoucherDate: Date;
 };
 
@@ -54,6 +55,10 @@ export const columns: ColumnDef<TenderColumns>[] = [
   {
     accessorKey: "dcNetPercentage",
     header: "Net %",
+  },
+  {
+    accessorKey: "dcGiaCharge",
+    header: "GIA Charge",
   },
   {
     accessorKey: "dcLabour",

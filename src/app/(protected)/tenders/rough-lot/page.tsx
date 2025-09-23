@@ -27,6 +27,7 @@ export default async function Page({
     stPersonName: "",
     dcNetPercentage: 0,
     dcLabour: 0,
+    dcGiaCharge: 0,
   };
 
   if (baseTenderId) {
@@ -39,6 +40,7 @@ export default async function Page({
         stPersonName: true,
         dcNetPercentage: true,
         dcLabour: true,
+        dcGiaCharge: true,
       },
       where: {
         id: Number(baseTenderId),
@@ -52,6 +54,7 @@ export default async function Page({
       ...baseTender,
       dcNetPercentage: Number(baseTender.dcNetPercentage),
       dcLabour: Number(baseTender.dcLabour),
+      dcGiaCharge: Number(baseTender.dcGiaCharge),
     };
   }
 
@@ -148,10 +151,33 @@ export default async function Page({
         dcCts: true,
         dcRemainingCts: true,
         inRemainingPcs: true,
+        dcPolCts: true,
+        dcBidPrice: true,
+        dcBidAmount: true,
+        dcCostPrice: true,
+        dcCostAmount: true,
+        isWon: true,
+        dcResultTotal: true,
+        dcResultPerCt: true,
+        inUsedPcs: true,
+        dcUsedCts: true,
       },
     });
 
     if(mainLotDetails) {
+      // let roughLotDataTotal = {
+      //   pcs: 0,
+      //   carats: 0,
+      //   costAmount: 0,
+      // };
+      // if(mainLotDetails.inUsedPcs && mainLotDetails.dcUsedCts && mainLotDetails.dcCostAmount) {
+      //   roughLotDataTotal = {
+      //     pcs: mainLotDetails.inUsedPcs,
+      //     carats: mainLotDetails.dcUsedCts.toNumber(),
+      //     costAmount: mainLotDetails.dcCostAmount.toNumber(),
+      //   };
+      // } else {
+      // }
       const roughLotDataTotal = roughLotData?.reduce(
         (acc, cur) => {
           return {
@@ -166,7 +192,7 @@ export default async function Page({
           costAmount: 0
         }
       );
-  
+
       const result = await prisma.$queryRawUnsafe<{ total: Decimal }[]>(
         `
           SELECT SUM(otd."dcPolCts") AS total
@@ -179,27 +205,48 @@ export default async function Page({
       );
 
       const totalPolCts = result?.[0]?.total ? result[0].total.toNumber() : 0;
+      // let totalPolCts = 0;
+      // if(mainLotDetails.dcPolCts) {
+      //   totalPolCts = mainLotDetails.dcPolCts.toNumber();
+      // } else {
+      // }
+  
   
       const { pcs, carats, costAmount } = roughLotDataTotal;
 
+      // let costPrice = 0;
+      // if(mainLotDetails.dcCostPrice) {
+      //   costPrice = mainLotDetails.dcCostPrice.toNumber();
+      // } else {
+      // }
       const costPrice = parseFloat(
         (costAmount / carats).toFixed(2)
       );
 
       const netPercent = baseTenderData.dcNetPercentage / 100;
+      // let bidPrice = 0;
+      // if(mainLotDetails.dcBidPrice) {
+      //   bidPrice = mainLotDetails.dcBidPrice.toNumber();
+      // } else {
+      // }
       const bidPrice = parseFloat((costPrice / netPercent).toFixed(2))
-      const bidAmount = parseFloat(((bidPrice * carats).toFixed(2)));
+      // let bidAmount = 0;
+      // if(mainLotDetails.dcBidAmount) {
+      //   bidAmount = mainLotDetails.dcBidAmount.toNumber();
+      // } else {
+      // }
+      const bidAmount = parseFloat(((bidPrice * mainLotDetails?.dcCts?.toNumber()).toFixed(2)));
 
       totalValues = {
         pcs,
         carats,
         polCts: totalPolCts,
-        costPrice,
-        costAmount: costAmount ?? 0,
-        bidPrice,
-        bidAmount,
-        resultTotal: 0,
-        resultPerCarat: 0,
+        costPrice: isNaN(costPrice) ? 0 : costPrice,
+        costAmount,
+        bidPrice: isNaN(bidPrice) ? 0 : bidPrice,
+        bidAmount: isNaN(bidAmount) ? 0 : bidAmount,
+        resultTotal: mainLotDetails?.dcResultTotal?.toNumber() ?? 0,
+        resultPerCarat: mainLotDetails?.dcResultPerCt?.toNumber() ?? 0,
       };
     }
   }
@@ -217,6 +264,7 @@ export default async function Page({
         inRemainingPcs: mainLotDetails?.inRemainingPcs ?? 0,
         dcCts: mainLotDetails?.dcCts.toNumber() ?? 0,
         dcRemainingCts: mainLotDetails?.dcRemainingCts.toNumber() ?? 0,
+        isWon: mainLotDetails?.isWon ?? false,
       }}
     />
   );

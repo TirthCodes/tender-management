@@ -26,6 +26,7 @@ export default async function Page({
     stPersonName: "",
     dcNetPercentage: 0,
     dcLabour: 0,
+    dcGiaCharge: 0,
   };
 
   if (baseTenderId) {
@@ -39,6 +40,7 @@ export default async function Page({
         stPersonName: true,
         dcNetPercentage: true,
         dcLabour: true,
+        dcGiaCharge: true,
       },
       where: {
         id: Number(baseTenderId),
@@ -52,6 +54,7 @@ export default async function Page({
       ...baseTender,
       dcNetPercentage: Number(baseTender.dcNetPercentage),
       dcLabour: Number(baseTender.dcLabour),
+      dcGiaCharge: Number(baseTender.dcGiaCharge),
     };
   }
 
@@ -149,6 +152,17 @@ export default async function Page({
         dcCts: true,
         dcRemainingCts: true,
         inRemainingPcs: true,
+        dcPolCts: true,
+        dcBidPrice: true,
+        dcBidAmount: true,
+        dcResultCost: true,
+        dcSaleAmount: true,
+        dcSalePrice: true,
+        isWon: true,
+        dcResultTotal: true,
+        dcResultPerCt: true,
+        inUsedPcs: true,
+        dcUsedCts: true,
       },
     });
     if (mainLotDetails) {
@@ -185,7 +199,7 @@ export default async function Page({
         (mixLotDataTotal.saleAmount / totalPolCts).toFixed(2)
       );
   
-      const bidPrice = parseFloat(((((((salePrice * 0.97) - 230) * totalPolCts) / mixLotDataTotal?.carats) - 50) / 1.15).toFixed(2)); 
+      const bidPrice = parseFloat(((((((salePrice * 0.97) - baseTenderData.dcGiaCharge) * totalPolCts) / mixLotDataTotal?.carats) - 50) / 1.15).toFixed(2)); 
       const bidAmount = parseFloat(((bidPrice * mainLotDetails?.dcCts?.toNumber()).toFixed(2)));
   
       totalValues = {
@@ -196,9 +210,9 @@ export default async function Page({
         saleAmount,
         bidPrice,
         bidAmount,
-        resultCost: 0,
-        resultTotal: 0,
-        resultPerCarat: 0,
+        resultCost: mainLotDetails?.dcResultCost?.toNumber() ?? 0,
+        resultTotal: mainLotDetails?.dcResultTotal?.toNumber() ?? 0,
+        resultPerCarat: mainLotDetails?.dcResultPerCt?.toNumber() ?? 0,
       };
     }
   }
@@ -216,6 +230,7 @@ export default async function Page({
         inRemainingPcs: mainLotDetails?.inRemainingPcs ?? 0,
         dcCts: mainLotDetails?.dcCts.toNumber() ?? 0,
         dcRemainingCts: mainLotDetails?.dcRemainingCts.toNumber() ?? 0,
+        isWon: mainLotDetails?.isWon ?? false,
       }}
     />
   );

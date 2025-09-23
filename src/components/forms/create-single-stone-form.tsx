@@ -63,6 +63,7 @@ export interface BaseTenderData {
   stPersonName: string;
   dcNetPercentage: number;
   dcLabour: number;
+  dcGiaCharge: number;
   id: number;
 }
 
@@ -323,6 +324,7 @@ export function CreateSingleStoneTenderForm({
           shapes={shapesOptions?.data}
           labourValue={labour}
           netPercent={netPercent}
+          giaCharge={baseTenderData.dcGiaCharge}
         />
       </div>
       {/* total values */}

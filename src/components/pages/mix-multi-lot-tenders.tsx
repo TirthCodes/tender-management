@@ -57,6 +57,7 @@ export function MixMultiLotTendersPage({
       <PageHeader
         title="Mix Multi Lot Tenders (Main Lot)"
         handleDialog={handleDialog}
+        backPath="/tenders"
       />
       <div className="flex items-center gap-2 text-neutral-700">
         <p className="pr-2 border-r-2">

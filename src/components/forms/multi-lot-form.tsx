@@ -26,14 +26,6 @@ const multiLotFormSchema = z.object({
     (val) => Number(val),
     z.number().min(0, "Carats is required")
   ),
-  inRemainingPcs: z.preprocess(
-    (val) => Number(val),
-    z.number().min(0, "Remaining Pcs is required")
-  ),
-  dcRemainingCts: z.preprocess(
-    (val) => Number(val),
-    z.number().min(0, "Remaining Carats is required")
-  ),
 });
 
 type TenderFormSchema = z.infer<typeof multiLotFormSchema> & {
@@ -57,8 +49,6 @@ export function MultiLotForm({
     register,
     formState: { errors },
     reset,
-    setValue,
-    watch,
   } = useForm({
     resolver: zodResolver(multiLotFormSchema),
     defaultValues: editData
@@ -72,8 +62,6 @@ export function MultiLotForm({
           stLotNo: "",
           inPcs: 0,
           dcCts: 0,
-          inRemainingPcs: 0,
-          dcRemainingCts: 0,
         },
   });
 
@@ -130,9 +118,6 @@ export function MultiLotForm({
     }
   };
 
-  const inPcs = watch("inPcs");
-  const dcCts = watch("dcCts");
-
   return (
     <form
       onKeyDown={handleKeyDown}
@@ -179,50 +164,6 @@ export function MultiLotForm({
             <p className="text-sm text-red-500">{errors?.dcCts.message}</p>
           )}
         </div>
-        {editData?.id && (
-          <>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Remaining Pcs</label>
-              <Input
-                type="number"
-                {...(register("inRemainingPcs"))}
-                onChange={(e) => {
-                  if (e.target.value) {
-                    const remainingPcs = Number(e.target.value);
-                    setValue("inRemainingPcs", remainingPcs > inPcs ? inPcs : remainingPcs);
-                  }
-                }}
-                required
-              />
-              {errors.inRemainingPcs && (
-                <p className="text-sm text-red-500">
-                  {errors?.inRemainingPcs.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Remaining Carats</label>
-              <Input
-                type="number"
-                step="0.01"
-                {...(register("dcRemainingCts"))}
-                onChange={(e) => {
-                  if (e.target.value) {
-                    const remainingCts = parseFloat(e.target.value);
-                    setValue("dcRemainingCts", remainingCts > dcCts ? dcCts : remainingCts);
-                  }
-                }}
-                required
-              />
-              {errors.dcRemainingCts && (
-                <p className="text-sm text-red-500">
-                  {errors?.dcRemainingCts.message}
-                </p>
-              )}
-            </div>
-          </>
-        )}
       </div>
 
       <FormButtons isPending={isPending} submitText={"Submit"} />

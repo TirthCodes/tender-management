@@ -86,6 +86,7 @@ interface SingleTenderDataTableProps {
   netPercent: number;
   setTotalValues: React.Dispatch<React.SetStateAction<TotalValues>>;
   isRowsLoading: boolean;
+  giaCharge: number;
 }
 
 export function SingleTenderDataTable({
@@ -100,6 +101,7 @@ export function SingleTenderDataTable({
   shapes,
   labourValue,
   netPercent,
+  giaCharge,
 }: SingleTenderDataTableProps) {
   useEffect(() => {
     const totals = data?.reduce(
@@ -260,34 +262,21 @@ export function SingleTenderDataTable({
                             ? parseFloat(e.target.value)
                             : 0;
 
-                          let polCts = 0;
-                          let polPercent = 0;
-                          let saleAmount = 0;
-                          let salePrice = 0;
+                          const polPercent = parseFloat(
+                            ((row.polCts / value) * 100).toFixed(2)
+                          );
 
-                          if (!isNaN(row.polPercent) && !isNaN(value)) {
-                            polCts = parseFloat(
-                              ((row.polPercent * value) / 100).toFixed(2)
-                            );
-                          }
+                          // if (!isNaN(polCts) && !isNaN(row.salePrice)) {
+                          //   saleAmount = parseFloat(
+                          //     (row.salePrice * polCts).toFixed(2)
+                          //   );
+                          // }
 
-                          if (!isNaN(polCts) && !isNaN(value)) {
-                            polPercent = parseFloat(
-                              ((polCts / value) * 100).toFixed(2)
-                            );
-                          }
-
-                          if (!isNaN(polCts) && !isNaN(row.salePrice)) {
-                            saleAmount = parseFloat(
-                              (row.salePrice * polCts).toFixed(2)
-                            );
-                          }
-
-                          if (!isNaN(saleAmount) && !isNaN(polCts)) {
-                            salePrice = parseFloat(
-                              (saleAmount / polCts).toFixed(2)
-                            );
-                          }
+                          // if (!isNaN(saleAmount) && !isNaN(polCts)) {
+                          //   salePrice = parseFloat(
+                          //     (saleAmount / polCts).toFixed(2)
+                          //   );
+                          // }
 
                           handleValueChange(
                             {
@@ -296,10 +285,9 @@ export function SingleTenderDataTable({
                               roughSize: parseFloat(
                                 (value / row.roughPcs).toFixed(2)
                               ),
-                              polCts,
                               polPercent,
-                              saleAmount,
-                              salePrice,
+                              // saleAmount,
+                              // salePrice,
                             },
                             index
                           );
@@ -786,7 +774,8 @@ export function SingleTenderDataTable({
                             row.polCts,
                             row.roughCts,
                             labourValue,
-                            netPercent
+                            netPercent,
+                            giaCharge
                           );
 
                           // const margin = parseFloat(((value - row.costPrice) / row.salePrice).toFixed(2))
@@ -827,7 +816,8 @@ export function SingleTenderDataTable({
                             row.polCts,
                             row.roughCts,
                             labourValue,
-                            netPercent
+                            netPercent,
+                            giaCharge
                           );
 
                           const resultCost = calculateResultCost(
@@ -836,7 +826,8 @@ export function SingleTenderDataTable({
                             row.polCts,
                             row.roughCts,
                             value,
-                            netPercent
+                            netPercent,
+                            giaCharge
                           );
 
                           handleValueChange(
@@ -888,7 +879,8 @@ export function SingleTenderDataTable({
                             row.roughCts,
                             row.polCts,
                             row.topsAmount,
-                            netPercent
+                            netPercent,
+                            giaCharge
                           );
 
                           const totalAmount = calculateTotalAmount(
@@ -932,7 +924,8 @@ export function SingleTenderDataTable({
                             row.roughCts,
                             row.polCts,
                             row.topsAmount,
-                            netPercent
+                            netPercent,
+                            giaCharge
                           );
 
                           handleValueChange(
@@ -971,7 +964,8 @@ export function SingleTenderDataTable({
                             row.polCts,
                             row.roughCts,
                             row.topsAmount,
-                            netPercent
+                            netPercent,
+                            giaCharge
                           );
                           handleValueChange(
                             {
@@ -1008,7 +1002,8 @@ export function SingleTenderDataTable({
                             row.polCts,
                             row.roughCts,
                             row.topsAmount,
-                            netPercent
+                            netPercent,
+                            giaCharge
                           );
 
                           handleValueChange(
