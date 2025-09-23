@@ -130,6 +130,7 @@ export function TenderDataTable<TData extends { id?: number }>({
                     <TableCell
                       key={cell.id}
                       style={(cell.column.columnDef.meta as any)?.style}
+                      className="text-neutral-800"
                     >
                       {cell.column.id === "actions" ? (
                         <div className="flex items-center gap-1.5 w-fit">
