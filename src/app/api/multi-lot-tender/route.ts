@@ -108,6 +108,7 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const page = url.searchParams.get("page");
   const tenderType = url.searchParams.get("tenderType") as string;
+  const baseTenderId = url.searchParams.get("baseTenderId") as string;
 
   const limit = 10;
   const pageNumber = page ? parseInt(page) : 1;
@@ -151,6 +152,7 @@ export async function GET(req: Request) {
         },
         where: {
           stTenderType: tenderType,
+          baseTenderId: Number(baseTenderId),
         },
         orderBy: {
           createdAt: "desc",
@@ -161,6 +163,7 @@ export async function GET(req: Request) {
       prisma.mainLot.count({
         where: {
           stTenderType: tenderType,
+          baseTenderId: Number(baseTenderId),
         },
       }),
     ]);

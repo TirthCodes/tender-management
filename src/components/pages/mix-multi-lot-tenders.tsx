@@ -28,7 +28,7 @@ export function MixMultiLotTendersPage({
   const [page, setPage] = useState(1);
 
   const searchParams = useSearchParams();
-  const id = searchParams.get("tenderId");
+  const id = searchParams.get("baseTenderId");
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editData, setEditData] = useState<MixMultiLotColumns | null>(null);
@@ -37,7 +37,7 @@ export function MixMultiLotTendersPage({
 
   const { data: multiLotResponse } = useQuery({
     queryKey: [queryKey, id, page],
-    queryFn: () => getMultiLotTenders(page, "mix"),
+    queryFn: () => getMultiLotTenders(page, "mix", id as string),
     initialData: {
       data: tenders,
       success: true,
@@ -45,6 +45,7 @@ export function MixMultiLotTendersPage({
       nextPage: totalCount > 10 ? 2 : null,
       totalCount: 20,
     },
+    enabled: !!id,
   });
 
   const handleDialog = () => {

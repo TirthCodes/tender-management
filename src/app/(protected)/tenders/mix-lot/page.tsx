@@ -198,8 +198,11 @@ export default async function Page({
       const salePrice = parseFloat(
         (mixLotDataTotal.saleAmount / totalPolCts).toFixed(2)
       );
+
+      const netPercent = baseTenderData.dcNetPercentage / 100;
+      const labour = baseTenderData.dcLabour;
   
-      const bidPrice = parseFloat(((((((salePrice * 0.97) - baseTenderData.dcGiaCharge) * totalPolCts) / mixLotDataTotal?.carats) - 50) / 1.15).toFixed(2)); 
+      const bidPrice = parseFloat(((((((salePrice * 0.97) - baseTenderData.dcGiaCharge) * totalPolCts) / mixLotDataTotal?.carats) - labour) / netPercent).toFixed(2)); 
       const bidAmount = parseFloat(((bidPrice * mainLotDetails?.dcCts?.toNumber()).toFixed(2)));
   
       totalValues = {

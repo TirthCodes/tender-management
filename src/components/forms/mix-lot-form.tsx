@@ -289,7 +289,7 @@ export function MixLotForm() {
   useEffectAfterMount(() => {
     if (roughPcs) {
       if (!isNaN(roughPcs)) {
-        const roughSize = parseFloat((roughPcs / roughCts).toFixed(2));
+        const roughSize = parseFloat((roughCts / roughPcs).toFixed(2));
         setValue("lotSize", roughSize);
       }
     }
