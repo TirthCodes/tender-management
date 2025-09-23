@@ -368,7 +368,7 @@ export async function GET(req: Request) {
 
   const whereCondition: {
     baseTenderId: number;
-    mainLotId?: number;
+    mainLotId?: number | null;
     stTenderType: "mix-lot";
   } = {
     baseTenderId: parseInt(baseTenderId),
@@ -377,6 +377,8 @@ export async function GET(req: Request) {
 
   if (mainLotId) {
     whereCondition.mainLotId = parseInt(mainLotId);
+  } else {
+    whereCondition.mainLotId = null;
   }
 
   try {
