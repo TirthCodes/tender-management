@@ -266,17 +266,45 @@ export function SingleTenderDataTable({
                             ((row.polCts / value) * 100).toFixed(2)
                           );
 
-                          // if (!isNaN(polCts) && !isNaN(row.salePrice)) {
-                          //   saleAmount = parseFloat(
-                          //     (row.salePrice * polCts).toFixed(2)
-                          //   );
-                          // }
+                          const bidPrice = calculateBidPrice(
+                            row.costPrice,
+                            row.topsAmount,
+                            row.polCts,
+                            value,
+                            labourValue,
+                            netPercent,
+                            giaCharge,
+                          )
 
-                          // if (!isNaN(saleAmount) && !isNaN(polCts)) {
-                          //   salePrice = parseFloat(
-                          //     (saleAmount / polCts).toFixed(2)
-                          //   );
-                          // }
+                          const totalAmount = calculateTotalAmount(
+                            bidPrice,
+                            row.roughCts
+                          );
+
+                          const costPrice = calculateCostPrice(
+                            bidPrice,
+                            labourValue,
+                            value,
+                            row.polCts,
+                            row.topsAmount,
+                            netPercent,
+                            giaCharge
+                          );
+
+                          const resultPerCarat = calculateResultPerCarat(
+                            row.resultCost,
+                            value
+                          );
+
+                          const resultCost = calculateResultCost(
+                            resultPerCarat,
+                            labourValue,
+                            row.polCts,
+                            value,
+                            row.topsAmount,
+                            netPercent,
+                            giaCharge
+                          );
 
                           handleValueChange(
                             {
@@ -286,8 +314,11 @@ export function SingleTenderDataTable({
                                 (value / row.roughPcs).toFixed(2)
                               ),
                               polPercent,
-                              // saleAmount,
-                              // salePrice,
+                              costPrice,
+                              bidPrice,
+                              totalAmount,
+                              resultPerCarat,
+                              resultCost,
                             },
                             index
                           );
@@ -820,6 +851,11 @@ export function SingleTenderDataTable({
                             giaCharge
                           );
 
+                          const totalAmount = calculateTotalAmount(
+                            bidPrice,
+                            row.roughCts
+                          );
+
                           const resultCost = calculateResultCost(
                             row.resultPerCarat,
                             labourValue,
@@ -834,6 +870,7 @@ export function SingleTenderDataTable({
                             {
                               ...row,
                               topsAmount: value,
+                              totalAmount,
                               bidPrice,
                               resultCost,
                             },

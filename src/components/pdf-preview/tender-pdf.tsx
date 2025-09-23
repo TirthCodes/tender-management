@@ -343,6 +343,7 @@ export function TenderPDF({
           </Text>
           <View style={styles.headerInfo}>
             <Text>Net Percentage: {baseTender.dcNetPercentage}%</Text>
+            <Text>GIA Charge: {baseTender.dcGiaCharge}</Text>
             <Text>
               Date: {new Date(baseTender.dtVoucherDate).toLocaleDateString()}
             </Text>
@@ -351,427 +352,439 @@ export function TenderPDF({
         </View>
 
         <SingleStoneTender singleTender={singleTender} />
-        <View
-          style={{
-            borderTopWidth: 1,
-            borderTopStyle: "dashed",
-            borderTopColor: "#888",
-            marginTop: 10,
-          }}
-        ></View>
-        <RoughLotTender roughtLotTenders={roughtLotTenders} />
-        <View
-          style={{
-            borderTopWidth: 1,
-            borderTopStyle: "dashed",
-            borderTopColor: "#888",
-            marginTop: 10,
-          }}
-        ></View>
-        <MixLotTender mixLotTenders={mixLotTenders} />
-        <View
-          style={{
-            borderTopWidth: 1,
-            borderTopStyle: "dashed",
-            borderTopColor: "#888",
-            marginTop: 10,
-          }}
-        ></View>
-        {multiLotTenders?.rough?.length > 0 && (
-          <View>
-            {multiLotTenders?.rough?.map((lot, idx) => {
-              return (
-                <View key={idx}>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      borderWidth: 0.5,
-                      backgroundColor: "#262626",
-                      color: "#fff",
-                      paddingHorizontal: 4,
-                      paddingVertical: 6,
-                      marginTop: 10,
-                    }}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 12,
-                      }}
-                    >
-                      <Text style={{ fontSize: 11, fontWeight: "600" }}>
-                        {lot.stLotNo}
-                      </Text>
-                      <Text style={{ fontSize: 11, fontWeight: "600" }}>
-                        {lot.inPcs} pcs
-                      </Text>
-                      <Text style={{ fontSize: 11, fontWeight: "600" }}>
-                        {lot.dcCts} cts
-                      </Text>
-                      <Text style={{ fontSize: 11, fontWeight: "600" }}>
-                        Balance: {lot.inRemainingPcs} pcs | {lot.dcRemainingCts}{" "}
-                        cts
-                      </Text>
-                      <Text style={{ fontSize: 11, color: "#fafafa" }}>
-                        {lot.stName} | {lot.stRemarks}
-                      </Text>
-                    </View>
-                    <Text style={{ fontSize: 11, fontWeight: "600" }}>
-                      Main Lot Details {idx + 1}
-                    </Text>
-                  </View>
-                  <RoughLotTender
-                    roughtLotTenders={lot.tender}
-                    isMulti={true}
-                  />
-                  <View
-                    style={[
-                      styles.tableRow,
-                      {
-                        borderWidth: 0.5,
-                        borderTopWidth: 0,
-                        borderColor: "#444",
-                        backgroundColor: "#f0f0f0",
-                      },
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.tableCol,
-                        styles.roughColRough,
-                        styles.centerCell,
-                      ]}
-                    >
-                      <Text style={[styles.tableCellCenter, styles.fontBold]}>
-                        {lot.inPcs} | {stringToDecimal(lot.dcCts)}
-                      </Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.tableCol,
-                        styles.roughColParticular,
-                        styles.centerCell,
-                      ]}
-                    ></View>
-                    <View
-                      style={[
-                        styles.tableCol,
-                        styles.roughColPolish,
-                        styles.rightCell,
-                      ]}
-                    >
-                      <Text style={[styles.tableCellCenter, styles.fontBold]}>
-                        {lot.dcPolCts} cts
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, styles.roughColSale]}></View>
-                    <View
-                      style={[
-                        styles.tableCol,
-                        styles.roughColLabour,
-                        styles.centerCell,
-                      ]}
-                    ></View>
-                    <View style={[styles.tableCol, styles.roughColCost]}>
-                      <Text
-                        style={[
-                          styles.tableCellCenter,
-                          styles.rightCell,
-                          styles.cellBorderBottom,
-                          styles.fontBold,
-                        ]}
-                      >
-                        {stringToDecimal(lot.dcCostPrice)}
-                      </Text>
-                      <Text style={[styles.tableCellCenter, styles.rightCell]}>
-                        {stringToDecimal(lot.dcCostAmount)}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, styles.roughColBid]}>
-                      <Text
-                        style={[
-                          styles.tableCellCenter,
-                          styles.cellBorderBottom,
-                          styles.fontBold,
-                          styles.rightCell,
-                        ]}
-                      >
-                        {stringToDecimal(lot.dcBidPrice)}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.tableCellCenter,
-                          styles.fontBold,
-                          styles.rightCell,
-                        ]}
-                      >
-                        {stringToDecimal(lot.dcBidAmount)}
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, styles.roughColResult]}>
-                      <Text
-                        style={[
-                          styles.tableCellCenter,
-                          styles.cellBorderBottom,
-                          styles.fontBold,
-                          styles.rightCell,
-                        ]}
-                      >
-                        {stringToDecimal(lot.dcResultTotal)}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.tableCellCenter,
-                          styles.fontBold,
-                          styles.rightCell,
-                        ]}
-                      >
-                        {stringToDecimal(lot.dcResultPerCt)}
-                      </Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.tableCol,
-                        styles.roughColWinLoss,
-                        { borderRightWidth: 0 },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.tableCellCenter,
-                          styles.cellBorderBottom,
-                          styles.fontBold,
-                          styles.centerCell,
-                        ]}
-                      >
-                        {lot.isWon ? "Won" : "Lost"}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.tableCellCenter,
-                          styles.fontBold,
-                          styles.centerCell,
-                        ]}
-                      >
-                        ({lot.margin} %)
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
+
+        {roughtLotTenders?.length > 0 && (
+          <View
+            style={{
+              borderTopWidth: 1,
+              borderTopStyle: "dashed",
+              borderTopColor: "#888",
+              marginTop: 10,
+            }}
+          ></View>
         )}
-
-        <View
-          style={{
-            borderTopWidth: 1,
-            borderTopStyle: "dashed",
-            borderTopColor: "#888",
-            marginTop: 10,
-          }}
-        ></View>
-
-        {multiLotTenders?.mix?.length > 0 && (
-          <View>
-            {multiLotTenders?.mix?.map((lot, idx) => {
-              return (
-                <View key={idx}>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      borderWidth: 0.5,
-                      backgroundColor: "#262626",
-                      color: "#fff",
-                      paddingHorizontal: 4,
-                      paddingVertical: 6,
-                      marginTop: 10,
-                    }}
-                  >
+        <RoughLotTender roughtLotTenders={roughtLotTenders} />
+        {mixLotTenders?.length > 0 && (
+          <View
+            style={{
+              borderTopWidth: 1,
+              borderTopStyle: "dashed",
+              borderTopColor: "#888",
+              marginTop: 10,
+            }}
+          ></View>
+        )}
+        <MixLotTender mixLotTenders={mixLotTenders} />
+        {multiLotTenders?.rough?.length > 0 && (
+          <>
+            <View
+              style={{
+                borderTopWidth: 1,
+                borderTopStyle: "dashed",
+                borderTopColor: "#888",
+                marginTop: 10,
+              }}
+            ></View>
+            <View>
+              {multiLotTenders?.rough?.map((lot, idx) => {
+                return (
+                  <View key={idx}>
                     <View
                       style={{
                         flexDirection: "row",
                         alignItems: "center",
-                        gap: 11,
+                        justifyContent: "space-between",
+                        borderWidth: 0.5,
+                        backgroundColor: "#262626",
+                        color: "#fff",
+                        paddingHorizontal: 4,
+                        paddingVertical: 6,
+                        marginTop: 10,
                       }}
                     >
-                      <Text style={{ fontSize: 11, fontWeight: "600" }}>
-                        {lot.stLotNo}
-                      </Text>
-                      <Text style={{ fontSize: 11, fontWeight: "600" }}>
-                        {lot.inPcs} pcs
-                      </Text>
-                      <Text style={{ fontSize: 11, fontWeight: "600" }}>
-                        {lot.dcCts} cts
-                      </Text>
-                      <Text style={{ fontSize: 11, fontWeight: "600" }}>
-                        Balance: {lot.inRemainingPcs} pcs | {lot.dcRemainingCts}{" "}
-                        cts
-                      </Text>
-                      <Text style={{ fontSize: 11, color: "#fafafa" }}>
-                        {lot.stName} | {lot.stRemarks}
-                      </Text>
-                    </View>
-                    <Text style={{ fontSize: 11, fontWeight: "bold" }}>
-                      Mix Main Lot Details {idx + 1}
-                    </Text>
-                  </View>
-                  <MixLotTender mixLotTenders={lot.tender} isMulti={true} />
-                  <View
-                    style={[
-                      styles.tableRow,
-                      {
-                        borderWidth: 0.5,
-                        borderTopWidth: 0,
-                        borderColor: "#444",
-                        backgroundColor: "#f0f0f0",
-                      },
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.tableCol,
-                        styles.mixColRough,
-                        styles.centerCell,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.tableCellCenter,
-                          styles.fontBold,
-                          styles.rightCell,
-                        ]}
-                      >
-                        {lot.inPcs} | {stringToDecimal(lot.dcCts)}
-                      </Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.tableCol,
-                        styles.mixColParticular,
-                        styles.centerCell,
-                      ]}
-                    ></View>
-                    <View
-                      style={[
-                        styles.tableCol,
-                        styles.mixColPolish,
-                        styles.rightCell,
-                      ]}
-                    >
-                      <Text style={[styles.tableCellCenter, styles.fontBold]}>
-                        {stringToDecimal(lot.dcPolCts)} cts
-                      </Text>
-                    </View>
-                    <View style={[styles.tableCol, styles.mixColSale]}></View>
-                    <View style={[styles.tableCol, styles.mixColCost]}></View>
-                    <View style={[styles.tableCol, styles.mixColBid]}>
-                      <Text
-                        style={[
-                          styles.tableCellCenter,
-                          styles.cellBorderBottom,
-                          styles.fontBold,
-                          styles.rightCell,
-                        ]}
-                      >
-                        {stringToDecimal(lot.dcBidPrice)}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.tableCellCenter,
-                          styles.fontBold,
-                          styles.rightCell,
-                        ]}
-                      >
-                        {stringToDecimal(lot.dcBidAmount)}
-                      </Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.tableCol,
-                        styles.mixColResult,
-                        {
+                      <View
+                        style={{
                           flexDirection: "row",
                           alignItems: "center",
-                          justifyContent: "space-between",
+                          gap: 12,
+                        }}
+                      >
+                        <Text style={{ fontSize: 11, fontWeight: "600" }}>
+                          {lot.stLotNo}
+                        </Text>
+                        <Text style={{ fontSize: 11, fontWeight: "600" }}>
+                          {lot.inPcs} pcs
+                        </Text>
+                        <Text style={{ fontSize: 11, fontWeight: "600" }}>
+                          {lot.dcCts} cts
+                        </Text>
+                        <Text style={{ fontSize: 11, fontWeight: "600" }}>
+                          Balance: {lot.inRemainingPcs} pcs |{" "}
+                          {lot.dcRemainingCts} cts
+                        </Text>
+                        <Text style={{ fontSize: 11, color: "#fafafa" }}>
+                          {lot.stName} | {lot.stRemarks}
+                        </Text>
+                      </View>
+                      <Text style={{ fontSize: 11, fontWeight: "600" }}>
+                        Rough Main Lot Details {idx + 1}
+                      </Text>
+                    </View>
+                    <RoughLotTender
+                      roughtLotTenders={lot.tender}
+                      isMulti={true}
+                    />
+                    <View
+                      style={[
+                        styles.tableRow,
+                        {
+                          borderWidth: 0.5,
+                          borderTopWidth: 0,
+                          borderColor: "#444",
+                          backgroundColor: "#f0f0f0",
                         },
                       ]}
                     >
                       <View
-                        style={{
-                          borderRight: 0.5,
-                          borderRightColor: "#444",
-                          borderRightStyle: "solid",
-                          width: "50%",
-                        }}
+                        style={[
+                          styles.tableCol,
+                          styles.roughColRough,
+                          styles.centerCell,
+                        ]}
+                      >
+                        <Text style={[styles.tableCellCenter, styles.fontBold]}>
+                          {lot.inPcs} | {stringToDecimal(lot.dcCts)}
+                        </Text>
+                      </View>
+                      <View
+                        style={[
+                          styles.tableCol,
+                          styles.roughColParticular,
+                          styles.centerCell,
+                        ]}
+                      ></View>
+                      <View
+                        style={[
+                          styles.tableCol,
+                          styles.roughColPolish,
+                          styles.rightCell,
+                        ]}
+                      >
+                        <Text style={[styles.tableCellCenter, styles.fontBold]}>
+                          {lot.dcPolCts} cts
+                        </Text>
+                      </View>
+                      <View
+                        style={[styles.tableCol, styles.roughColSale]}
+                      ></View>
+                      <View
+                        style={[
+                          styles.tableCol,
+                          styles.roughColLabour,
+                          styles.centerCell,
+                        ]}
+                      ></View>
+                      <View style={[styles.tableCol, styles.roughColCost]}>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.rightCell,
+                            styles.cellBorderBottom,
+                            styles.fontBold,
+                          ]}
+                        >
+                          {stringToDecimal(lot.dcCostPrice)}
+                        </Text>
+                        <Text
+                          style={[styles.tableCellCenter, styles.rightCell]}
+                        >
+                          {stringToDecimal(lot.dcCostAmount)}
+                        </Text>
+                      </View>
+                      <View style={[styles.tableCol, styles.roughColBid]}>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.cellBorderBottom,
+                            styles.fontBold,
+                            styles.rightCell,
+                          ]}
+                        >
+                          {stringToDecimal(lot.dcBidPrice)}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.fontBold,
+                            styles.rightCell,
+                          ]}
+                        >
+                          {stringToDecimal(lot.dcBidAmount)}
+                        </Text>
+                      </View>
+                      <View style={[styles.tableCol, styles.roughColResult]}>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.cellBorderBottom,
+                            styles.fontBold,
+                            styles.rightCell,
+                          ]}
+                        >
+                          {stringToDecimal(lot.dcResultTotal)}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.fontBold,
+                            styles.rightCell,
+                          ]}
+                        >
+                          {stringToDecimal(lot.dcResultPerCt)}
+                        </Text>
+                      </View>
+                      <View
+                        style={[
+                          styles.tableCol,
+                          styles.roughColWinLoss,
+                          { borderRightWidth: 0 },
+                        ]}
                       >
                         <Text
                           style={[
                             styles.tableCellCenter,
                             styles.cellBorderBottom,
-                            styles.rightCell,
-                            { paddingTop: 2 },
+                            styles.fontBold,
+                            styles.centerCell,
                           ]}
                         >
-                          {lot.dcResultCost}
+                          {lot.isWon ? "Won" : "Lost"}
                         </Text>
                         <Text
                           style={[
                             styles.tableCellCenter,
-                            { paddingBottom: 2 },
+                            styles.fontBold,
+                            styles.centerCell,
+                          ]}
+                        >
+                          ({lot.margin} %)
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </>
+        )}
+
+        {multiLotTenders?.mix?.length > 0 && (
+          <>
+            <View
+              style={{
+                borderTopWidth: 1,
+                borderTopStyle: "dashed",
+                borderTopColor: "#888",
+                marginTop: 10,
+              }}
+            ></View>
+            <View>
+              {multiLotTenders?.mix?.map((lot, idx) => {
+                return (
+                  <View key={idx}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        borderWidth: 0.5,
+                        backgroundColor: "#262626",
+                        color: "#fff",
+                        paddingHorizontal: 4,
+                        paddingVertical: 6,
+                        marginTop: 10,
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 11,
+                        }}
+                      >
+                        <Text style={{ fontSize: 11, fontWeight: "600" }}>
+                          {lot.stLotNo}
+                        </Text>
+                        <Text style={{ fontSize: 11, fontWeight: "600" }}>
+                          {lot.inPcs} pcs
+                        </Text>
+                        <Text style={{ fontSize: 11, fontWeight: "600" }}>
+                          {lot.dcCts} cts
+                        </Text>
+                        <Text style={{ fontSize: 11, fontWeight: "600" }}>
+                          Balance: {lot.inRemainingPcs} pcs |{" "}
+                          {lot.dcRemainingCts} cts
+                        </Text>
+                        <Text style={{ fontSize: 11, color: "#fafafa" }}>
+                          {lot.stName} | {lot.stRemarks}
+                        </Text>
+                      </View>
+                      <Text style={{ fontSize: 11, fontWeight: "bold" }}>
+                        Mix Main Lot Details {idx + 1}
+                      </Text>
+                    </View>
+                    <MixLotTender mixLotTenders={lot.tender} isMulti={true} />
+                    <View
+                      style={[
+                        styles.tableRow,
+                        {
+                          borderWidth: 0.5,
+                          borderTopWidth: 0,
+                          borderColor: "#444",
+                          backgroundColor: "#f0f0f0",
+                        },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.tableCol,
+                          styles.mixColRough,
+                          styles.centerCell,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.fontBold,
                             styles.rightCell,
                           ]}
                         >
-                          {lot.dcResultPerCt}
+                          {lot.inPcs} | {stringToDecimal(lot.dcCts)}
                         </Text>
                       </View>
-                      <Text
+                      <View
                         style={[
-                          styles.fontBold,
+                          styles.tableCol,
+                          styles.mixColParticular,
+                          styles.centerCell,
+                        ]}
+                      ></View>
+                      <View
+                        style={[
+                          styles.tableCol,
+                          styles.mixColPolish,
                           styles.rightCell,
-                          { width: "50%", paddingRight: 2 },
                         ]}
                       >
-                        {lot.dcResultTotal}
-                      </Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.tableCol,
-                        styles.mixColWinLoss,
-                        { borderRightWidth: 0 },
-                      ]}
-                    >
-                      <Text
+                        <Text style={[styles.tableCellCenter, styles.fontBold]}>
+                          {stringToDecimal(lot.dcPolCts)} cts
+                        </Text>
+                      </View>
+                      <View style={[styles.tableCol, styles.mixColSale]}></View>
+                      <View style={[styles.tableCol, styles.mixColCost]}></View>
+                      <View style={[styles.tableCol, styles.mixColBid]}>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.cellBorderBottom,
+                            styles.fontBold,
+                            styles.rightCell,
+                          ]}
+                        >
+                          {stringToDecimal(lot.dcBidPrice)}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.fontBold,
+                            styles.rightCell,
+                          ]}
+                        >
+                          {stringToDecimal(lot.dcBidAmount)}
+                        </Text>
+                      </View>
+                      <View
                         style={[
-                          styles.tableCellCenter,
-                          styles.cellBorderBottom,
-                          styles.fontBold,
-                          styles.centerCell,
+                          styles.tableCol,
+                          styles.mixColResult,
+                          {
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          },
                         ]}
                       >
-                        {lot.isWon ? "Won" : "Lost"}
-                      </Text>
-                      <Text
+                        <View
+                          style={{
+                            borderRight: 0.5,
+                            borderRightColor: "#444",
+                            borderRightStyle: "solid",
+                            width: "50%",
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.tableCellCenter,
+                              styles.cellBorderBottom,
+                              styles.rightCell,
+                              { paddingTop: 2 },
+                            ]}
+                          >
+                            {lot.dcResultCost}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.tableCellCenter,
+                              { paddingBottom: 2 },
+                              styles.rightCell,
+                            ]}
+                          >
+                            {lot.dcResultPerCt}
+                          </Text>
+                        </View>
+                        <Text
+                          style={[
+                            styles.fontBold,
+                            styles.rightCell,
+                            { width: "50%", paddingRight: 2 },
+                          ]}
+                        >
+                          {lot.dcResultTotal}
+                        </Text>
+                      </View>
+                      <View
                         style={[
-                          styles.tableCellCenter,
-                          styles.fontBold,
-                          styles.centerCell,
+                          styles.tableCol,
+                          styles.mixColWinLoss,
+                          { borderRightWidth: 0 },
                         ]}
                       >
-                        ({lot.margin}%)
-                      </Text>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.cellBorderBottom,
+                            styles.fontBold,
+                            styles.centerCell,
+                          ]}
+                        >
+                          {lot.isWon ? "Won" : "Lost"}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.fontBold,
+                            styles.centerCell,
+                          ]}
+                        >
+                          ({lot.margin}%)
+                        </Text>
+                      </View>
                     </View>
                   </View>
-                </View>
-              );
-            })}
-          </View>
+                );
+              })}
+            </View>
+          </>
         )}
       </Page>
     </Document>
