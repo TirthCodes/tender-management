@@ -112,7 +112,7 @@ export function RoughLotTendersPage({
       <PageHeader
         title={title}
         createPath={createPath}
-        backPath={mainLotId && id ? `/tenders/rough-lot?baseTenderId=${id}` : undefined}
+        backPath={mainLotId && id ? `/tenders/multi-lot/rough?baseTenderId=${id}` : undefined}
         mainLotInfo={
           <>
             {mainLot?.stLotNo && (
@@ -175,7 +175,7 @@ export function RoughLotTendersPage({
             </div>
             <div className="flex items-center gap-2">
               <p className="text-nowrap">Cts.:</p>
-              <p className="font-semibold">{totalValues?.carats}</p>
+              <p className="font-semibold">{totalValues?.carats?.toFixed(2)}</p>
             </div>
             <div className="flex items-center gap-2">
               <p className="text-nowrap">Pol Cts.:</p>
