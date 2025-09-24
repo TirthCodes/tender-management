@@ -2003,6 +2003,54 @@ function MixLotTender({
                           },
                         ]}
                       >
+                        <Text
+                          style={[
+                            styles.rightCell,
+                            { width: "50%", paddingRight: 2 },
+                          ]}
+                        >
+                          {stringToDecimal(lot?.dcResultCost)}
+                        </Text>
+                        <View
+                          style={{
+                            borderLeft: 0.5,
+                            borderLeftColor: "#444",
+                            borderLeftStyle: "solid",
+                            width: "50%",
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.tableCellCenter,
+                              styles.rightCell,
+                              styles.cellBorderBottom,
+                              { paddingTop: 2, paddingRight: 2 },
+                            ]}
+                          >
+                            {stringToDecimal(lot?.dcResultPerCt)}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.fontBold,
+                              styles.rightCell,
+                              { paddingBottom: 2, paddingRight: 2 },
+                            ]}
+                          >
+                            {stringToDecimal(lot?.dcResultTotal)}
+                          </Text>
+                        </View>
+                      </View>
+                      {/* <View
+                        style={[
+                          styles.tableCol,
+                          styles.mixColResult,
+                          {
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          },
+                        ]}
+                      >
                         <View
                           style={{
                             borderRight: 0.5,
@@ -2040,7 +2088,7 @@ function MixLotTender({
                         >
                           {lot.dcResultTotal}
                         </Text>
-                      </View>
+                      </View> */}
                       <View
                         style={[
                           styles.tableCol,
