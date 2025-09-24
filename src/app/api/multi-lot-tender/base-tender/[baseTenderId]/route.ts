@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ baseTenderId: string }> }
@@ -105,15 +107,27 @@ export async function GET(
       },
     });
 
-    function filterByType(tenderType: string) {
-      return mainLotTenders.filter((tender) => tender.stTenderType === tenderType);
-    }
+    // function filterByType(tenderType: string) {
+    //   return mainLotTenders.filter((tender) => tender.stTenderType === tenderType);
+    // }
+
+    const filteByType = mainLotTenders.reduce((acc, curr) => {
+      if (curr.stTenderType === "rough") {
+        acc.rough.push(curr);
+      } else if (curr.stTenderType === "mix") {
+        acc.mix.push(curr);
+      }
+      return acc;
+    }, {
+      rough: [] as any[],
+      mix: [] as any[],
+    });
 
     return new Response(
       JSON.stringify({
         data: {
-          rough: filterByType("rough"),
-          mix: filterByType("mix"),
+          rough: filteByType.rough,
+          mix: filteByType.mix,
         },
         success: true,
       }),
