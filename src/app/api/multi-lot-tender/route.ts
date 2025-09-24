@@ -168,11 +168,49 @@ export async function GET(req: Request) {
       }),
     ]);
 
+    const tendersData = tenders.map(
+      ({
+        dcCts,
+        dcRemainingCts,
+        dcPolCts,
+        dcCostPrice,
+        dcCostAmount,
+        dcBidPrice,
+        dcBidAmount,
+        inUsedPcs,
+        dcUsedCts,
+        dcResultTotal,
+        dcResultPerCt,
+        isWon,
+        dcResultCost,
+        dcSalePrice,
+        dcSaleAmount,
+        ...rest
+      }) => ({
+        ...rest,
+        inUsedPcs: inUsedPcs ?? 0,
+        dcCts: dcCts.toNumber(),
+        dcRemainingCts: dcRemainingCts.toNumber(),
+        dcPolCts: dcPolCts?.toNumber() ?? 0,
+        dcCostPrice: dcCostPrice?.toNumber() ?? 0,
+        dcCostAmount: dcCostAmount?.toNumber() ?? 0,
+        dcBidPrice: dcBidPrice?.toNumber() ?? 0,
+        dcBidAmount: dcBidAmount?.toNumber() ?? 0,
+        dcUsedCts: dcUsedCts?.toNumber() ?? 0,
+        dcResultTotal: dcResultTotal?.toNumber() ?? 0,
+        dcResultPerCt: dcResultPerCt?.toNumber() ?? 0,
+        dcResultCost: dcResultCost?.toNumber() ?? 0,
+        dcSalePrice: dcSalePrice?.toNumber() ?? 0,
+        dcSaleAmount: dcSaleAmount?.toNumber() ?? 0,
+        isWon: isWon ?? false,
+      })
+    );
+
     const hasNextPage = limit * pageNumber < totalCount;
 
     return Response.json(
       {
-        data: tenders,
+        data: tendersData,
         success: true,
         message: "Success",
         nextPage: hasNextPage ? pageNumber + 1 : null,

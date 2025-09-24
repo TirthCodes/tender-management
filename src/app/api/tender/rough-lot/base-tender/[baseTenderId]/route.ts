@@ -29,9 +29,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ baseTen
   const whereCondition: {
     baseTenderId: number;
     stTenderType: "rough-lot";
+    mainLotId: null;
   } = {
     baseTenderId: parseInt(baseTenderId),
     stTenderType: "rough-lot",
+    mainLotId: null,
   }
 
   try {

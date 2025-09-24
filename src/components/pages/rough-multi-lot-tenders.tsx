@@ -60,7 +60,7 @@ export function RoughMultiLotTendersPage({
         handleDialog={handleDialog}
         backPath="/tenders"
       />
-      <div className="flex items-center gap-2 text-neutral-700">
+      <div className="ml-11 flex items-center gap-2 text-neutral-700">
         <p className="pr-2 border-r-2">
           {baseTender.dtVoucherDate.toDateString()}
         </p>

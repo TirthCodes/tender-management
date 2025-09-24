@@ -36,6 +36,7 @@ export async function GET(
       where: {
         baseTenderId: id,
         stTenderType: "mix-lot",
+        mainLotId: null,
       },
       select: {
         id: true,

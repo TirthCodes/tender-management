@@ -307,7 +307,7 @@ export async function POST(req: Request) {
         data: {
           dcRemainingCts:
             (mainLot?.dcCts ? mainLot?.dcCts.toNumber() : 0) - totalCarats,
-          inPcs: (mainLot?.inPcs ?? 0) - Number(totalPcs),
+          inRemainingPcs: (mainLot?.inPcs ?? 0) - Number(totalPcs),
         },
       });
     }
