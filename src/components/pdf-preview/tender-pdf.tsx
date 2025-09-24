@@ -1433,49 +1433,60 @@ function RoughLotTender({
                   </Text>
                 </View>
                 <View style={styles.table} wrap={true}>
-                  <View style={styles.tableHeader}>
-                    <View style={[styles.tableColHeader, styles.roughColRough]}>
-                      <Text style={styles.tableCellHeader}>Rough</Text>
+                  {(!isMulti || (isMulti && idx === 0)) && (
+                    <View style={styles.tableHeader}>
+                      <View
+                        style={[styles.tableColHeader, styles.roughColRough]}
+                      >
+                        <Text style={styles.tableCellHeader}>Rough</Text>
+                      </View>
+                      <View
+                        style={[
+                          styles.tableColHeader,
+                          styles.roughColParticular,
+                        ]}
+                      >
+                        <Text style={styles.tableCellHeader}>Particular</Text>
+                      </View>
+                      <View
+                        style={[styles.tableColHeader, styles.roughColPolish]}
+                      >
+                        <Text style={styles.tableCellHeader}>Polish</Text>
+                      </View>
+                      <View
+                        style={[styles.tableColHeader, styles.roughColSale]}
+                      >
+                        <Text style={styles.tableCellHeader}>Sale</Text>
+                      </View>
+                      <View
+                        style={[styles.tableColHeader, styles.roughColLabour]}
+                      >
+                        <Text style={styles.tableCellHeader}>Labour</Text>
+                      </View>
+                      <View
+                        style={[styles.tableColHeader, styles.roughColCost]}
+                      >
+                        <Text style={styles.tableCellHeader}>Cost</Text>
+                      </View>
+                      <View style={[styles.tableColHeader, styles.roughColBid]}>
+                        <Text style={styles.tableCellHeader}>Bid</Text>
+                      </View>
+                      <View
+                        style={[styles.tableColHeader, styles.roughColResult]}
+                      >
+                        <Text style={styles.tableCellHeader}>Result</Text>
+                      </View>
+                      <View
+                        style={[
+                          styles.tableColHeader,
+                          styles.roughColWinLoss,
+                          { borderRightWidth: 0 },
+                        ]}
+                      >
+                        <Text style={styles.tableCellHeader}>W | L</Text>
+                      </View>
                     </View>
-                    <View
-                      style={[styles.tableColHeader, styles.roughColParticular]}
-                    >
-                      <Text style={styles.tableCellHeader}>Particular</Text>
-                    </View>
-                    <View
-                      style={[styles.tableColHeader, styles.roughColPolish]}
-                    >
-                      <Text style={styles.tableCellHeader}>Polish</Text>
-                    </View>
-                    <View style={[styles.tableColHeader, styles.roughColSale]}>
-                      <Text style={styles.tableCellHeader}>Sale</Text>
-                    </View>
-                    <View
-                      style={[styles.tableColHeader, styles.roughColLabour]}
-                    >
-                      <Text style={styles.tableCellHeader}>Labour</Text>
-                    </View>
-                    <View style={[styles.tableColHeader, styles.roughColCost]}>
-                      <Text style={styles.tableCellHeader}>Cost</Text>
-                    </View>
-                    <View style={[styles.tableColHeader, styles.roughColBid]}>
-                      <Text style={styles.tableCellHeader}>Bid</Text>
-                    </View>
-                    <View
-                      style={[styles.tableColHeader, styles.roughColResult]}
-                    >
-                      <Text style={styles.tableCellHeader}>Result</Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.tableColHeader,
-                        styles.roughColWinLoss,
-                        { borderRightWidth: 0 },
-                      ]}
-                    >
-                      <Text style={styles.tableCellHeader}>W | L</Text>
-                    </View>
-                  </View>
+                  )}
                   {lot?.otherTenderDetails?.map((detail, index) => (
                     <View key={index} style={styles.tableRow}>
                       <View
@@ -1493,10 +1504,12 @@ function RoughLotTender({
                         style={[
                           styles.tableCol,
                           styles.roughColParticular,
-                          styles.centerCell,
+                          styles.leftCell,
                         ]}
                       >
-                        {detail.stRemark || "---"}
+                        <Text style={[styles.fontBold, { paddingLeft: 4 }]}>
+                          {detail.stRemark ?? "---"}
+                        </Text>
                       </View>
                       <View style={[styles.tableCol, styles.roughColPolish]}>
                         <Text
@@ -1784,40 +1797,46 @@ function MixLotTender({
                   </Text>
                 </View>
                 <View style={styles.table} wrap={true}>
-                  <View style={styles.tableHeader}>
-                    <View style={[styles.tableColHeader, styles.mixColRough]}>
-                      <Text style={styles.tableCellHeader}>Rough</Text>
+                  {(!isMulti || (isMulti && idx === 0)) && (
+                    <View style={styles.tableHeader}>
+                      <View style={[styles.tableColHeader, styles.mixColRough]}>
+                        <Text style={styles.tableCellHeader}>Rough</Text>
+                      </View>
+                      <View
+                        style={[styles.tableColHeader, styles.mixColParticular]}
+                      >
+                        <Text style={styles.tableCellHeader}>Particular</Text>
+                      </View>
+                      <View
+                        style={[styles.tableColHeader, styles.mixColPolish]}
+                      >
+                        <Text style={styles.tableCellHeader}>Polish</Text>
+                      </View>
+                      <View style={[styles.tableColHeader, styles.mixColSale]}>
+                        <Text style={styles.tableCellHeader}>Sale</Text>
+                      </View>
+                      <View style={[styles.tableColHeader, styles.mixColCost]}>
+                        <Text style={styles.tableCellHeader}>Cost</Text>
+                      </View>
+                      <View style={[styles.tableColHeader, styles.mixColBid]}>
+                        <Text style={styles.tableCellHeader}>Bid</Text>
+                      </View>
+                      <View
+                        style={[styles.tableColHeader, styles.mixColResult]}
+                      >
+                        <Text style={styles.tableCellHeader}>Result</Text>
+                      </View>
+                      <View
+                        style={[
+                          styles.tableColHeader,
+                          styles.mixColWinLoss,
+                          { borderRightWidth: 0 },
+                        ]}
+                      >
+                        <Text style={styles.tableCellHeader}>W | L</Text>
+                      </View>
                     </View>
-                    <View
-                      style={[styles.tableColHeader, styles.mixColParticular]}
-                    >
-                      <Text style={styles.tableCellHeader}>Particular</Text>
-                    </View>
-                    <View style={[styles.tableColHeader, styles.mixColPolish]}>
-                      <Text style={styles.tableCellHeader}>Polish</Text>
-                    </View>
-                    <View style={[styles.tableColHeader, styles.mixColSale]}>
-                      <Text style={styles.tableCellHeader}>Sale</Text>
-                    </View>
-                    <View style={[styles.tableColHeader, styles.mixColCost]}>
-                      <Text style={styles.tableCellHeader}>Cost</Text>
-                    </View>
-                    <View style={[styles.tableColHeader, styles.mixColBid]}>
-                      <Text style={styles.tableCellHeader}>Bid</Text>
-                    </View>
-                    <View style={[styles.tableColHeader, styles.mixColResult]}>
-                      <Text style={styles.tableCellHeader}>Result</Text>
-                    </View>
-                    <View
-                      style={[
-                        styles.tableColHeader,
-                        styles.mixColWinLoss,
-                        { borderRightWidth: 0 },
-                      ]}
-                    >
-                      <Text style={styles.tableCellHeader}>W | L</Text>
-                    </View>
-                  </View>
+                  )}
                   {lot.otherTenderDetails?.map((detail, index) => (
                     <View key={index} style={styles.tableRow}>
                       <View
