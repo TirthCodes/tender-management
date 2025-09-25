@@ -11,7 +11,9 @@ export const calculateBidPrice = (
 
   const calculatedBidPrice = parseFloat(
     (
-      ((((((costPrice + topsAmount) * 0.97) - giaCharge) * polCts) / roughCts) - labourValue) / netPercentage
+      ((((costPrice + topsAmount) * 0.97 - giaCharge) * polCts) / roughCts -
+        labourValue) /
+      netPercentage
     ).toFixed(2)
   );
 
@@ -45,7 +47,11 @@ export const calculateCostPrice = (
   const resultPercent = parseFloat(((netPercernt - 100) / 100).toFixed(2));
   const costPrice = parseFloat(
     (
-      (((((((bidPrice * resultPercent) + bidPrice) + labourValue) * roughCts) / polCts) + giaCharge) / 0.97) - topsAmount
+      (((bidPrice * resultPercent + bidPrice + labourValue) * roughCts) /
+        polCts +
+        giaCharge) /
+        0.97 -
+      topsAmount
     ).toFixed(2)
   );
 
@@ -89,7 +95,12 @@ export const calculateResultCost = (
   if (resultPerCarat) {
     const resultCost = parseFloat(
       (
-        (((((((resultPerCarat * resultPercent) + resultPerCarat) + labourValue) * roughCts) / polCts) + giaCharge) / 0.97) - topsAmount
+        (((resultPerCarat * resultPercent + resultPerCarat + labourValue) *
+          roughCts) /
+          polCts +
+          giaCharge) /
+          0.97 -
+        topsAmount
       ).toFixed(2)
     );
 
@@ -101,4 +112,44 @@ export const calculateResultCost = (
   } else {
     return 0;
   }
+};
+
+export const calculateFinalCostPrice = (
+  finalBidPerCt: number,
+  labourValue: number,
+  polCts: number,
+  roughCts: number,
+  topsAmount: number,
+  netPercent: number,
+  giaCharge: number
+) => {
+  const resultPercent = parseFloat(((netPercent - 100) / 100).toFixed(2));
+  if (finalBidPerCt) {
+    const finalCostPrice = parseFloat(
+      (
+        (((finalBidPerCt * resultPercent + finalBidPerCt + labourValue) *
+          roughCts) /
+          polCts +
+          giaCharge) /
+          0.97 -
+        topsAmount
+      ).toFixed(2)
+    );
+
+    if (!isNaN(finalCostPrice)) {
+      return finalCostPrice;
+    } else {
+      return 0;
+    }
+  } else {
+    return 0;
+  }
+};
+
+export const calculateMargin = (
+  bidPrice: number,
+  finalBidPrice: number,
+) => {
+  const margin = parseFloat((((bidPrice - finalBidPrice) / bidPrice) * 100).toFixed(2));
+  return margin
 };

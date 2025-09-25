@@ -163,6 +163,9 @@ export interface SingleStoneTenderDetails {
   resultCost: number;
   resultPerCarat: number;
   resultTotal: number;
+  finalCostPrice?: number; 
+  finalBidPrice?: number;
+  finalBidAmount?: number;
   isWon: boolean;
   margin: number;
 }

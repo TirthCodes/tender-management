@@ -29,6 +29,7 @@ import { toast } from "react-toastify";
 import useEffectAfterMount from "@/hooks/useEffectAfterMount";
 import { Switch } from "../ui/switch";
 import { invalidateQuery } from "@/lib/invalidate";
+import { calculateMargin } from "@/lib/formula";
 
 export const initialRow: MixLotTenderDetails = {
   inRoughPcs: 0,
@@ -106,6 +107,22 @@ const mixLotSchema = z.object({
   saleAmount: z.preprocess(
     (val) => Number(val),
     z.number().min(0, "Sale amount is required!")
+  ),
+  finalCostPrice: z.preprocess(
+    (val) => (val ? Number(val) : 0),
+    z.number().min(0, "Final cost price is required!")
+  ),
+  finalBidPrice: z.preprocess(
+    (val) => (val ? Number(val) : 0),
+    z.number().min(0, "Final bid price is required!")
+  ),
+  finalBidAmount: z.preprocess(
+    (val) => (val ? Number(val) : 0),
+    z.number().min(0, "Final bid amount is required!")
+  ),
+  margin: z.preprocess(
+    (val) => (val ? Number(val) : 0),
+    z.number().min(0, "Margin is required!")
   ),
   isWon: z.boolean().optional(),
 });
@@ -217,6 +234,9 @@ export function MixLotForm() {
         salePrice: dcSalePrice,
         saleAmount: dcSaleAmount,
         lotNo: stLotNo,
+        finalCostPrice: 0,
+        finalBidPrice: 0,
+        finalBidAmount: 0,
         isWon,
       });
 
@@ -253,8 +273,7 @@ export function MixLotForm() {
     }
   }, [baseTender, loadingBaseTender, setValue]);
 
-  console.log(baseTender?.data, "baseTender?.data");
-
+  // Bid
   useEffectAfterMount(() => {
     if (netPercent && labour && salePrice) {
       const netPercentage = netPercent / 100;
@@ -279,22 +298,15 @@ export function MixLotForm() {
             );
           }
         }
+        const margin = calculateMargin(calculatedBidPrice, watch("finalBidPrice"));
+        
+        setValue("margin", margin);
         setValue("totalAmount", totalAmount);
       }
     }
   }, [labour, totalValues, setValue, netPercent, roughCts, salePrice]);
 
   const roughPcs = watch("roughPcs");
-
-  useEffectAfterMount(() => {
-    if (roughPcs) {
-      if (!isNaN(roughPcs)) {
-        const roughSize = parseFloat((roughCts / roughPcs).toFixed(2));
-        setValue("lotSize", roughSize);
-      }
-    }
-  }, [roughPcs, roughCts, setValue]);
-
   const rate = watch("rate");
 
   useEffectAfterMount(() => {
@@ -310,30 +322,35 @@ export function MixLotForm() {
 
   const resultTotal = watch("resultTotal");
 
+  // Result 
   useEffectAfterMount(() => {
     if (roughCts && resultTotal) {
-      const resultPerCarat = parseFloat((resultTotal / roughCts).toFixed(2));
-      setValue("resultPerCarat", resultPerCarat);
+
+      const resultPerCarat = watch("resultPerCarat");
+      // const resultPerCarat = parseFloat((resultTotal / roughCts).toFixed(2));
+      // setValue("resultPerCarat", resultPerCarat);
 
       const newResultTotal = parseFloat((resultPerCarat * roughCts).toFixed(2));
       setValue("resultTotal", newResultTotal);
 
       const resultPercent = parseFloat(((netPercent - 100) / 100).toFixed(2));
 
+      const giaCharge = Number(baseTender?.data.dcGiaCharge);
       const resultCost = parseFloat(
         (
           (((resultPerCarat * resultPercent + resultPerCarat + labour) *
             totalValues.carats) /
             totalValues.polCts +
-            baseTender) /
+            giaCharge) /
           0.97
         ).toFixed(2)
       );
 
       setValue("resultCost", resultCost);
     }
-  }, [roughCts, setValue]);
+  }, [roughCts, setValue, totalValues.carats, totalValues.polCts]);
 
+  // Sale
   useEffectAfterMount(() => {
     if (totalValues.saleAmount) {
       setValue("saleAmount", totalValues.saleAmount);
@@ -343,7 +360,28 @@ export function MixLotForm() {
       (totalValues.saleAmount / totalValues.polCts).toFixed(2)
     );
     setValue("salePrice", salePrice);
-  }, [totalValues.saleAmount, totalValues.carats, setValue]);
+  }, [totalValues.saleAmount, totalValues.carats, totalValues.polCts, setValue]);
+
+  useEffectAfterMount(() => {
+
+    const giaCharge = Number(baseTender?.data.dcGiaCharge);
+    const finalBidPrice = watch("finalBidPrice");
+
+    const resultPercent = parseFloat(((netPercent - 100) / 100).toFixed(2));
+
+    const finalCostPrice = parseFloat(
+      (
+        ((((finalBidPrice ?? 0) * resultPercent + (finalBidPrice ?? 0) + labour) *
+          totalValues.carats) /
+          totalValues.polCts +
+          giaCharge) /
+        0.97
+      ).toFixed(2)
+    );
+
+    setValue("finalCostPrice", finalCostPrice);
+
+  }, [totalValues.carats, totalValues.polCts, setValue]);
 
   const handleDetailsValueChange = (
     value: MixLotTenderDetails,
@@ -422,6 +460,7 @@ export function MixLotForm() {
     setIsPending(false);
   }
 
+  const bidPrice = watch("bidPrice");
   const router = useRouter();
 
   if (!mixLotId && loadingBaseTender) {
@@ -476,6 +515,16 @@ export function MixLotForm() {
                 type="number"
                 {...register("roughPcs", { valueAsNumber: true })}
                 placeholder="4"
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : 0;
+
+                  if(value) {
+                    const lotSize = parseFloat((roughCts / value).toFixed(2));
+                    setValue("lotSize", lotSize);
+                  }
+                }}
                 className={`rounded-r-none ${cn(
                   errors.roughPcs?.message &&
                     "border border-red-500 placeholder:text-red-500"
@@ -486,6 +535,39 @@ export function MixLotForm() {
                 {...register("roughCts", { valueAsNumber: true })}
                 placeholder="24.4"
                 step={0.01}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : 0;
+
+                  const lotSize = parseFloat((value / roughPcs).toFixed(2));
+                  setValue("lotSize", lotSize);
+                  
+                  const finalBidPrice = watch("finalBidPrice");
+
+                  const finalBidAmount = parseFloat(
+                    (finalBidPrice * value).toFixed(2)
+                  );
+
+                  // const resultPercent = parseFloat(
+                  //   ((netPercent - 100) / 100).toFixed(2)
+                  // );
+
+                  // const giaCharge = Number(baseTender?.data.dcGiaCharge);
+
+                  // const finalCostPrice = parseFloat(
+                  //   (
+                  //     ((((finalBidPrice * resultPercent + finalBidPrice + labour) * value) /
+                  //       totalValues.polCts +
+                  //       giaCharge) /
+                  //     0.97
+                  //   ).toFixed(2)
+                  // ));
+
+                  setValue("roughCts", value);
+                  // setValue("finalCostPrice", finalCostPrice);
+                  setValue("finalBidAmount", finalBidAmount);
+                }}
                 className={`rounded-l-none ${cn(
                   errors.roughCts?.message &&
                     "border border-red-500 placeholder:text-red-500"
@@ -655,6 +737,48 @@ export function MixLotForm() {
               />
             </div>
             <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-44">Final Bid Amnt</Label>
+              <Input
+                type="number"
+                step={0.01}
+                {...register("finalBidAmount", { valueAsNumber: true })}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+
+                  const finalBidPrice = parseFloat(
+                    ((value ?? 0) / roughCts).toFixed(2)
+                  );
+
+                  const resultPercent = parseFloat(
+                    ((netPercent - 100) / 100).toFixed(2)
+                  );
+
+                  const giaCharge = Number(baseTender?.data.dcGiaCharge);
+
+                  const finalCostPrice = parseFloat(
+                    (
+                      ((((finalBidPrice ?? 0) * resultPercent +
+                        (finalBidPrice ?? 0) +
+                        labour) *
+                        totalValues.carats) /
+                        totalValues.polCts +
+                        giaCharge) /
+                      0.97
+                    ).toFixed(2)
+                  );
+
+                  const margin = calculateMargin(bidPrice, finalBidPrice);
+
+                  setValue("margin", margin)
+                  setValue("finalCostPrice", finalCostPrice);
+                  setValue("finalBidPrice", finalBidPrice);
+                }}
+                className="w-full"
+              />
+            </div>
+            <div className="flex w-full max-w-sm items-center gap-2">
               <Label className="text-nowrap w-32">Result Total</Label>
               <Input
                 type="number"
@@ -687,7 +811,9 @@ export function MixLotForm() {
                         );
                         let resultCost = 0;
                         if (roughCts) {
-                          const giaCharge = Number(baseTender?.data.dcGiaCharge);
+                          const giaCharge = Number(
+                            baseTender?.data.dcGiaCharge
+                          );
                           resultCost = parseFloat(
                             (
                               (((resultPerCarat * resultPercent +
@@ -709,16 +835,6 @@ export function MixLotForm() {
                 }}
               />
             </div>
-            <div className="flex w-full items-center justify-center gap-2">
-              <label className="font-semibold text-red-600">Loss</label>
-              <Switch
-                checked={watch("isWon") ? true : false}
-                onCheckedChange={(value) => {
-                  setValue("isWon", value);
-                }}
-              />
-              <label className="font-semibold text-green-600">Win</label>
-            </div>
             <div className="flex w-full max-w-sm items-center gap-2">
               <Label className="text-nowrap w-32">Sale Amount</Label>
               <Input
@@ -729,7 +845,7 @@ export function MixLotForm() {
               />
             </div>
             <div className="flex w-full max-w-sm items-center gap-2">
-              <Label className="text-nowrap w-32">Total Amount</Label>
+              <Label className="text-nowrap w-32">Bid Amount</Label>
               <Input
                 type="number"
                 step={0.01}
@@ -739,7 +855,46 @@ export function MixLotForm() {
                 className="w-full"
               />
             </div>
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-44">Final Bid Price</Label>
+              <Input
+                type="number"
+                step={0.01}
+                {...register("finalBidPrice", { valueAsNumber: true })}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
 
+                  const finalBidAmount = parseFloat(
+                    ((value ?? 0) * roughCts).toFixed(2)
+                  );
+
+                  const resultPercent = parseFloat(
+                    ((netPercent - 100) / 100).toFixed(2)
+                  );
+
+                  const giaCharge = Number(baseTender?.data.dcGiaCharge);
+
+                  const finalCostPrice = parseFloat(
+                    (
+                      ((((value ?? 0) * resultPercent + (value ?? 0) + labour) *
+                        totalValues.carats) /
+                        totalValues.polCts +
+                        giaCharge) /
+                      0.97
+                    ).toFixed(2)
+                  );
+
+                  const margin = calculateMargin(bidPrice, value ?? 0);
+
+                  setValue("margin", margin)
+                  setValue("finalCostPrice", finalCostPrice);
+                  setValue("finalBidAmount", finalBidAmount);
+                }}
+                className="w-full"
+              />
+            </div>
             <div className="flex w-full max-w-sm items-center gap-2">
               <Label className="text-nowrap w-32">Result / Cts</Label>
               <Input
@@ -779,9 +934,32 @@ export function MixLotForm() {
                 }}
               />
             </div>
-            <div />
-            <div />
-            <div />
+            <div className="flex w-full items-center justify-center gap-2">
+              <label className="font-semibold text-red-600">Loss</label>
+              <Switch
+                checked={watch("isWon") ? true : false}
+                onCheckedChange={(value) => {
+                  setValue("isWon", value);
+                }}
+              />
+              <label className="font-semibold text-green-600">Win</label>
+            </div>
+            <div className="flex w-full items-center justify-center gap-2">
+              <p>Margin</p>
+              <p className="font-semibold">{watch("margin")}%</p>
+            </div>
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-44">Final Cost Price</Label>
+              <Input
+                type="number"
+                step={0.01}
+                {...register("finalCostPrice", { valueAsNumber: true })} //finalCostPrice
+                readOnly
+                disabled
+                className="w-full"
+              />
+            </div>
+
             <div className="flex w-full max-w-sm items-center gap-2">
               <Label className="text-nowrap w-32">Result Cost</Label>
               <Input
