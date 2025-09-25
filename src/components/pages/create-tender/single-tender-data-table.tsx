@@ -24,6 +24,8 @@ import {
   calculateBidPrice,
   calculateBidPriceOnAmount,
   calculateCostPrice,
+  calculateFinalCostPrice,
+  calculateMargin,
   calculateResultCost,
   calculateResultPerCarat,
   calculateTotalAmount,
@@ -53,7 +55,10 @@ const columns = [
   "Cost Price",
   "Tops Amnt",
   "Bid Price",
-  "Total Amount",
+  "Bid Amount",
+  "Final Cost Price",
+  "Final Bid Price",
+  "Final Bid Amount",
   "Result Total",
   "Result/Ct",
   "Result Cost",
@@ -273,12 +278,31 @@ export function SingleTenderDataTable({
                             value,
                             labourValue,
                             netPercent,
-                            giaCharge,
-                          )
+                            giaCharge
+                          );
+
+                          const finalBidAmount = parseFloat(
+                            (value * (row.finalBidPrice ?? 0)).toFixed(2)
+                          );
+
+                          const finalCostPrice = calculateFinalCostPrice(
+                            row.finalBidPrice ?? 0,
+                            labourValue,
+                            row.polCts,
+                            value,
+                            row.topsAmount,
+                            netPercent,
+                            giaCharge
+                          );
+
+                          const margin = calculateMargin(
+                            bidPrice,
+                            row.finalBidPrice ?? 0
+                          );
 
                           const totalAmount = calculateTotalAmount(
                             bidPrice,
-                            row.roughCts
+                            value
                           );
 
                           const costPrice = calculateCostPrice(
@@ -319,6 +343,9 @@ export function SingleTenderDataTable({
                               totalAmount,
                               resultPerCarat,
                               resultCost,
+                              finalBidAmount,
+                              margin,
+                              finalCostPrice,
                             },
                             index
                           );
@@ -562,8 +589,10 @@ export function SingleTenderDataTable({
                           const value = e.target.value
                             ? parseFloat(e.target.value)
                             : 0;
-                          
-                          const ratio = parseFloat((value / row.width).toFixed(2))
+
+                          const ratio = parseFloat(
+                            (value / row.width).toFixed(2)
+                          );
 
                           handleValueChange(
                             {
@@ -588,16 +617,20 @@ export function SingleTenderDataTable({
                           const value = e.target.value
                             ? parseFloat(e.target.value)
                             : 0;
-                          
-                          const depth = parseFloat((row.height / value).toFixed(2))
-                          const ratio = parseFloat((row.length / value).toFixed(2))
+
+                          const depth = parseFloat(
+                            (row.height / value).toFixed(2)
+                          );
+                          const ratio = parseFloat(
+                            (row.length / value).toFixed(2)
+                          );
 
                           handleValueChange(
                             {
                               ...row,
                               width: value,
                               depth,
-                              ratio
+                              ratio,
                             },
                             index
                           );
@@ -616,8 +649,10 @@ export function SingleTenderDataTable({
                           const value = e.target.value
                             ? parseFloat(e.target.value)
                             : 0;
-                          
-                          const depth = parseFloat((value / row.length).toFixed(2))
+
+                          const depth = parseFloat(
+                            (value / row.length).toFixed(2)
+                          );
 
                           handleValueChange(
                             {
@@ -880,10 +915,10 @@ export function SingleTenderDataTable({
                         placeholder="0"
                       />
                     </TableCell>
-                    
+
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-20 text-right"
+                        className="w-24 text-right"
                         name="bidPrice"
                         type="number"
                         value={row.bidPrice || ""}
@@ -908,12 +943,18 @@ export function SingleTenderDataTable({
                             row.roughCts
                           );
 
+                          const margin = calculateMargin(
+                            value,
+                            row.finalBidPrice ?? 0
+                          );
+
                           handleValueChange(
                             {
                               ...row,
                               costPrice,
                               bidPrice: value,
                               totalAmount,
+                              margin,
                             },
                             index
                           );
@@ -923,7 +964,7 @@ export function SingleTenderDataTable({
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
-                        className="w-full text-right"
+                        className="w-24 text-right"
                         name="totalAmount"
                         type="number"
                         value={row.totalAmount || ""}
@@ -936,6 +977,11 @@ export function SingleTenderDataTable({
                           const bidPrice = calculateBidPriceOnAmount(
                             value,
                             row.roughCts
+                          );
+
+                          const margin = calculateMargin(
+                            bidPrice,
+                            row.finalBidPrice ?? 0
                           );
 
                           const costPrice = calculateCostPrice(
@@ -954,11 +1000,115 @@ export function SingleTenderDataTable({
                               bidPrice,
                               totalAmount: value,
                               costPrice,
+                              margin,
                             },
                             index
                           );
                         }}
                         placeholder="0"
+                      />
+                    </TableCell>
+                    <TableCell className="border-collapse border border-gray-300">
+                      <Input
+                        // className="w-20"
+                        name="finalCostPrice"
+                        type="number"
+                        step={0.01}
+                        value={row.finalCostPrice || ""}
+                        disabled
+                        onChange={(e) => {
+                          const value = e.target.value
+                            ? parseFloat(e.target.value)
+                            : 0;
+                          handleValueChange(
+                            {
+                              ...row,
+                              finalCostPrice: value,
+                            },
+                            index
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell className="border-collapse border border-gray-300">
+                      <Input
+                        // className="w-20"
+                        name="finalBidPrice"
+                        type="number"
+                        step={0.01}
+                        value={row.finalBidPrice || ""}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            ? parseFloat(e.target.value)
+                            : 0;
+
+                          const finalCostPrice = calculateFinalCostPrice(
+                            value,
+                            labourValue,
+                            row.polCts,
+                            row.roughCts,
+                            row.topsAmount,
+                            netPercent,
+                            giaCharge
+                          );
+
+                          const margin = calculateMargin(row.bidPrice, value);
+
+                          const finalBidAmount = parseFloat(
+                            (value * row.roughCts).toFixed(2)
+                          );
+                          handleValueChange(
+                            {
+                              ...row,
+                              finalBidPrice: value,
+                              finalBidAmount,
+                              finalCostPrice,
+                              margin,
+                            },
+                            index
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell className="border-collapse border border-gray-300">
+                      <Input
+                        // className="w-20"
+                        name="finalBidAmount"
+                        type="number"
+                        step={0.01}
+                        value={row.finalBidAmount || ""}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            ? parseFloat(e.target.value)
+                            : 0;
+
+                          const finalBidPrice = parseFloat(
+                            ((value ?? 0) / row.roughCts).toFixed(2)
+                          );
+                          
+                          const margin = calculateMargin(row.bidPrice, finalBidPrice);
+
+                          const finalCostPrice = calculateFinalCostPrice(
+                            finalBidPrice,
+                            labourValue,
+                            row.polCts,
+                            row.roughCts,
+                            row.topsAmount,
+                            netPercent,
+                            giaCharge
+                          );
+
+                          handleValueChange(
+                            {
+                              ...row,
+                              finalBidAmount: value,
+                              finalBidPrice,
+                              finalCostPrice,
+                              margin
+                            },
+                            index
+                          );
+                        }}
                       />
                     </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
@@ -1083,7 +1233,7 @@ export function SingleTenderDataTable({
                     <TableCell className="border-collapse border border-gray-300">
                       <div className="flex items-center gap-2">
                         <label className="text-red-600 font-semibold">L</label>
-                        <Switch 
+                        <Switch
                           checked={row.isWon}
                           onCheckedChange={(value) => {
                             handleValueChange(
@@ -1095,11 +1245,14 @@ export function SingleTenderDataTable({
                             );
                           }}
                         />
-                        <label className="text-green-600 font-semibold">W</label>
+                        <label className="text-green-600 font-semibold">
+                          W
+                        </label>
                       </div>
                     </TableCell>
-                    <TableCell className="border-collapse border border-gray-300">
-                      {/* {(row.margin / row.salePrice).toFixed(2)} */}
+
+                    <TableCell className="border-collapse border text-right font-semibold border-gray-300">
+                      {row.margin}%
                     </TableCell>
                     <TableCell className="sticky right-0 bg-red-50 text-red-800 text-center z-40 border-collapse border border-r-0 border-gray-300">
                       <Button
