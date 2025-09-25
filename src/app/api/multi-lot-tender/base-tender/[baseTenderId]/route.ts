@@ -30,6 +30,9 @@ export async function GET(
         dcResultCost: true,
         dcResultPerCt: true,
         dcResultTotal: true,
+        dcFinalBidPrice: true,
+        dcFinalBidAmount: true,
+        dcFinalCostPrice: true,
         isWon: true,
         margin: true,
         tender: {

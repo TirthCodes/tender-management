@@ -58,6 +58,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ baseTen
         dcCostAmount: true,
         stLotNo: true,
         isWon: true,
+        dcFinalBidPrice: true,
+        dcFinalBidAmount: true,
         margin: true,
         otherTenderDetails: {
           select: {

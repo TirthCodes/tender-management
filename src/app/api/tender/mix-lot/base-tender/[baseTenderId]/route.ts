@@ -57,6 +57,9 @@ export async function GET(
         dcSaleAmount: true,
         isWon: true,
         margin: true,
+        dcFinalBidPrice: true,
+        dcFinalBidAmount: true,
+        dcFinalCostPrice: true,
         otherTenderDetails: {
           select: {
             id: true,

@@ -14,6 +14,9 @@ export interface MainLotUpdate {
   dcResultCost?: number;
   dcResultPerCt: number;
   dcResultTotal: number;
+  dcFinalCostPrice?: number;
+  dcFinalBidPrice?: number;
+  dcFinalBidAmount?: number;
   inUsedPcs: number;
   dcUsedCts: number;
 }
@@ -45,6 +48,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       dcResultCost,
       dcResultPerCt,
       dcResultTotal,
+      dcFinalBidPrice,
+      dcFinalBidAmount,
+      dcFinalCostPrice,
       inUsedPcs,
       dcUsedCts
     } = (await req.json()) as MainLotUpdate;
@@ -78,6 +84,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         dcResultCost,
         dcResultPerCt,
         dcResultTotal,
+        dcFinalBidPrice,
+        dcFinalBidAmount,
+        dcFinalCostPrice,
         inUsedPcs,
         dcUsedCts
       },

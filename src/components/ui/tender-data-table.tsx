@@ -8,6 +8,15 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+export type SummaryConfig<TData> = {
+  [key: string]: {
+    type: 'sum' | 'count' | 'average' | 'custom';
+    accessor: keyof TData | ((data: TData[]) => number);
+    label?: string;
+    format?: (value: number) => string;
+  }
+};
+
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -37,6 +46,9 @@ interface DataTableProps<TData extends { id?: number }> {
   isPdf?: boolean;
   handlePdf?: (id: number) => void;
   loadingPdf?: boolean;
+  summaryConfig?: SummaryConfig<TData>;
+  showSummary?: boolean;
+  totals?: Record<string, number | string>;
 }
 
 export function TenderDataTable<TData extends { id?: number }>({
@@ -51,6 +63,9 @@ export function TenderDataTable<TData extends { id?: number }>({
   isPdf,
   handlePdf,
   loadingPdf,
+  summaryConfig,
+  showSummary = false,
+  totals,
 }: DataTableProps<TData>) {
   const [deletingId, setDeletingId] = React.useState<number | null>(null);
   const [pdfId, setPdfId] = React.useState<number | null>(null);
@@ -89,6 +104,76 @@ export function TenderDataTable<TData extends { id?: number }>({
       setDeletingId(id);
       deleteData(id);
     }
+  };
+
+  const calculateSummaryValue = (config: SummaryConfig<TData>[string], data: TData[]): number => {
+    if (typeof config.accessor === 'function') {
+      return config.accessor(data);
+    }
+
+    const values = data
+      .map((item) => {
+        const value = item[config.accessor as keyof TData];
+        return typeof value === 'number' ? value : 0;
+      })
+      .filter((value) => !isNaN(value));
+
+    switch (config.type) {
+      case 'sum':
+        return values.reduce((sum: number, value: number) => sum + value, 0);
+      case 'count':
+        return values.length;
+      case 'average':
+        return values.length > 0 ? values.reduce((sum: number, value: number) => sum + value, 0) / values.length : 0;
+      default:
+        return 0;
+    }
+  };
+
+  const renderSummaryRow = () => {
+    if (!showSummary || (!summaryConfig && !totals)) return null;
+
+    return (
+      <TableRow className="bg-neutral-100 font-medium border-t-2 sticky bottom-0">
+        {columns.map((column, index) => {
+          const columnId = column.id || (column as any).accessorKey;
+          const summaryItem = summaryConfig?.[columnId];
+
+          if (index === 0) {
+            return (
+              <TableCell key={columnId || index} className="text-neutral-700 font-semibold">
+                Total
+              </TableCell>
+            );
+          }
+
+          // Use totals if provided, otherwise fall back to summaryConfig
+          if (totals && totals[columnId]) {
+            const value = totals[columnId];
+            const formattedValue = typeof value === 'number' ? value.toLocaleString() : value;
+
+            return (
+              <TableCell key={columnId || index} className="text-neutral-700 font-semibold">
+                {formattedValue}
+              </TableCell>
+            );
+          }
+
+          if (summaryItem) {
+            const value = calculateSummaryValue(summaryItem, data);
+            const formattedValue = summaryItem.format ? summaryItem.format(value) : value.toLocaleString();
+
+            return (
+              <TableCell key={columnId || index} className="text-neutral-700 font-semibold">
+                {formattedValue}
+              </TableCell>
+            );
+          }
+
+          return <TableCell key={columnId || index}></TableCell>;
+        })}
+      </TableRow>
+    );
   };
 
   return (
@@ -204,6 +289,7 @@ export function TenderDataTable<TData extends { id?: number }>({
                 </TableCell>
               </TableRow>
             )}
+            {renderSummaryRow()}
           </TableBody>
         </Table>
       </div>

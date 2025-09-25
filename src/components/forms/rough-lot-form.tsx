@@ -24,6 +24,7 @@ import { toast } from "react-toastify";
 import useEffectAfterMount from "@/hooks/useEffectAfterMount";
 import { Switch } from "../ui/switch";
 import { invalidateQuery } from "@/lib/invalidate";
+import { calculateMargin } from "@/lib/formula";
 
 export const initialRow: RoughLotTenderDetails = {
   inRoughPcs: 0,
@@ -105,32 +106,24 @@ const createRoughLotSchema = z.object({
     (val) => Number(val),
     z.number().min(0, "Cost amount is required!")
   ),
+  finalBidPrice: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, "Final bid price is required!")
+  ),
+  finalBidAmount: z.preprocess(
+    (val) => Number(val),
+    z.number().min(0, "Final bid amount is required!")
+  ),
+  margin: z.preprocess(
+    (val) => val ? Number(val) : 0,
+    z.number().min(0, "Margin is required!")
+  ),
   isWon: z.boolean().optional(),
 });
 
 type CreateRoughLotFormValues = z.infer<typeof createRoughLotSchema>;
 
 export function RoughLotForm() {
-  // const { data: colorsOptions } = useQuery({
-  //   queryKey: ["color-options"],
-  //   queryFn: getColorOptions,
-  // });
-
-  // const { data: claritiesOptions } = useQuery({
-  //   queryKey: ["clarity-options"],
-  //   queryFn: getClarityOptions,
-  // });
-
-  // const { data: fluorescencesOptions } = useQuery({
-  //   queryKey: ["fluorescence-options"],
-  //   queryFn: getFluorescenceOptions,
-  // });
-
-  // const { data: shapesOptions } = useQuery({
-  //   queryKey: ["shape-options"],
-  //   queryFn: getShapeOptions,
-  // });
-
   const searchParams = useSearchParams();
   const baseTenderId = searchParams.get("baseTenderId") as string;
   const mainLotId = searchParams.get("mainLotId") as string;
@@ -196,6 +189,9 @@ export function RoughLotForm() {
         dcCostPrice,
         dcCostAmount,
         stRemark,
+        margin,
+        dcFinalBidPrice,
+        dcFinalBidAmount,
         isWon
       } = roughLotTender.data;
       reset({
@@ -213,7 +209,10 @@ export function RoughLotForm() {
         resultTotal: dcResultTotal,
         costPrice: dcCostPrice,
         costAmount: dcCostAmount,
+        finalBidPrice: dcFinalBidPrice,
+        finalBidAmount: dcFinalBidAmount,
         lotNo: stLotNo,
+        margin,
         isWon,
       });
 
@@ -256,6 +255,7 @@ export function RoughLotForm() {
     }
   }, [roughLotId, labour]);
 
+  // Bid
   useEffectAfterMount(() => {
     if (netPercent) {
       // const netPercentValue = parseFloat(netPercent);
@@ -276,6 +276,9 @@ export function RoughLotForm() {
             );
           }
         }
+
+        const margin = calculateMargin(calculatedBidPrice, watch("finalBidPrice"));
+        setValue("margin", margin);
         setValue("totalAmount", totalAmount);
       }
     }
@@ -394,6 +397,7 @@ export function RoughLotForm() {
 
     const payload: RoughLotPaylod = {
       ...data,
+      finalCostPrice: 0,
       isWon: data.isWon ?? false,
       baseTenderId: parseInt(baseTenderId),
       tenderDetails: JSON.stringify(tenderDetails),
@@ -497,6 +501,20 @@ export function RoughLotForm() {
                   errors.roughCts?.message &&
                     "border border-red-500 placeholder:text-red-500"
                 )}`}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+
+                  const finalBidPrice = watch("finalBidPrice");
+
+                  const finalBidAmount = parseFloat(
+                    (finalBidPrice * (value ?? 0)).toFixed(2)
+                  );
+
+                  setValue("roughCts", value ?? 0);
+                  setValue("finalBidAmount", finalBidAmount);
+                }}
               />
             </div>
           </div>
@@ -668,6 +686,7 @@ export function RoughLotForm() {
                 className="w-full"
               />
             </div>
+
             <div className="flex w-full items-center gap-2">
               <Label className="text-nowrap w-40">Result Total</Label>
               <Input
@@ -689,16 +708,30 @@ export function RoughLotForm() {
                 }}
               />
             </div>
-            <div className="flex w-full items-center justify-center gap-2">
-              <label className="font-semibold text-red-600">Loss</label>
-              <Switch
-                checked={watch("isWon") ? true : false}
-                onCheckedChange={(value) => {
-                  setValue("isWon", value);
+            <div className="flex w-full items-center gap-2">
+              <Label className="text-nowrap w-40">Final Bid Price</Label>
+              <Input
+                type="number"
+                {...register("finalBidPrice", { valueAsNumber: true })}
+                step={0.01}
+                className="w-full"
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+
+                  const finalBidAmount = parseFloat(
+                    ((value ?? 0) * roughCts).toFixed(2)
+                  );
+
+                  const margin = calculateMargin(watch("bidPrice"), value ?? 0);
+
+                  setValue("margin", margin);
+                  setValue("finalBidAmount", finalBidAmount);
                 }}
               />
-              <label className="font-semibold text-green-600">Win</label>
             </div>
+
             <div className="flex w-full max-w-sm items-center gap-2">
               <Label className="text-nowrap w-32">Cost Amount</Label>
               <Input
@@ -740,10 +773,42 @@ export function RoughLotForm() {
                 }}
               />
             </div>
-            {/* <div className="flex w-full items-center opacity-50 justify-center gap-2">
-              <p className="font-semibold">Margin:</p>     
-              <p className="font-semibold">0%</p>
-            </div> */}
+            <div className="flex w-full items-center gap-2">
+              <Label className="text-nowrap w-40">Final Bid Amnt</Label>
+              <Input
+                type="number"
+                {...register("finalBidAmount", { valueAsNumber: true })}
+                step={0.01}
+                className="w-full"
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+
+                  const finalBidPrice = parseFloat(
+                    ((value ?? 0) / roughCts).toFixed(2)
+                  );
+
+                  const margin = calculateMargin(watch("bidPrice"), finalBidPrice ?? 0);
+
+                  setValue("margin", margin);
+                  setValue("finalBidPrice", finalBidPrice);
+                }}
+              />
+            </div>
+            <div className="flex w-full items-center justify-center gap-2">
+              <label className="font-semibold text-red-600">Loss</label>
+              <Switch
+                checked={watch("isWon") ? true : false}
+                onCheckedChange={(value) => {
+                  setValue("isWon", value);
+                }}
+              />
+              <label className="font-semibold text-green-600">Win</label>
+            </div>
+            <div className="flex w-full items-center justify-center font-semibold">
+              Margin  {watch("margin")}%
+            </div>
           </div>
         </div>
       )}

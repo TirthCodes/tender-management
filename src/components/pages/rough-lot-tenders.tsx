@@ -20,6 +20,7 @@ import { updateMainLot } from "@/services/multi-lot";
 import { toast } from "react-toastify";
 import { MainLotUpdate } from "@/app/api/main-lot/[id]/route";
 import { Loader2 } from "lucide-react";
+import { calculateMargin } from "@/lib/formula";
 
 export interface OtherBaseTender {
   dtVoucherDate: Date;
@@ -48,15 +49,31 @@ export function RoughLotTendersPage({
     costAmount: number;
     bidPrice: number;
     bidAmount: number;
+    finalBidPrice: number;
+    finalBidAmount: number;
+    margin: number;
     resultTotal: number;
     resultPerCarat: number;
   };
   baseTender: OtherBaseTender;
 }) {
   const [page, setPage] = useState(1);
-  const [resultTotal, setResultTotal] = useState<number | undefined>(totalValues.resultTotal);
-  const [resultPerCarat, setResultPerCarat] = useState<number | undefined>(totalValues.resultPerCarat);
+  const [resultTotal, setResultTotal] = useState<number | undefined>(
+    totalValues.resultTotal
+  );
+  const [resultPerCarat, setResultPerCarat] = useState<number | undefined>(
+    totalValues.resultPerCarat
+  );
   const [isWon, setIsWon] = useState<boolean>(mainLot?.isWon ?? false);
+  const [margin, setMargin] = useState<number>(totalValues.margin ?? 0);
+
+  const [finalBidPrice, setFinalBidPrice] = useState<number>(
+    totalValues.finalBidPrice
+  );
+  const [finalBidAmount, setFinalBidAmount] = useState<number>(
+    totalValues.finalBidAmount
+  );
+
 
   const searchParams = useSearchParams();
   const id = searchParams.get("baseTenderId") as string;
@@ -112,7 +129,11 @@ export function RoughLotTendersPage({
       <PageHeader
         title={title}
         createPath={createPath}
-        backPath={mainLotId && id ? `/tenders/multi-lot/rough?baseTenderId=${id}` : undefined}
+        backPath={
+          mainLotId && id
+            ? `/tenders/multi-lot/rough?baseTenderId=${id}`
+            : undefined
+        }
         mainLotInfo={
           <>
             {mainLot?.stLotNo && (
@@ -132,10 +153,7 @@ export function RoughLotTendersPage({
                     <span className="text-red-800">
                       {mainLot.dcRemainingCts}
                     </span>{" "}
-                    /{" "}
-                    <span className="font-semibold">
-                      {mainLot.dcCts}
-                    </span>
+                    / <span className="font-semibold">{mainLot.dcCts}</span>
                   </p>
                 </div>
               </div>
@@ -158,6 +176,12 @@ export function RoughLotTendersPage({
         editPath={createPath}
         queryKey={queryKey}
         deleteEndpoint="other-tender"
+        showSummary={mainLotId ? true : false}
+        totals={{
+          inRoughPcs: totalValues.pcs,
+          dcRoughCts: `${totalValues.carats.toFixed(2)}`,
+          actions: `Pol Cts: ${totalValues.polCts.toLocaleString()}`,
+        }}
       />
       <Pagination
         setPage={setPage}
@@ -167,38 +191,159 @@ export function RoughLotTendersPage({
       {mainLotId && (
         <>
           <div
-            className={`mt-2 flex items-center justify-around gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
+            className={`mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
           >
-            <div className="flex items-center gap-2">
-              <p className="text-nowrap">Pcs:</p>
+            {/* <div className="flex items-center gap-2">
+              <p className="text-nowrap w-16">Pcs:</p>
               <p className="font-semibold">{totalValues?.pcs}</p>
-            </div>
+            </div>             */}
             <div className="flex items-center gap-2">
-              <p className="text-nowrap">Cts.:</p>
-              <p className="font-semibold">{totalValues?.carats?.toFixed(2)}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <p className="text-nowrap">Pol Cts.:</p>
-              <p className="font-semibold">{totalValues?.polCts}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <p className="text-nowrap">Cost Price:</p>
+              <p className="text-nowrap w-20">Cost Price:</p>
               <p className="font-semibold">{totalValues?.costPrice}</p>
             </div>
             <div className="flex items-center gap-2">
-              <p className="text-nowrap">Cost Amount:</p>
-              <p className="font-semibold">{totalValues?.costAmount}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <p className="text-nowrap">Bid Price:</p>
+              <p className="text-nowrap w-[72px]">Bid Price:</p>
               <p className="font-semibold">{totalValues?.bidPrice}</p>
             </div>
             <div className="flex items-center gap-2">
-              <p className="text-nowrap">Bid Amount:</p>
+              <p className="text-nowrap w-32">Final Bid Price:</p>
+              <Input className="py-1 h-9" 
+                value={finalBidPrice}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+
+                  setFinalBidPrice(value ?? 0);
+                  const finalBidAmount = parseFloat(((value ?? 0) * (mainLot?.dcCts ?? 0)).toFixed(2));
+                  const margin = calculateMargin(totalValues.bidPrice, value ?? 0);
+                  setMargin(margin)
+                  setFinalBidAmount(isNaN(finalBidAmount) ? 0 : finalBidAmount);
+                }}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap shrink-0 w-28">Result Total:</p>
+              <Input
+                type="number"
+                step={0.01}
+                value={resultTotal ?? 0}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+
+                  setResultTotal(value);
+                  const resultPerCarat = parseFloat(
+                    ((value ?? 0) / (mainLot?.dcCts ?? 0)).toFixed(2)
+                  );
+
+                  setResultPerCarat(resultPerCarat);
+                }}
+                className="py-1 h-9 px-2 w-full font-semibold"
+              />
+            </div>
+            {/* <div className="flex items-center gap-2">
+              <p className="text-nowrap  w-16">Cts.:</p>
+              <p className="font-semibold">{totalValues?.carats?.toFixed(2)}</p>
+            </div> */}
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap w-20">Cost Amnt:</p>
+              <p className="font-semibold">{totalValues?.costAmount}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap w-[72px]">Bid Amnt:</p>
               <p className="font-semibold">{totalValues?.bidAmount}</p>
             </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap w-32">Final Bid Amnt:</p>
+              <Input
+                className="py-1 h-9"
+                value={finalBidAmount}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+                  setFinalBidAmount(value ?? 0);
+
+                  const finalBidPrice = parseFloat(((value ?? 0) / (mainLot?.dcCts ?? 0)).toFixed(2)); 
+                  const finalBid = isNaN(finalBidPrice) ? 0 : finalBidPrice;
+                  const margin = calculateMargin(totalValues.bidPrice, finalBid);
+                  setMargin(margin)
+                  setFinalBidPrice(finalBid);
+                }}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap shrink-0 w-28">Result Per Ct:</p>
+              <Input
+                type="number"
+                step={0.01}
+                value={resultPerCarat ?? 0}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+                  setResultPerCarat(value);
+
+                  const resultTotal = parseFloat(
+                    ((value ?? 0) * (mainLot?.dcCts ?? 0)).toFixed(2)
+                  );
+
+                  setResultTotal(resultTotal);
+                }}
+                className="py-1 h-9 px-2 w-full font-semibold"
+              />
+            </div>
+            {/* <div className="flex items-center gap-2">
+              <p className="text-nowrap  w-16">Pol Cts.:</p>
+              <p className="font-semibold">{totalValues?.polCts}</p>
+            </div> */}
+            <div className="flex w-full items-center gap-2">
+              <label className="font-semibold text-red-600">Loss</label>
+              <Switch
+                checked={isWon}
+                onCheckedChange={(value) => {
+                  setIsWon(value);
+                }}
+              />
+              <label className="font-semibold text-green-600">Win</label>
+            </div>
+            <div className="flex w-full items-center gap-2">
+              <p className="w-[72px]">Margin:</p>
+              <p className="font-semibold">{margin}%</p>
+            </div>
+            <div className="flex w-full col-span-2 items-center justify-end">
+              <Button
+                onClick={() => {
+                  mutate({
+                    dcPolCts: totalValues.polCts,
+                    dcSalePrice: 0,
+                    dcSaleAmount: 0,
+                    dcCostPrice: totalValues.costPrice,
+                    dcCostAmount: totalValues.costAmount,
+                    isWon: isWon,
+                    dcBidPrice: totalValues.bidPrice,
+                    dcBidAmount: totalValues.bidAmount,
+                    dcResultCost: 0,
+                    dcResultPerCt: resultPerCarat ?? 0,
+                    dcResultTotal: resultTotal ?? 0,
+                    dcFinalBidPrice: finalBidPrice,
+                    dcFinalBidAmount: finalBidAmount,
+                    dcFinalCostPrice: 0,
+                    margin,
+                    inUsedPcs: totalValues.pcs,
+                    dcUsedCts: totalValues.carats,
+                  });
+                }}
+                disabled={isPending}
+                className="px-2 lg:px-4 h-7 lg:h-9 bg-neutral-800 rounded-sm w-24"
+              >
+                Save {isPending && <Loader2 className="animate-spin" />}
+              </Button>
+            </div>
           </div>
-          <div
+          {/* <div
             className={`mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
           >
             <div className="flex items-center justify-center gap-2">
@@ -278,7 +423,7 @@ export function RoughLotTendersPage({
                 Save {isPending && <Loader2 className="animate-spin" />}
               </Button>
             </div>
-          </div>
+          </div> */}
         </>
       )}
     </PageWrapper>

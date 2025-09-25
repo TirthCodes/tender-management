@@ -143,6 +143,9 @@ model OtherTender {
   stCertId             String?
   isWon                Boolean                @default(false)
   margin               Decimal?               @db.Decimal(10, 2)
+  dcFinalCostPrice     Decimal                @db.Decimal(10, 2)  @default(0)
+  dcFinalBidPrice      Decimal                @db.Decimal(10, 2)  @default(0)
+  dcFinalBidAmount     Decimal                @db.Decimal(10, 2)  @default(0)
   otherTenderDetails   OtherTenderDetails[]
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
@@ -184,10 +187,6 @@ model OtherTenderDetails {
 
   dcLabour          Decimal?        @db.Decimal(10, 2)
 
-  dcFinalCostPrice  Decimal         @db.Decimal(10, 2)  @default(0)
-  dcFinalBidPrice   Decimal         @db.Decimal(10, 2)  @default(0)
-  dcFinalBidAmount  Decimal         @db.Decimal(10, 2)  @default(0)
-
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 }
@@ -216,6 +215,9 @@ model MainLot {
   dcResultCost      Decimal?          @db.Decimal(10, 2)
   dcResultPerCt     Decimal?          @db.Decimal(10, 2)
   dcResultTotal     Decimal?          @db.Decimal(10, 2)
+  dcFinalCostPrice  Decimal          @db.Decimal(10, 2) @default(0)
+  dcFinalBidPrice   Decimal          @db.Decimal(10, 2) @default(0)
+  dcFinalBidAmount  Decimal          @db.Decimal(10, 2) @default(0)
   isWon             Boolean?          @default(false)
   margin            Decimal?          @db.Decimal(10, 2)
   tender            OtherTender[]

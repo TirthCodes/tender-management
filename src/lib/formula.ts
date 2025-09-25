@@ -151,5 +151,5 @@ export const calculateMargin = (
   finalBidPrice: number,
 ) => {
   const margin = parseFloat((((bidPrice - finalBidPrice) / bidPrice) * 100).toFixed(2));
-  return margin
+  return isNaN(margin) ? 0 : margin;
 };

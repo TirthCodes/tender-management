@@ -139,6 +139,10 @@ export default async function Page({
     resultCost: 0,
     resultTotal: 0,
     resultPerCarat: 0,
+    margin: 0,
+    finalBidPrice: 0,
+    finalBidAmount: 0,
+    finalCostPrice: 0,
   };
   if (mainLotId) {
     mainLotDetails = await prisma.mainLot.findUnique({
@@ -163,6 +167,10 @@ export default async function Page({
         dcResultPerCt: true,
         inUsedPcs: true,
         dcUsedCts: true,
+        dcFinalBidPrice: true,
+        dcFinalBidAmount: true,
+        dcFinalCostPrice: true,
+        margin: true,
       },
     });
     if (mainLotDetails) {
@@ -216,6 +224,10 @@ export default async function Page({
         resultCost: mainLotDetails?.dcResultCost?.toNumber() ?? 0,
         resultTotal: mainLotDetails?.dcResultTotal?.toNumber() ?? 0,
         resultPerCarat: mainLotDetails?.dcResultPerCt?.toNumber() ?? 0,
+        margin: mainLotDetails?.margin?.toNumber() ?? 0,
+        finalBidPrice: mainLotDetails?.dcFinalBidPrice?.toNumber() ?? 0,
+        finalBidAmount: mainLotDetails?.dcFinalBidAmount?.toNumber() ?? 0,
+        finalCostPrice: mainLotDetails?.dcFinalCostPrice?.toNumber() ?? 0,
       };
     }
   }
