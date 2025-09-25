@@ -156,7 +156,8 @@ const styles = StyleSheet.create({
   roughColLabour: { width: "5%", paddingVertical: 2 },
   roughColCost: { width: "7%", paddingVertical: 2 },
   roughColBid: { width: "9%", paddingVertical: 2 },
-  roughColResult: { width: "16%", paddingVertical: 2 },
+  roughColResult: { width: "8%", paddingVertical: 2 },
+  roughColFinal: { width: "8%", paddingVertical: 2 },
   roughColWinLoss: { width: "7%", paddingVertical: 2 },
 
   // Mix Lot
@@ -164,9 +165,9 @@ const styles = StyleSheet.create({
   mixColParticular: { width: "28%", paddingVertical: 2 },
   mixColPolish: { width: "7%", paddingVertical: 2 },
   mixColSale: { width: "7%", paddingVertical: 2 },
-  mixColCost: { width: "12%", paddingVertical: 2 },
-  mixColBid: { width: "9%", paddingVertical: 2 },
-  mixColResult: { width: "16%" },
+  mixColBid: { width: "12%", paddingVertical: 2 },
+  mixColResult: { width: "14%" },
+  mixColFinal: { width: "14%" },
   mixColWinLoss: { width: "7%", paddingVertical: 2 },
 });
 
@@ -228,6 +229,8 @@ interface RoughLotTender {
   stLotNo: string;
   isWon: boolean;
   margin: string | null;
+  dcFinalBidPrice: string;
+  dcFinalBidAmount: string;
   otherTenderDetails: {
     id: number;
     inRoughPcs: number;
@@ -259,6 +262,9 @@ interface MixLotTender {
   stLotNo: string;
   isWon: boolean;
   margin: string | null;
+  dcFinalBidPrice: string;
+  dcFinalBidAmount: string;
+  dcFinalCostPrice: string;
   otherTenderDetails: {
     id: number;
     inRoughPcs: number;
@@ -298,6 +304,9 @@ interface MultiLotTender {
   dcResultCost: string;
   dcResultPerCt: string;
   dcResultTotal: string;
+  dcFinalBidPrice: string;
+  dcFinalBidAmount: string;
+  dcFinalCostPrice: string;
   isWon: boolean;
   margin: string | null;
 }
@@ -581,6 +590,27 @@ export function TenderPDF({
                           {stringToDecimal(lot.dcResultPerCt)}
                         </Text>
                       </View>
+                      <View style={[styles.tableCol, styles.roughColFinal]}>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.cellBorderBottom,
+                            styles.fontBold,
+                            styles.rightCell,
+                          ]}
+                        >
+                          {stringToDecimal(lot.dcFinalBidPrice)}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.fontBold,
+                            styles.rightCell,
+                          ]}
+                        >
+                          {stringToDecimal(lot.dcFinalBidAmount)}
+                        </Text>
+                      </View>
                       <View
                         style={[
                           styles.tableCol,
@@ -594,6 +624,9 @@ export function TenderPDF({
                             styles.cellBorderBottom,
                             styles.fontBold,
                             styles.centerCell,
+                            lot.isWon
+                              ? { color: "#2E6F40" }
+                              : { color: "#BF1029" },
                           ]}
                         >
                           {lot.isWon ? "Won" : "Lost"}
@@ -719,7 +752,7 @@ export function TenderPDF({
                         </Text>
                       </View>
                       <View style={[styles.tableCol, styles.mixColSale]}></View>
-                      <View style={[styles.tableCol, styles.mixColCost]}></View>
+
                       <View style={[styles.tableCol, styles.mixColBid]}>
                         <Text
                           style={[
@@ -752,43 +785,90 @@ export function TenderPDF({
                           },
                         ]}
                       >
+                        <Text
+                          style={[
+                            styles.rightCell,
+                            { width: "50%", paddingRight: 2 },
+                          ]}
+                        >
+                          {stringToDecimal(lot?.dcResultCost)}
+                        </Text>
                         <View
                           style={{
-                            borderRight: 0.5,
-                            borderRightColor: "#444",
-                            borderRightStyle: "solid",
+                            borderLeft: 0.5,
+                            borderLeftColor: "#444",
+                            borderLeftStyle: "solid",
                             width: "50%",
                           }}
                         >
                           <Text
                             style={[
                               styles.tableCellCenter,
-                              styles.cellBorderBottom,
                               styles.rightCell,
-                              { paddingTop: 2 },
+                              styles.cellBorderBottom,
+                              { paddingTop: 2, paddingRight: 2 },
                             ]}
                           >
-                            {lot.dcResultCost}
+                            {stringToDecimal(lot?.dcResultPerCt)}
                           </Text>
                           <Text
                             style={[
-                              styles.tableCellCenter,
-                              { paddingBottom: 2 },
+                              styles.fontBold,
                               styles.rightCell,
+                              { paddingBottom: 2, paddingRight: 2 },
                             ]}
                           >
-                            {lot.dcResultPerCt}
+                            {stringToDecimal(lot?.dcResultTotal)}
                           </Text>
                         </View>
+                      </View>
+                      <View
+                        style={[
+                          styles.tableCol,
+                          styles.mixColFinal,
+                          {
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          },
+                        ]}
+                      >
                         <Text
                           style={[
-                            styles.fontBold,
                             styles.rightCell,
                             { width: "50%", paddingRight: 2 },
                           ]}
                         >
-                          {lot.dcResultTotal}
+                          {stringToDecimal(lot.dcFinalCostPrice)}
                         </Text>
+                        <View
+                          style={{
+                            borderLeft: 0.5,
+                            borderLeftColor: "#444",
+                            borderLeftStyle: "solid",
+                            width: "50%",
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.tableCellCenter,
+                              styles.rightCell,
+                              styles.cellBorderBottom,
+                              { paddingTop: 2, paddingRight: 2 },
+                            ]}
+                          >
+                            {stringToDecimal(lot.dcFinalBidPrice)}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.fontBold,
+                              styles.rightCell,
+                              { paddingBottom: 2, paddingRight: 2 },
+                            ]}
+                          >
+                            {stringToDecimal(lot.dcFinalBidAmount)}
+                          </Text>
+                        </View>
                       </View>
                       <View
                         style={[
@@ -803,6 +883,9 @@ export function TenderPDF({
                             styles.cellBorderBottom,
                             styles.fontBold,
                             styles.centerCell,
+                            lot.isWon
+                              ? { color: "#2E6F40" }
+                              : { color: "#BF1029" },
                           ]}
                         >
                           {lot.isWon ? "Won" : "Lost"}
@@ -1171,6 +1254,10 @@ function SingleStoneTender({
                         styles.tableCellCenter,
                         styles.cellBorderBottom,
                         styles.centerCell,
+                        styles.fontBold,
+                        detail.isWon
+                          ? { color: "#2E6F40" }
+                          : { color: "#BF1029" },
                       ]}
                     >
                       {detail.isWon ? "Won" : "Lost"}
@@ -1477,6 +1564,11 @@ function RoughLotTender({
                         <Text style={styles.tableCellHeader}>Result</Text>
                       </View>
                       <View
+                        style={[styles.tableColHeader, styles.roughColFinal]}
+                      >
+                        <Text style={styles.tableCellHeader}>Final</Text>
+                      </View>
+                      <View
                         style={[
                           styles.tableColHeader,
                           styles.roughColWinLoss,
@@ -1578,6 +1670,9 @@ function RoughLotTender({
                       ></View>
                       <View
                         style={[styles.tableCol, styles.roughColResult]}
+                      ></View>
+                      <View
+                        style={[styles.tableCol, styles.roughColFinal]}
                       ></View>
                       <View
                         style={[
@@ -1690,6 +1785,27 @@ function RoughLotTender({
                           {stringToDecimal(lot.dcResultPerCt)}
                         </Text>
                       </View>
+                      <View style={[styles.tableCol, styles.roughColFinal]}>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.cellBorderBottom,
+                            styles.fontBold,
+                            styles.rightCell,
+                          ]}
+                        >
+                          {stringToDecimal(lot.dcFinalBidPrice)}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.tableCellCenter,
+                            styles.fontBold,
+                            styles.rightCell,
+                          ]}
+                        >
+                          {stringToDecimal(lot.dcFinalBidAmount)}
+                        </Text>
+                      </View>
                       <View
                         style={[
                           styles.tableCol,
@@ -1703,6 +1819,9 @@ function RoughLotTender({
                             styles.cellBorderBottom,
                             styles.fontBold,
                             styles.centerCell,
+                            lot.isWon
+                              ? { color: "#2E6F40" }
+                              : { color: "#BF1029" },
                           ]}
                         >
                           {lot.isWon ? "Won" : "Lost"}
@@ -1815,9 +1934,7 @@ function MixLotTender({
                       <View style={[styles.tableColHeader, styles.mixColSale]}>
                         <Text style={styles.tableCellHeader}>Sale</Text>
                       </View>
-                      <View style={[styles.tableColHeader, styles.mixColCost]}>
-                        <Text style={styles.tableCellHeader}>Cost</Text>
-                      </View>
+
                       <View style={[styles.tableColHeader, styles.mixColBid]}>
                         <Text style={styles.tableCellHeader}>Bid</Text>
                       </View>
@@ -1825,6 +1942,9 @@ function MixLotTender({
                         style={[styles.tableColHeader, styles.mixColResult]}
                       >
                         <Text style={styles.tableCellHeader}>Result</Text>
+                      </View>
+                      <View style={[styles.tableColHeader, styles.mixColFinal]}>
+                        <Text style={styles.tableCellHeader}>Final</Text>
                       </View>
                       <View
                         style={[
@@ -1902,24 +2022,12 @@ function MixLotTender({
                           {stringToDecimal(detail.dcSaleAmount)}
                         </Text>
                       </View>
-                      <View style={[styles.tableCol, styles.mixColCost]}>
-                        {/* <Text
-                            style={[
-                              styles.tableCellCenter,
-                              styles.rightCell,
-                              styles.cellBorderBottom,
-                              styles.fontBold,
-                            ]}
-                          >
-                            {stringToDecimal(detail.dcCostPrice)}
-                          </Text>
-                          <Text style={[styles.tableCellCenter, styles.rightCell]}>
-                            {stringToDecimal(detail.dcCostAmount)}
-                          </Text> */}
-                      </View>
                       <View style={[styles.tableCol, styles.mixColBid]}></View>
                       <View
                         style={[styles.tableCol, styles.mixColResult]}
+                      ></View>
+                      <View
+                        style={[styles.tableCol, styles.mixColFinal]}
                       ></View>
                       <View
                         style={[
@@ -1970,7 +2078,6 @@ function MixLotTender({
                         </Text>
                       </View>
                       <View style={[styles.tableCol, styles.mixColSale]}></View>
-                      <View style={[styles.tableCol, styles.mixColCost]}></View>
                       <View style={[styles.tableCol, styles.mixColBid]}>
                         <Text
                           style={[
@@ -2040,6 +2147,54 @@ function MixLotTender({
                           </Text>
                         </View>
                       </View>
+                      <View
+                        style={[
+                          styles.tableCol,
+                          styles.mixColFinal,
+                          {
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.rightCell,
+                            { width: "50%", paddingRight: 2 },
+                          ]}
+                        >
+                          {stringToDecimal(lot?.dcFinalCostPrice)}
+                        </Text>
+                        <View
+                          style={{
+                            borderLeft: 0.5,
+                            borderLeftColor: "#444",
+                            borderLeftStyle: "solid",
+                            width: "50%",
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.tableCellCenter,
+                              styles.rightCell,
+                              styles.cellBorderBottom,
+                              { paddingTop: 2, paddingRight: 2 },
+                            ]}
+                          >
+                            {stringToDecimal(lot?.dcFinalBidPrice)}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.fontBold,
+                              styles.rightCell,
+                              { paddingBottom: 2, paddingRight: 2 },
+                            ]}
+                          >
+                            {stringToDecimal(lot?.dcFinalBidAmount)}
+                          </Text>
+                        </View>
+                      </View>
                       {/* <View
                         style={[
                           styles.tableCol,
@@ -2102,6 +2257,9 @@ function MixLotTender({
                             styles.cellBorderBottom,
                             styles.fontBold,
                             styles.centerCell,
+                            lot.isWon
+                              ? { color: "#2E6F40" }
+                              : { color: "#BF1029" },
                           ]}
                         >
                           {lot.isWon ? "Won" : "Lost"}

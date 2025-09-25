@@ -21,6 +21,7 @@ import { updateMainLot } from "@/services/multi-lot";
 import { MainLotUpdate } from "@/app/api/main-lot/[id]/route";
 import { toast } from "react-toastify";
 import { Loader2 } from "lucide-react";
+import { calculateMargin } from "@/lib/formula";
 
 interface MixLotTendersPageProps {
   mixLotTenders: MixLotColumns[];
@@ -35,6 +36,10 @@ interface MixLotTendersPageProps {
     bidPrice: number;
     bidAmount: number;
     resultCost: number;
+    margin: number;
+    finalBidPrice: number;
+    finalBidAmount: number;
+    finalCostPrice: number;
     resultTotal: number;
     resultPerCarat: number;
   };
@@ -49,12 +54,26 @@ export function MixLotTendersPage({
   baseTender,
 }: MixLotTendersPageProps) {
   const [page, setPage] = useState(1);
-  const [resultTotal, setResultTotal] = useState<number | undefined>(totalValues.resultTotal);
-  const [resultPerCarat, setResultPerCarat] = useState<number | undefined>(totalValues.resultPerCarat);
+  const [resultTotal, setResultTotal] = useState<number | undefined>(
+    totalValues.resultTotal
+  );
+  const [resultPerCarat, setResultPerCarat] = useState<number | undefined>(
+    totalValues.resultPerCarat
+  );
   const [resultCost, setResultCost] = useState<number | undefined>(
     totalValues.resultCost
   );
   const [isWon, setIsWon] = useState<boolean>(mainLot?.isWon ?? false);
+  const [margin, setMargin] = useState<number>(totalValues.margin ?? 0);
+  const [finalBidPrice, setFinalBidPrice] = useState<number>(
+    totalValues.finalBidPrice
+  );
+  const [finalBidAmount, setFinalBidAmount] = useState<number>(
+    totalValues.finalBidAmount
+  );
+  const [finalCostPrice, setFinalCostPrice] = useState<number>(
+    totalValues.finalCostPrice
+  );
 
   const searchParams = useSearchParams();
   const id = searchParams.get("baseTenderId") as string;
@@ -110,7 +129,11 @@ export function MixLotTendersPage({
       <PageHeader
         title={title}
         createPath={createPath}
-        backPath={mainLotId && id ? `/tenders/multi-lot/mix?baseTenderId=${id}` : undefined} 
+        backPath={
+          mainLotId && id
+            ? `/tenders/multi-lot/mix?baseTenderId=${id}`
+            : undefined
+        }
         mainLotInfo={
           <>
             {mainLot?.stLotNo && (
@@ -152,6 +175,12 @@ export function MixLotTendersPage({
         queryKey={queryKey}
         editPath={createPath}
         deleteEndpoint="other-tender"
+        showSummary={mainLotId ? true : false}
+        totals={{
+          inRoughPcs: totalValues.pcs,
+          dcRoughCts: `${totalValues.carats.toFixed(2)}`,
+          actions: `Pol Cts: ${totalValues.polCts.toLocaleString()}`,
+        }}
       />
       <Pagination
         setPage={setPage}
@@ -161,52 +190,53 @@ export function MixLotTendersPage({
       {mainLotId && (
         <>
           <div
-            className={`mt-2 flex items-center justify-around gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
+            className={`mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-6 lg:grid-cols-4 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
           >
-            <div className="flex items-center gap-2">
-              <p className="text-nowrap">Pcs:</p>
+            {/* <div className="flex items-center gap-2">
+              <p className="text-nowrap w-16">Pcs:</p>
               <p className="font-semibold">{totalValues?.pcs}</p>
-            </div>
+            </div> */}
             <div className="flex items-center gap-2">
-              <p className="text-nowrap">Cts.:</p>
-              <p className="font-semibold">{totalValues?.carats}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <p className="text-nowrap">Pol Cts.:</p>
-              <p className="font-semibold">{totalValues?.polCts}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <p className="text-nowrap">Sale Price:</p>
+              <p className="text-nowrap w-20">Sale Price:</p>
               <p className="font-semibold">{totalValues?.salePrice}</p>
             </div>
             <div className="flex items-center gap-2">
-              <p className="text-nowrap">Sale Amount:</p>
-              <p className="font-semibold">{totalValues?.saleAmount}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <p className="text-nowrap">Bid Price:</p>
+              <p className="text-nowrap w-[72px]">Bid Price:</p>
               <p className="font-semibold">{totalValues?.bidPrice}</p>
             </div>
             <div className="flex items-center gap-2">
-              <p className="text-nowrap">Bid Amount:</p>
-              <p className="font-semibold">{totalValues?.bidAmount}</p>
-            </div>
-          </div>
-          <div
-            className={`mt-2 grid grid-cols-4 gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
-          >
-            <div className="flex items-center justify-center gap-2">
-              <p className="text-nowrap">Result Cost:</p>
-              <Input
-                type="number"
-                step={0.01}
-                value={resultCost}
-                disabled
-                className="py-1 h-10 px-2 w-44 font-semibold"
+              <p className="text-nowrap shrink-0 w-32">Final Bid Price:</p>
+              <Input className="py-1 h-9 font-semibold" 
+                value={finalBidPrice}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+
+                  setFinalBidPrice(value ?? 0); 
+                  const finalBidAmount = parseFloat(((value ?? 0) * (mainLot?.dcCts ?? 0)).toFixed(2));
+
+                  const resultPercent = parseFloat(((baseTender?.dcNetPercentage - 100) / 100).toFixed(2)) 
+                  const finalCostPrice = parseFloat(
+                    (
+                      ((((value ?? 0) * resultPercent + (value ?? 0) + baseTender?.dcLabour) *
+                        totalValues.carats) /
+                        totalValues.polCts +
+                        baseTender?.dcGiaCharge) /
+                      0.97
+                    ).toFixed(2)
+                  );
+                  const margin = calculateMargin(totalValues.bidPrice, value ?? 0);
+
+                  setFinalBidAmount(isNaN(finalBidAmount) ? 0 : finalBidAmount);
+                  setMargin(margin)
+                  setFinalCostPrice(finalCostPrice);
+                }}
               />
+              {/* <p className="font-semibold">{totalValues?.bidPrice}</p> */}
             </div>
             <div className="flex items-center justify-center gap-2">
-              <p className="text-nowrap">Result Total:</p>
+              <p className="text-nowrap shrink-0 w-28">Result Total:</p>
               <Input
                 type="number"
                 step={0.01}
@@ -243,11 +273,59 @@ export function MixLotTendersPage({
 
                   setResultCost(resultCost);
                 }}
-                className="py-1 h-10 px-2 w-44 font-semibold"
+                className="py-1 h-9 px-2 w-full font-semibold"
               />
             </div>
+
+            {/* <div className="flex items-center gap-2">
+              <p className="text-nowrap w-16">Cts.:</p>
+              <p className="font-semibold">{totalValues?.carats}</p>
+            </div> */}
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap w-20">Sale Amnt:</p>
+              <p className="font-semibold">{totalValues?.saleAmount}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap w-[72px]">Bid Amnt:</p>
+              <p className="font-semibold">{totalValues?.bidAmount}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap shrink-0 w-32">Final Bid Amnt:</p>
+              <Input className="py-1 h-9 font-semibold"
+                value={finalBidAmount}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+                  setFinalBidAmount(value ?? 0);
+
+                  const finalBidPrice = parseFloat(((value ?? 0) / (mainLot?.dcCts ?? 0)).toFixed(2)); 
+                  const finalBid = isNaN(finalBidPrice) ? 0 : finalBidPrice;
+
+                  const resultPercent = parseFloat(((baseTender?.dcNetPercentage - 100) / 100).toFixed(2))
+                  const finalCostPrice = parseFloat(
+                    (
+                      ((((finalBidPrice ?? 0) * resultPercent +
+                        (finalBidPrice ?? 0) +
+                        baseTender?.dcLabour) *
+                        totalValues.carats) /
+                        totalValues.polCts +
+                        baseTender?.dcGiaCharge) /
+                      0.97
+                    ).toFixed(2)
+                  );
+
+                  const margin = calculateMargin(totalValues.bidPrice, finalBid);
+
+                  setMargin(margin)
+                  setFinalCostPrice(finalCostPrice);
+                  setFinalBidPrice(finalBid);
+                }}
+              />
+              {/* <p className="font-semibold">{totalValues?.bidPrice}</p> */}
+            </div>
             <div className="flex items-center justify-center gap-2">
-              <p className="text-nowrap">Result Per Carat:</p>
+              <p className="text-nowrap shrink-0 w-28">Result Per Ct:</p>
               <Input
                 type="number"
                 step={0.01}
@@ -282,9 +360,75 @@ export function MixLotTendersPage({
 
                   setResultCost(resultCost);
                 }}
-                className="py-1 h-10 px-2 w-44 font-semibold"
+                className="py-1 h-9 px-2 w-full font-semibold"
               />
             </div>
+            {/* <div className="flex items-center gap-2">
+              <p className="text-nowrap w-16">Pol Cts.:</p>
+              <p className="font-semibold">{totalValues?.polCts}</p>
+            </div> */}
+            <div className="flex w-full items-center gap-2">
+              <label className="font-semibold text-red-600">Loss</label>
+              <Switch
+                checked={isWon}
+                onCheckedChange={(value) => {
+                  setIsWon(value);
+                }}
+              />
+              <label className="font-semibold text-green-600">Win</label>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap shrink-0 w-[72px]">Margin:</p>
+              <p className="font-semibold">{margin}%</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-nowrap shrink-0 w-32">Final Cost Price:</p>
+              <Input className="py-1 h-9 font-semibold" value={finalCostPrice} disabled />
+
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <p className="text-nowrap shrink-0 w-28">Result Cost:</p>
+              <Input
+                type="number"
+                step={0.01}
+                value={resultCost}
+                disabled
+                className="py-1 h-9 px-2 w-full font-semibold"
+              />
+            </div>
+            <div className="flex items-center justify-end col-span-full w-full">
+              <Button
+                disabled={isPending}
+                onClick={() => {
+                  mutate({
+                    dcPolCts: totalValues.polCts,
+                    dcSalePrice: totalValues.salePrice,
+                    dcSaleAmount: totalValues.saleAmount,
+                    dcCostPrice: 0,
+                    dcCostAmount: 0,
+                    isWon,
+                    dcBidPrice: totalValues.bidPrice,
+                    dcBidAmount: totalValues.bidAmount,
+                    dcResultCost: resultCost ?? 0,
+                    dcResultPerCt: resultPerCarat ?? 0,
+                    dcResultTotal: resultTotal ?? 0,
+                    dcFinalBidPrice: finalBidPrice,
+                    dcFinalBidAmount: finalBidAmount,
+                    dcFinalCostPrice: finalCostPrice,
+                    margin,
+                    inUsedPcs: totalValues.pcs,
+                    dcUsedCts: totalValues.carats,
+                  });
+                }}
+                className="px-2 lg:px-4 h-7 lg:h-9 bg-neutral-800 rounded-sm w-24"
+              >
+                Save {isPending && <Loader2 className="animate-spin" />}
+              </Button>
+            </div>
+          </div>
+          {/* <div
+            className={`mt-2 grid grid-cols-4 gap-x-6 gap-y-2 flex-wrap w-full px-4 py-2 border border-neutral-300 rounded-lg shadow-sm`}
+          >
             <div className="flex w-full items-center justify-center gap-2">
               <label className="font-semibold text-red-600">Loss</label>
               <Switch
@@ -320,7 +464,7 @@ export function MixLotTendersPage({
                 </Button>
               </div>
             </div>
-          </div>
+          </div> */}
         </>
       )}
     </PageWrapper>

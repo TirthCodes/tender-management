@@ -36,6 +36,9 @@ export async function POST(req: Request) {
       mainLotId,
       costPrice,
       costAmount,
+      finalBidPrice,
+      finalBidAmount,
+      margin,
       isWon,
     } = (await req.json()) as RoughLotPaylod;
 
@@ -77,6 +80,10 @@ export async function POST(req: Request) {
           stCertId: "",
           dcCostPrice: costPrice ?? 0,
           dcCostAmount: costAmount ?? 0,
+          margin: margin ?? 0,
+          dcFinalBidPrice: finalBidPrice ?? 0,
+          dcFinalBidAmount: finalBidAmount ?? 0,
+          dcFinalCostPrice: 0,
           isWon,
         },
       });
@@ -246,6 +253,10 @@ export async function POST(req: Request) {
         dcCostAmount: costAmount ?? 0,
         dcSalePrice: 0,
         dcSaleAmount: 0,
+        margin: margin ?? 0,
+        dcFinalBidPrice: finalBidPrice ?? 0,
+        dcFinalBidAmount: finalBidAmount ?? 0,
+        dcFinalCostPrice: 0,
         isWon,
         mainLotId,
         otherTenderDetails: {

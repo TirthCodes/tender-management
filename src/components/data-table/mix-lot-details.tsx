@@ -26,15 +26,15 @@ const columns = [
   "Pcs.",
   "Cts.",
   "Color",
-  // "C.GD",
+  "C.GD",
   "Clarity",
   "FLR",
   "Shape",
   "Pol. Cts.",
   "Pol. %",
-  // "Depth",
-  // "Table",
-  // "Ratio",
+  "Depth",
+  "Table",
+  "Ratio",
   "Sale Price",
   "Sale Amnt",
   "Remark",
@@ -236,7 +236,7 @@ export function MixLotDetails({
                         createDialogContent={<ColorDialog />}
                       />
                     </TableCell>
-                    {/* <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
                         name="colorGrade"
@@ -257,7 +257,7 @@ export function MixLotDetails({
                         }}
                         placeholder="0"
                       />
-                    </TableCell> */}
+                    </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <AutoCompleteInput
                         data={clarities}
@@ -390,7 +390,7 @@ export function MixLotDetails({
                         placeholder="0"
                       />
                     </TableCell>
-                    {/* <TableCell className="border-collapse border border-gray-300">
+                    <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"
                         name="depth"
@@ -455,7 +455,7 @@ export function MixLotDetails({
                         }}
                         placeholder="0"
                       />
-                    </TableCell> */}
+                    </TableCell>
                     <TableCell className="border-collapse border border-gray-300">
                       <Input
                         className="w-20 text-right"

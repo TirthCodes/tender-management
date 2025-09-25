@@ -32,7 +32,7 @@ export async function GET(
   }
 
   try {
-    const roughtLotTenders = await prisma.otherTender.findUnique({
+    const mixLotTenders = await prisma.otherTender.findUnique({
       where: {
         id,
       },
@@ -56,6 +56,10 @@ export async function GET(
         dcSalePrice: true,
         dcSaleAmount: true,
         isWon: true,
+        margin: true,
+        dcFinalBidPrice: true,
+        dcFinalBidAmount: true,
+        dcFinalCostPrice: true,
         otherTenderDetails: {
           select: {
             id: true,
@@ -90,12 +94,12 @@ export async function GET(
               },
             },
             stRemark: true,
-            // inColorGrade: true,
+            inColorGrade: true,
             dcPolCts: true,
             dcPolPer: true,
-            // dcDepth: true,
-            // dcTable: true,
-            // dcRatio: true,
+            dcDepth: true,
+            dcTable: true,
+            dcRatio: true,
             dcSalePrice: true,
             dcSaleAmount: true,
 
@@ -109,7 +113,7 @@ export async function GET(
 
     return Response.json(
       {
-        data: roughtLotTenders,
+        data: mixLotTenders,
         success: true,
         message: "Success",
       },

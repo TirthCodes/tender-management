@@ -228,8 +228,12 @@ export async function POST(req: Request) {
                 dcResultCost: detail.resultCost,
                 dcResultPerCt: detail.resultPerCarat,
                 dcResultTotal: detail.resultTotal,
+                dcFinalBidPrice: detail.finalBidPrice,
+                dcFinalBidAmount: detail.finalBidAmount,
+                dcFinalCostPrice: detail.finalCostPrice,
                 stLotNo: detail.lotNo,
-                isWon: detail.isWon
+                isWon: detail.isWon,
+                margin: detail.margin
               },
             });
           } else {
@@ -264,7 +268,11 @@ export async function POST(req: Request) {
                 dcResultPerCt: detail.resultPerCarat,
                 dcResultTotal: detail.resultTotal,
                 stLotNo: detail.lotNo,
-                isWon: detail.isWon
+                dcFinalBidPrice: detail.finalBidPrice,
+                dcFinalBidAmount: detail.finalBidAmount,
+                dcFinalCostPrice: detail.finalCostPrice,
+                isWon: detail.isWon,
+                margin: detail.margin
               },
             });
             if (newDetail.id) {
@@ -355,6 +363,10 @@ export async function POST(req: Request) {
               dcResultCost: detail.resultCost ?? null,
               dcResultPerCt: detail.resultPerCarat ?? null,
               dcResultTotal: detail.resultTotal ?? null,
+              dcFinalBidPrice: detail.finalBidPrice ?? 0,
+              dcFinalBidAmount: detail.finalBidAmount ?? 0,
+              dcFinalCostPrice: detail.finalCostPrice ?? 0,
+              margin: detail.margin ?? 0,
               isWon: detail.isWon,
             })
           ),
@@ -486,6 +498,9 @@ export async function GET(req: Request) {
             dcResultCost: true,
             dcResultPerCt: true,
             dcResultTotal: true,
+            dcFinalBidPrice: true,
+            dcFinalBidAmount: true,
+            dcFinalCostPrice: true,
             isWon: true,
             margin: true,
           },
@@ -535,6 +550,9 @@ export async function GET(req: Request) {
         resultCost: decimalToNumber(details.dcResultCost),
         resultPerCarat: decimalToNumber(details.dcResultPerCt),
         resultTotal: decimalToNumber(details.dcResultTotal),
+        finalBidPrice: decimalToNumber(details.dcFinalBidPrice),
+        finalBidAmount: decimalToNumber(details.dcFinalBidAmount),
+        finalCostPrice: decimalToNumber(details.dcFinalCostPrice),
         isWon: details.isWon,
         margin: decimalToNumber(details.margin),
       })) as SingleStoneTenderDetails[],

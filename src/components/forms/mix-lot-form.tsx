@@ -216,7 +216,12 @@ export function MixLotForm() {
         dcSaleAmount,
         stRemark,
         isWon,
+        margin,
+        dcFinalCostPrice,
+        dcFinalBidPrice,
+        dcFinalBidAmount,
       } = mixLotTender.data;
+      
       reset({
         roughPcs: inRoughPcs,
         roughCts: dcRoughCts,
@@ -234,9 +239,10 @@ export function MixLotForm() {
         salePrice: dcSalePrice,
         saleAmount: dcSaleAmount,
         lotNo: stLotNo,
-        finalCostPrice: 0,
-        finalBidPrice: 0,
-        finalBidAmount: 0,
+        margin,
+        finalCostPrice: dcFinalCostPrice,
+        finalBidPrice: dcFinalBidPrice,
+        finalBidAmount: dcFinalBidAmount,
         isWon,
       });
 
@@ -362,6 +368,7 @@ export function MixLotForm() {
     setValue("salePrice", salePrice);
   }, [totalValues.saleAmount, totalValues.carats, totalValues.polCts, setValue]);
 
+  // Final
   useEffectAfterMount(() => {
 
     const giaCharge = Number(baseTender?.data.dcGiaCharge);

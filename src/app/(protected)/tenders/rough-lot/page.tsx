@@ -136,6 +136,9 @@ export default async function Page({
     costAmount: 0,
     bidPrice: 0,
     bidAmount: 0,
+    finalBidPrice: 0,
+    finalBidAmount: 0,
+    margin: 0,
     resultTotal: 0,
     resultPerCarat: 0,
   };
@@ -160,6 +163,9 @@ export default async function Page({
         dcResultTotal: true,
         dcResultPerCt: true,
         inUsedPcs: true,
+        dcFinalBidPrice: true,
+        dcFinalBidAmount: true,
+        margin: true,
         dcUsedCts: true,
       },
     });
@@ -245,6 +251,9 @@ export default async function Page({
         costAmount,
         bidPrice: isNaN(bidPrice) ? 0 : bidPrice,
         bidAmount: isNaN(bidAmount) ? 0 : bidAmount,
+        finalBidPrice: mainLotDetails?.dcFinalBidPrice?.toNumber() ?? 0,
+        finalBidAmount: mainLotDetails?.dcFinalBidAmount?.toNumber() ?? 0,
+        margin: mainLotDetails?.margin?.toNumber() ?? 0,
         resultTotal: mainLotDetails?.dcResultTotal?.toNumber() ?? 0,
         resultPerCarat: mainLotDetails?.dcResultPerCt?.toNumber() ?? 0,
       };

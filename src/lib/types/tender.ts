@@ -54,6 +54,9 @@ type OtherTednerBasePayload = {
   resultTotal?: number;
   tenderDetails: string; // RoughLotTenderDetails[] || MixLotTenderDetails[]
   mainLotId?: number;
+  finalCostPrice: number;
+  finalBidPrice: number;
+  finalBidAmount: number;
 }
 
 export interface TenderDetails {
