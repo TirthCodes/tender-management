@@ -18,6 +18,7 @@ export const LogoutButton = () => {
   useEffectAfterMount(() => {
     if (state.message) {
       if(state.success) {
+        localStorage.removeItem("base-tender-filters");
         toast.success(state.message);
         redirect("/auth/login");
       } else {

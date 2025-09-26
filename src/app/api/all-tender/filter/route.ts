@@ -1,154 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentSession } from "@/lib/server/session";
+import { createHierarchicalData } from "@/lib/tender-helpers";
 
-interface BaseTender {
-  id: number;
-  dcLabour: string;
-  dcNetPercentage: string;
-  stTenderName: string;
-  stPersonName: string;
-}
-
-interface SingleTenderDetail {
-  singleTender: {
-    id: number;
-    stRemark: string | null;
-    dcNetPercentage: string;
-    dcLabour: string;
-    baseTender: BaseTender;
-  };
-  dcBidPrice: string;
-  dcPolCts: string;
-  dcPolPercent: string;
-  dcSalePrice: string;
-  dcSaleAmount: string;
-  dcCostPrice: string;
-  dcTotalAmount: string;
-  dcResultCost: string | null;
-  dcResultPerCt: string | null;
-  dcResultTotal: string | null;
-  inRoughPcs: number;
-  stLotNo: string;
-  clarity: { id: number; stShortName: string };
-  shape: { id: number; stShortName: string };
-  color: { id: number; stShortName: string };
-  flr: { id: number; stShortName: string };
-  dcRoughCts: string;
-  dcSize: string;
-  dcTopsAmount: string | null;
-  inColorGrade: number;
-  stIncription: string | null;
-}
-
-interface OtherTenderDetail {
-  tender: {
-    id: number;
-    stRemark: string;
-    stLotNo: string;
-    stTenderType: string;
-    baseTender: BaseTender;
-  };
-  dcCostAmount: string | null;
-  dcCostPrice: string | null;
-  dcPolCts: string;
-  dcPolPer: string;
-  dcSaleAmount: string;
-  dcSalePrice: string;
-  clarity: { id: number; stShortName: string };
-  shape: { id: number; stShortName: string };
-  color: { id: number; stShortName: string };
-  fluorescence: { id: number; stShortName: string };
-  dcRoughCts: string;
-  inRoughPcs: number;
-  stRemark: string;
-  inColorGrade: number;
-}
-
-interface HierarchicalData {
-  baseTender: BaseTender;
-  singleTenders: Array<{
-    singleTender: SingleTenderDetail["singleTender"];
-    details: SingleTenderDetail[];
-  }>;
-  roughLots: Array<{
-    tender: OtherTenderDetail["tender"];
-    details: OtherTenderDetail[];
-  }>;
-  mixLots: Array<{
-    tender: OtherTenderDetail["tender"];
-    details: OtherTenderDetail[];
-  }>;
-}
-
-function createHierarchicalDataWithMap(
-  singleTenderDetails: any[],
-  otherTenderDetails: any[]
-): HierarchicalData[] {
-  const hierarchyMap = new Map<number, HierarchicalData>();
-
-  // Process single tender details
-  for (const detail of singleTenderDetails) {
-    const baseTenderId = detail.singleTender.baseTender.id;
-    const singleTenderId = detail.singleTender.id;
-
-    if (!hierarchyMap.has(baseTenderId)) {
-      hierarchyMap.set(baseTenderId, {
-        baseTender: detail.singleTender.baseTender,
-        singleTenders: [],
-        roughLots: [],
-        mixLots: [],
-      });
-    }
-
-    const hierarchy = hierarchyMap.get(baseTenderId)!;
-    let singleTender = hierarchy.singleTenders.find(
-      (st) => st.singleTender.id === singleTenderId
-    );
-
-    if (!singleTender) {
-      singleTender = {
-        singleTender: detail.singleTender,
-        details: [],
-      };
-      hierarchy.singleTenders.push(singleTender);
-    }
-
-    singleTender.details.push(detail);
-  }
-
-  // Process other tender details
-  for (const detail of otherTenderDetails) {
-    const baseTenderId = detail.tender.baseTender.id;
-    const tenderId = detail.tender.id;
-    const tenderType = detail.tender.stTenderType;
-
-    if (!hierarchyMap.has(baseTenderId)) {
-      hierarchyMap.set(baseTenderId, {
-        baseTender: detail.tender.baseTender,
-        singleTenders: [],
-        roughLots: [],
-        mixLots: [],
-      });
-    }
-
-    const hierarchy = hierarchyMap.get(baseTenderId)!;
-    const targetArray =
-      tenderType === "rough-lot" ? hierarchy.roughLots : hierarchy.mixLots;
-
-    let tender = targetArray.find((t) => t.tender.id === tenderId);
-    if (!tender) {
-      tender = {
-        tender: detail.tender,
-        details: [],
-      };
-      targetArray.push(tender);
-    }
-
-    tender.details.push(detail);
-  }
-
-  return Array.from(hierarchyMap.values());
-}
 
 export async function POST(req: Request) {
   const { session, user } = await getCurrentSession();
@@ -178,188 +31,189 @@ export async function POST(req: Request) {
     }
 
     if (remark.tenderRemark || remark.lotRemark) {
-      // let tenderWhere = {};
-      // if (remark.tenderRemark) {
-      //   tenderWhere = {
-      //     stRemark: {
-      //       contains: remark.tenderRemark,
-      //       mode: "insensitive",
-      //     },
-      //   };
-      // }
+      let tenderWhere = {};
+      if (remark.tenderRemark) {
+        tenderWhere = {
+          stRemark: {
+            contains: remark.tenderRemark,
+            mode: "insensitive",
+          },
+        };
+      }
 
-      // let detailsWhere = {};
-      // let otherDetailsWhere = {};
-      // if (remark.lotRemark) {
-      //   detailsWhere = {
-      //     stIncription: {
-      //       contains: remark.lotRemark,
-      //       mode: "insensitive",
-      //     },
-      //   };
-      //   otherDetailsWhere = {
-      //     stRemark: {
-      //       contains: remark.lotRemark,
-      //       mode: "insensitive",
-      //     },
-      //   };
-      // }
+      let detailsWhere = {};
+      let otherDetailsWhere = {};
+      if (remark.lotRemark) {
+        detailsWhere = {
+          stIncription: {
+            contains: remark.lotRemark,
+            mode: "insensitive",
+          },
+        };
 
-      // const [singleTender, otherTender] = await Promise.all([
-      //   prisma.singleTender.findMany({
-      //     where: tenderWhere,
-      //     select: {
-      //       id: true,
-      //       stRemark: true,
-      //       dcNetPercentage: true,
-      //       dcLabour: true,
-      //       dcRoughCts: true,
-      //       inRoughPcs: true,
-      //       baseTender: {
-      //         select: {
-      //           id: true,
-      //           stTenderName: true,
-      //           stPersonName: true,
-      //           dcNetPercentage: true,
-      //           dcLabour: true,
-      //           dcGiaCharge: true,
-      //         },
-      //       },
-      //       singleTenderDetails: {
-      //         select: {
-      //           id: true,
-      //           stLotNo: true,
-      //           inRoughPcs: true,
-      //           dcRoughCts: true,
-      //           dcSize: true,
-      //           color: {
-      //             select: {
-      //               id: true,
-      //               stShortName: true,
-      //             },
-      //           },
-      //           clarity: {
-      //             select: {
-      //               id: true,
-      //               stShortName: true,
-      //             },
-      //           },
-      //           flr: {
-      //             select: {
-      //               id: true,
-      //               stShortName: true,
-      //             },
-      //           },
-      //           shape: {
-      //             select: {
-      //               id: true,
-      //               stShortName: true,
-      //             },
-      //           },
-      //           dcPolCts: true,
-      //           dcPolPercent: true,
-      //           dcLength: true,
-      //           dcWidth: true,
-      //           dcHeight: true,
-      //           dcDepth: true,
-      //           dcTable: true,
-      //           dcRatio: true,
-      //           dcSalePrice: true,
-      //           dcSaleAmount: true,
-      //           dcCostPrice: true,
-      //           dcTopsAmount: true,
-      //           stIncription: true,
-      //           dcBidPrice: true,
-      //           dcTotalAmount: true,
-      //           dcResultCost: true,
-      //           dcResultPerCt: true,
-      //           dcResultTotal: true,
-      //           dcFinalBidPrice: true,
-      //           dcFinalBidAmount: true,
-      //           dcFinalCostPrice: true,
-      //           isWon: true,
-      //           margin: true,
-      //         },
-      //         where: detailsWhere,
-      //       },
-      //     },
-      //   }),
-      //   prisma.otherTender.findMany({
-      //     where: tenderWhere,
-      //     select: {
-      //       id: true,
-      //       stRemark: true,
-      //       stLotNo: true,
-      //       stTenderType: true,
-      //       baseTender: {
-      //         select: {
-      //           id: true,
-      //           stTenderName: true,
-      //           stPersonName: true,
-      //           dcNetPercentage: true,
-      //           dcLabour: true,
-      //           dcGiaCharge: true,
-      //         },
-      //       },
-      //       otherTenderDetails: {
-      //         select: {
-      //           dcCostAmount: true,
-      //           dcCostPrice: true,
-      //           dcPolCts: true,
-      //           dcPolPer: true,
-      //           dcSaleAmount: true,
-      //           dcSalePrice: true,
-      //           clarity: {
-      //             select: {
-      //               id: true,
-      //               stShortName: true,
-      //             },
-      //           },
-      //           shape: {
-      //             select: {
-      //               id: true,
-      //               stShortName: true,
-      //             },
-      //           },
-      //           color: {
-      //             select: {
-      //               id: true,
-      //               stShortName: true,
-      //             },
-      //           },
-      //           fluorescence: {
-      //             select: {
-      //               id: true,
-      //               stShortName: true,
-      //             },
-      //           },
-      //           dcRoughCts: true,
-      //           inRoughPcs: true,
-      //           stRemark: true,
-      //           inColorGrade: true,
-      //         },
-      //         where: otherDetailsWhere,
-      //       },
-      //     },
-      //     orderBy: {
-      //       createdAt: "desc",
-      //     },
-      //   })
-      // ])
+        otherDetailsWhere = {
+          stRemark: {
+            contains: remark.lotRemark,
+            mode: "insensitive",
+          },
+        };
+      }
 
-      // const result = createHierarchicalDataWithMap(
-      //   singleTender,
-      //   otherTender
-      // );
+      const [singleTender, otherTender] = await Promise.all([
+        prisma.singleTender.findMany({
+          where: tenderWhere,
+          select: {
+            id: true,
+            stRemark: true,
+            dcNetPercentage: true,
+            dcLabour: true,
+            dcRoughCts: true,
+            inRoughPcs: true,
+            baseTender: {
+              select: {
+                id: true,
+                stTenderName: true,
+                stPersonName: true,
+                dcNetPercentage: true,
+                dcLabour: true,
+                dcGiaCharge: true,
+              },
+            },
+            singleTenderDetails: {
+              select: {
+                id: true,
+                stLotNo: true,
+                inRoughPcs: true,
+                dcRoughCts: true,
+                dcSize: true,
+                color: {
+                  select: {
+                    id: true,
+                    stShortName: true,
+                  },
+                },
+                clarity: {
+                  select: {
+                    id: true,
+                    stShortName: true,
+                  },
+                },
+                flr: {
+                  select: {
+                    id: true,
+                    stShortName: true,
+                  },
+                },
+                shape: {
+                  select: {
+                    id: true,
+                    stShortName: true,
+                  },
+                },
+                dcPolCts: true,
+                dcPolPercent: true,
+                dcLength: true,
+                dcWidth: true,
+                dcHeight: true,
+                dcDepth: true,
+                dcTable: true,
+                dcRatio: true,
+                dcSalePrice: true,
+                dcSaleAmount: true,
+                dcCostPrice: true,
+                dcTopsAmount: true,
+                stIncription: true,
+                dcBidPrice: true,
+                dcTotalAmount: true,
+                dcResultCost: true,
+                dcResultPerCt: true,
+                dcResultTotal: true,
+                dcFinalBidPrice: true,
+                dcFinalBidAmount: true,
+                dcFinalCostPrice: true,
+                isWon: true,
+                margin: true,
+              },
+              where: detailsWhere,
+            },
+          },
+        }),
+        prisma.otherTender.findMany({
+          where: tenderWhere,
+          select: {
+            id: true,
+            stRemark: true,
+            stLotNo: true,
+            stTenderType: true,
+            baseTender: {
+              select: {
+                id: true,
+                stTenderName: true,
+                stPersonName: true,
+                dcNetPercentage: true,
+                dcLabour: true,
+                dcGiaCharge: true,
+              },
+            },
+            otherTenderDetails: {
+              select: {
+                dcCostAmount: true,
+                dcCostPrice: true,
+                dcPolCts: true,
+                dcPolPer: true,
+                dcSaleAmount: true,
+                dcSalePrice: true,
+                clarity: {
+                  select: {
+                    id: true,
+                    stShortName: true,
+                  },
+                },
+                shape: {
+                  select: {
+                    id: true,
+                    stShortName: true,
+                  },
+                },
+                color: {
+                  select: {
+                    id: true,
+                    stShortName: true,
+                  },
+                },
+                fluorescence: {
+                  select: {
+                    id: true,
+                    stShortName: true,
+                  },
+                },
+                dcRoughCts: true,
+                inRoughPcs: true,
+                stRemark: true,
+                inColorGrade: true,
+              },
+              where: otherDetailsWhere,
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        })
+      ])
 
-      // return Response.json(
-      //   {
-      //     success: true,
-      //     message: "Success",
-      //     data: result, 
-      //   },
-      //   { status: 200 }
-      // );
+      const result = createHierarchicalData(
+        singleTender,
+        otherTender
+      );
+
+      return Response.json(
+        {
+          success: true,
+          message: "Success",
+          data: result,
+        },
+        { status: 200 }
+      );
     }
 
     const [singleTenderDetails, otherTenderDetails] = await Promise.all([
@@ -389,6 +243,7 @@ export async function POST(req: Request) {
                   dcNetPercentage: true,
                   stTenderName: true,
                   stPersonName: true,
+                  dcGiaCharge: true,
                 },
               },
             },
@@ -467,6 +322,7 @@ export async function POST(req: Request) {
                   dcNetPercentage: true,
                   stTenderName: true,
                   stPersonName: true,
+                  dcGiaCharge: true,
                 },
               },
             },
@@ -509,7 +365,7 @@ export async function POST(req: Request) {
       }),
     ]);
 
-    const result = createHierarchicalDataWithMap(
+    const result = createHierarchicalData(
       singleTenderDetails,
       otherTenderDetails
     );

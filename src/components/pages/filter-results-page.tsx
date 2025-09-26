@@ -3,16 +3,7 @@
 import React, { useState } from "react";
 import { PageWrapper } from "../common/page-wrapper";
 import { PageHeader } from "../common/page-header";
-import {
-  Building2,
-  ChevronDown,
-  ChevronRight,
-  Eye,
-  FileText,
-  GemIcon,
-  Package,
-  TrendingUp,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, Eye, GemIcon } from "lucide-react";
 import dynamic from "next/dynamic";
 
 function FilterResultsPage() {
@@ -67,7 +58,6 @@ function FilterResultsPage() {
     detail: any;
     type: "single" | "rough" | "mix";
   }> = ({ detail, type }) => {
-    console.log(detail, "detail");
     let flr = {
       id: 0,
       stShortName: "",
@@ -123,7 +113,8 @@ function FilterResultsPage() {
                 {formatNumber(detail.dcPolCts)}
               </p>
               <p className="pl-1 text-xs text-gray-900">
-                {formatNumber(detail.dcPolPercent)}{detail.dcPolPercent && "%"}
+                {formatNumber(detail.dcPolPercent)}
+                {detail.dcPolPercent && "%"}
               </p>
             </div>
           </div>
@@ -190,9 +181,7 @@ function FilterResultsPage() {
           {flr.id && (
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 rounded-full bg-blue-200 border border-gray-300"></div>
-              <span className="text-sm text-gray-600">
-                {flr.stShortName}
-              </span>
+              <span className="text-sm text-gray-600">{flr.stShortName}</span>
             </div>
           )}
         </div>
@@ -202,19 +191,25 @@ function FilterResultsPage() {
 
   const TenderSection: React.FC<{
     title: string;
-    icon: React.ReactNode;
+    // icon: React.ReactNode;
     tenders: any[];
     type: "single" | "rough" | "mix";
     baseTenderId: number;
-  }> = ({ title, icon, tenders, type, baseTenderId }) => {
+  }> = ({ title, tenders, type, baseTenderId }) => {
     if (!tenders || tenders.length === 0) return null;
+
+    const filteredTenders = tenders.filter((t) => t.details.length > 0);
+
+    if (filteredTenders.length === 0) {
+      return null;
+    }
 
     return (
       <div className="space-y-2">
         <div className="flex items-center space-x-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100">
+          {/* <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100">
             {icon}
-          </div>
+          </div> */}
           <h4 className="text-lg font-semibold text-gray-900">{title}</h4>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
             {tenders.length}
@@ -222,7 +217,7 @@ function FilterResultsPage() {
         </div>
 
         <div className="space-y-4">
-          {tenders.map((tender, index) => {
+          {filteredTenders.map((tender, index) => {
             const tenderKey = `${baseTenderId}-${type}-${
               tender.tender?.id || tender.singleTender?.id
             }-${index}`;
@@ -247,7 +242,8 @@ function FilterResultsPage() {
                       )}
                       <div className="text-left">
                         <p className="text-sm font-medium text-gray-900">
-                          {tenderInfo.stLotNo || `Tender #${tenderInfo.id}`}
+                          {tenderInfo.stLotNo ||
+                            `${tenderInfo.dcRoughCts} cts | ${tenderInfo.inRoughPcs} pcs`}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
                           {tenderInfo.stRemark}
@@ -265,14 +261,22 @@ function FilterResultsPage() {
                 {isExpanded && (
                   <div className="p-3 pb-3 bg-gray-50 border-t border-gray-200">
                     <div className="grid gap-4">
-                      {tender.details.map(
-                        (detail: any, detailIndex: number) => (
-                          <DetailCard
-                            key={detailIndex}
-                            detail={detail}
-                            type={type}
-                          />
+                      {tender.details.length > 0 ? (
+                        tender.details.map(
+                          (detail: any, detailIndex: number) => (
+                            <DetailCard
+                              key={detailIndex}
+                              detail={detail}
+                              type={type}
+                            />
+                          )
                         )
+                      ) : (
+                        <div className="flex items-center justify-center h-full">
+                          <p className="text-sm text-gray-500">
+                            No details found
+                          </p>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -290,114 +294,132 @@ function FilterResultsPage() {
       <PageHeader title="Filter Results" isBackButton={true} />
       <div className="min-h-screen mt-6">
         <div className="space-y-6">
-          {filterResults.map((baseTenderGroup: any) => {
-            const isExpanded = expandedBaseTenders.has(
-              baseTenderGroup.baseTender.id
-            );
-            const totalItems =
-              baseTenderGroup.singleTenders.reduce(
-                (sum: number, t: any) => sum + t.details.length,
-                0
-              ) +
-              baseTenderGroup.roughLots.reduce(
-                (sum: number, t: any) => sum + t.details.length,
-                0
-              ) +
-              baseTenderGroup.mixLots.reduce(
-                (sum: number, t: any) => sum + t.details.length,
-                0
-              );
+          {filterResults.length > 0 ? (
+            <>
+              {filterResults.map((baseTenderGroup: any) => {
+                const isExpanded = expandedBaseTenders.has(
+                  baseTenderGroup.baseTender.id
+                );
+                const totalItems =
+                  baseTenderGroup.singleTenders.reduce(
+                    (sum: number, t: any) => sum + t.details.length,
+                    0
+                  ) +
+                  baseTenderGroup.roughLots.reduce(
+                    (sum: number, t: any) => sum + t.details.length,
+                    0
+                  ) +
+                  baseTenderGroup.mixLots.reduce(
+                    (sum: number, t: any) => sum + t.details.length,
+                    0
+                  );
 
-            return (
-              <div
-                key={baseTenderGroup.baseTender.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
-              >
-                <button
-                  onClick={() =>
-                    toggleBaseTender(baseTenderGroup.baseTender.id)
-                  }
-                  className="w-full px-8 py-6 hover:bg-gray-50 transition-colors duration-150 ease-in-out"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      {isExpanded ? (
-                        <ChevronDown className="w-6 h-6 text-gray-400" />
-                      ) : (
-                        <ChevronRight className="w-6 h-6 text-gray-400" />
-                      )}
-                      <div className="flex items-center space-x-3">
-                        <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-50">
-                          <Building2 className="w-6 h-6 text-blue-600" />
+                if (totalItems === 0) {
+                  return null;
+                }
+
+                return (
+                  <div
+                    key={baseTenderGroup.baseTender.id}
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+                  >
+                    <button
+                      onClick={() =>
+                        toggleBaseTender(baseTenderGroup.baseTender.id)
+                      }
+                      className="w-full px-6 py-4 hover:bg-gray-50 transition-colors duration-150 ease-in-out"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          {isExpanded ? (
+                            <ChevronDown className="w-6 h-6 text-gray-400" />
+                          ) : (
+                            <ChevronRight className="w-6 h-6 text-gray-400" />
+                          )}
+                          <div className="flex items-center space-x-3">
+                            {/* <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-50">
+                          <Building2 className="w-6 h-6 text-blue-800" />
+                        </div> */}
+                            <div className="text-left">
+                              <h2 className="text-xl font-semibold text-gray-900">
+                                {baseTenderGroup.baseTender.stTenderName}
+                              </h2>
+                              <p className="text-sm text-gray-500 mt-1">
+                                {baseTenderGroup.baseTender.stPersonName}
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-left">
-                          <h2 className="text-xl font-semibold text-gray-900">
-                            {baseTenderGroup.baseTender.stTenderName}
-                          </h2>
-                          <p className="text-sm text-gray-500 mt-1">
-                            {baseTenderGroup.baseTender.stPersonName}
-                          </p>
+
+                        <div className="flex items-center space-x-6">
+                          <div className="text-right">
+                            <p className="text-sm text-gray-500">Labour</p>
+                            <p className="text-lg font-semibold text-gray-900">
+                              {baseTenderGroup.baseTender.dcLabour}%
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-500">Net %</p>
+                            <p className="text-lg font-semibold text-gray-900">
+                              {baseTenderGroup.baseTender.dcNetPercentage}%
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-500">GIA Charge</p>
+                            <p className="text-lg font-semibold text-gray-900">
+                              {baseTenderGroup.baseTender.dcGiaCharge}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-500">Total Items</p>
+                            <p className="text-lg font-semibold text-blue-600">
+                              {totalItems}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </button>
 
-                    <div className="flex items-center space-x-6">
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500">Labour</p>
-                        <p className="text-lg font-semibold text-gray-900">
-                          {baseTenderGroup.baseTender.dcLabour}%
-                        </p>
+                    {isExpanded && (
+                      <div className="px-6 pb-4 bg-neutral-50 border-t border-neutral-200">
+                        <div className="grid lg:grid-cols-3 gap-8 mt-4">
+                          <TenderSection
+                            title="Single Tenders"
+                            // icon={<FileText className="w-5 h-5 text-green-600" />}
+                            tenders={baseTenderGroup.singleTenders}
+                            type="single"
+                            baseTenderId={baseTenderGroup.baseTender.id}
+                          />
+
+                          <TenderSection
+                            title="Rough Lots"
+                            // icon={<Package className="w-5 h-5 text-orange-600" />}
+                            tenders={baseTenderGroup.roughLots}
+                            type="rough"
+                            baseTenderId={baseTenderGroup.baseTender.id}
+                          />
+
+                          <TenderSection
+                            title="Mix Lots"
+                            // icon={
+                            //   <TrendingUp className="w-5 h-5 text-purple-600" />
+                            // }
+                            tenders={baseTenderGroup.mixLots}
+                            type="mix"
+                            baseTenderId={baseTenderGroup.baseTender.id}
+                          />
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500">Net %</p>
-                        <p className="text-lg font-semibold text-gray-900">
-                          {baseTenderGroup.baseTender.dcNetPercentage}%
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-500">Total Items</p>
-                        <p className="text-lg font-semibold text-blue-600">
-                          {totalItems}
-                        </p>
-                      </div>
-                    </div>
+                    )}
                   </div>
-                </button>
-
-                {isExpanded && (
-                  <div className="px-8 pb-8 bg-gray-50 border-t border-gray-200">
-                    <div className="grid lg:grid-cols-3 gap-8 mt-8">
-                      <TenderSection
-                        title="Single Tenders"
-                        icon={<FileText className="w-5 h-5 text-green-600" />}
-                        tenders={baseTenderGroup.singleTenders}
-                        type="single"
-                        baseTenderId={baseTenderGroup.baseTender.id}
-                      />
-
-                      <TenderSection
-                        title="Rough Lots"
-                        icon={<Package className="w-5 h-5 text-orange-600" />}
-                        tenders={baseTenderGroup.roughLots}
-                        type="rough"
-                        baseTenderId={baseTenderGroup.baseTender.id}
-                      />
-
-                      <TenderSection
-                        title="Mix Lots"
-                        icon={
-                          <TrendingUp className="w-5 h-5 text-purple-600" />
-                        }
-                        tenders={baseTenderGroup.mixLots}
-                        type="mix"
-                        baseTenderId={baseTenderGroup.baseTender.id}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                );
+              })}
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-[70dvh]">
+              <p className="text-sm text-gray-500">No results found</p>
+            </div>
+          )}
         </div>
       </div>
     </PageWrapper>
