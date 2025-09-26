@@ -427,11 +427,31 @@ export function RoughLotDetails({
                               100
                             ).toFixed(2)
                           );
+
+                          const saleAmount = parseFloat(((row.dcSalePrice ?? 0) * (polCts ?? 0)).toFixed(2));
+
+                          const costPrice = parseFloat(
+                            (
+                              (row.dcSalePrice ?? 0) *
+                                (value
+                                  ? (value / 100)
+                                  : 0) -
+                              (row.dcLabour ?? 0)
+                            ).toFixed(2)
+                          );
+
+                          const costAmount = parseFloat(
+                            (costPrice * (row.dcRoughCts ?? 0)).toFixed(2)
+                          );
+
                           handleValueChange(
                             {
                               ...row,
                               dcPolCts: polCts,
                               dcPolPer: value,
+                              dcSaleAmount: saleAmount,
+                              dcCostPrice: costPrice,
+                              dcCostAmount: costAmount,
                             },
                             index
                           );
