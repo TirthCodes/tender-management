@@ -50,7 +50,7 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
       if (inputValue === "") {
         // Show all options when input is empty
         setFilteredData(data);
-        handleValueChange({ stShortName: "", id: 0 });
+        handleValueChange({ stShortName: "", id: 0, stName: "" });
       } else {
         // Filter based on input value using the original data array
         const filtered = data.filter((item) =>

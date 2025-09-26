@@ -241,7 +241,9 @@ export default async function Page({
       //   bidAmount = mainLotDetails.dcBidAmount.toNumber();
       // } else {
       // }
-      const bidAmount = parseFloat(((bidPrice * mainLotDetails?.dcCts?.toNumber()).toFixed(2)));
+
+      const { dcCts, dcFinalBidPrice, dcFinalBidAmount, margin, dcResultTotal, dcResultPerCt } = mainLotDetails
+      const bidAmount = parseFloat(((bidPrice * dcCts?.toNumber()).toFixed(2)));
 
       totalValues = {
         pcs,
@@ -251,11 +253,11 @@ export default async function Page({
         costAmount,
         bidPrice: isNaN(bidPrice) ? 0 : bidPrice,
         bidAmount: isNaN(bidAmount) ? 0 : bidAmount,
-        finalBidPrice: mainLotDetails?.dcFinalBidPrice?.toNumber() ?? 0,
-        finalBidAmount: mainLotDetails?.dcFinalBidAmount?.toNumber() ?? 0,
-        margin: mainLotDetails?.margin?.toNumber() ?? 0,
-        resultTotal: mainLotDetails?.dcResultTotal?.toNumber() ?? 0,
-        resultPerCarat: mainLotDetails?.dcResultPerCt?.toNumber() ?? 0,
+        finalBidPrice: dcFinalBidPrice?.toNumber() ?? 0,
+        finalBidAmount: dcFinalBidAmount?.toNumber() ?? 0,
+        margin: margin?.toNumber() ?? 0,
+        resultTotal: dcResultTotal?.toNumber() ?? 0,
+        resultPerCarat: dcResultPerCt?.toNumber() ?? 0,
       };
     }
   }

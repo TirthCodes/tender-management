@@ -223,26 +223,27 @@ export function RoughLotTendersPage({
               />
             </div>
             <div className="flex items-center gap-2">
-              <p className="text-nowrap shrink-0 w-28">Result Total:</p>
+              <p className="text-nowrap shrink-0 w-28">Result Per Ct:</p>
               <Input
                 type="number"
                 step={0.01}
-                value={resultTotal ?? 0}
+                value={resultPerCarat ?? 0}
                 onChange={(e) => {
                   const value = e.target.value
                     ? parseFloat(e.target.value)
                     : undefined;
+                  setResultPerCarat(value);
 
-                  setResultTotal(value);
-                  const resultPerCarat = parseFloat(
-                    ((value ?? 0) / (mainLot?.dcCts ?? 0)).toFixed(2)
+                  const resultTotal = parseFloat(
+                    ((value ?? 0) * (mainLot?.dcCts ?? 0)).toFixed(2)
                   );
 
-                  setResultPerCarat(resultPerCarat);
+                  setResultTotal(resultTotal);
                 }}
                 className="py-1 h-9 px-2 w-full font-semibold"
               />
             </div>
+            
             {/* <div className="flex items-center gap-2">
               <p className="text-nowrap  w-16">Cts.:</p>
               <p className="font-semibold">{totalValues?.carats?.toFixed(2)}</p>
@@ -275,22 +276,22 @@ export function RoughLotTendersPage({
               />
             </div>
             <div className="flex items-center gap-2">
-              <p className="text-nowrap shrink-0 w-28">Result Per Ct:</p>
+              <p className="text-nowrap shrink-0 w-28">Result Total:</p>
               <Input
                 type="number"
                 step={0.01}
-                value={resultPerCarat ?? 0}
+                value={resultTotal ?? 0}
                 onChange={(e) => {
                   const value = e.target.value
                     ? parseFloat(e.target.value)
                     : undefined;
-                  setResultPerCarat(value);
 
-                  const resultTotal = parseFloat(
-                    ((value ?? 0) * (mainLot?.dcCts ?? 0)).toFixed(2)
+                  setResultTotal(value);
+                  const resultPerCarat = parseFloat(
+                    ((value ?? 0) / (mainLot?.dcCts ?? 0)).toFixed(2)
                   );
 
-                  setResultTotal(resultTotal);
+                  setResultPerCarat(resultPerCarat);
                 }}
                 className="py-1 h-9 px-2 w-full font-semibold"
               />

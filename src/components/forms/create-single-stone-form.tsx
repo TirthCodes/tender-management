@@ -30,11 +30,11 @@ export const singleInitialRow: SingleStoneTenderDetails = {
   roughPcs: 0,
   roughCts: 0,
   roughSize: 0,
-  color: { id: 0, stShortName: "" },
+  color: { id: 0, stShortName: "", stName: "" },
   colorGrade: 0,
-  clarity: { id: 0, stShortName: "" },
-  flr: { id: 0, stShortName: "" },
-  shape: { id: 0, stShortName: "" },
+  clarity: { id: 0, stShortName: "" , stName: ""},
+  flr: { id: 0, stShortName: "" , stName: ""},
+  shape: { id: 0, stShortName: "" , stName: ""},
   polCts: 0,
   polPercent: 0,
   length: 0,
@@ -365,7 +365,7 @@ export function CreateSingleStoneTenderForm({
         </div>
       </div>
 
-      <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 mt-4 items-center">
+      <div className="flex justify-end gap-2 mt-4 items-center">
         <Button type="button" asChild>
           <Link href={"/tenders"}>Cancel</Link>
         </Button>

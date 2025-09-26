@@ -15,7 +15,7 @@ import {
   AccordionTrigger,
 } from "../ui/accordion";
 import { Option } from "@/lib/types/common";
-import { getBaseTenderFiltered } from "@/services/base-tender";
+import { getAllTenderFiltered } from "@/services/base-tender";
 import { Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -55,7 +55,7 @@ export function FilterSheetContent({ setSheetClose }: { setSheetClose: React.Dis
   const router = useRouter();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: getBaseTenderFiltered,
+    mutationFn: getAllTenderFiltered,
     onSuccess: (data) => {
       if(data.success) {
         if(data.data) {
@@ -133,7 +133,7 @@ export function FilterSheetContent({ setSheetClose }: { setSheetClose: React.Dis
                       }
                     `}
                   >
-                    {shape.stShortName}
+                    {shape.stName}
                   </button>
                 ))}
               </div>
@@ -157,7 +157,7 @@ export function FilterSheetContent({ setSheetClose }: { setSheetClose: React.Dis
                       }
                     `}
                   >
-                    {color.stShortName}
+                    {color.stName}
                   </button>
                 ))}
               </div>
@@ -183,7 +183,7 @@ export function FilterSheetContent({ setSheetClose }: { setSheetClose: React.Dis
                       }  
                     `}
                   >
-                    {clarity.stShortName}
+                    {clarity.stName}
                   </button>
                 ))}
               </div>
@@ -209,7 +209,7 @@ export function FilterSheetContent({ setSheetClose }: { setSheetClose: React.Dis
                       }  
                     `}
                   >
-                    {flr.stShortName}
+                    {flr.stName}
                   </button>
                 ))}
               </div>
@@ -218,7 +218,7 @@ export function FilterSheetContent({ setSheetClose }: { setSheetClose: React.Dis
           <AccordionItem
             value="remark"
             disabled={filterByRemarkDisabled}
-            className={`hidden ${filterByRemarkDisabled && "opacity-50"}`}
+            className={`${filterByRemarkDisabled && "opacity-50"}`}
           >
             <AccordionTrigger
               className={`text-neutral-800 focus:outline-none cursor-pointer md:text-lg ${

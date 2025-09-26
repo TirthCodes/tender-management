@@ -42,19 +42,46 @@ export async function POST(req: Request) {
     } = body;
 
     if (id) {
+
+      const idInt = Number(id);
+      const mainLot = await prisma.mainLot.findUnique({
+        where: {
+          id: idInt,
+        },
+        select: {
+          dcResultPerCt: true,
+          dcFinalBidPrice: true,
+          dcResultTotal: true,
+          dcFinalBidAmount: true,
+        }
+      });
+
+      const updateData = {
+        stName,
+        stRemarks,
+        inPcs,
+        dcCts,
+        stTenderType,
+        baseTenderId: Number(baseTenderId),
+        dcResultTotal: mainLot?.dcResultTotal?.toNumber() ?? 0,
+        dcFinalBidAmount: mainLot?.dcFinalBidAmount?.toNumber() ?? 0,
+      };
+      
+      if(mainLot) {
+        const resultTotal =  Number(mainLot?.dcResultPerCt ?? 0) * Number(dcCts)
+        const finalBidAmount = Number(mainLot?.dcFinalBidPrice ?? 0) * Number(dcCts)
+
+        updateData.dcResultTotal = resultTotal;
+        updateData.dcFinalBidAmount = finalBidAmount;
+      }
+
       await prisma.mainLot.update({
         where: {
-          id: Number(id),
+          id: idInt,
         },
-        data: {
-          stName,
-          stRemarks,
-          inPcs,
-          dcCts,
-          stTenderType,
-          baseTenderId: Number(baseTenderId),
-        },
+        data: updateData,
       });
+
     } else {
       await prisma.mainLot.create({
         data: {
