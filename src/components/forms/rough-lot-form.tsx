@@ -29,11 +29,11 @@ import { calculateMargin } from "@/lib/formula";
 export const initialRow: RoughLotTenderDetails = {
   inRoughPcs: 0,
   dcRoughCts: 0,
-  color: { id: 0, stShortName: "" },
+  color: { id: 0, stShortName: "" , stName: ""},
   inColorGrade: 0,
-  clarity: { id: 0, stShortName: "" },
-  fluorescence: { id: 0, stShortName: "" },
-  shape: { id: 0, stShortName: "" },
+  clarity: { id: 0, stShortName: "" , stName: ""},
+  fluorescence: { id: 0, stShortName: "" , stName: ""},
+  shape: { id: 0, stShortName: "" , stName: ""},
   stRemark: "",
   dcPolCts: 0,
   dcPolPer: 0,
@@ -665,7 +665,7 @@ export function RoughLotForm() {
 
       {!mainLotId && (
         <div
-          className={`p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10 ${
+          className={`p-3 border border-neutral-300 rounded-lg shadow-sm my-4 ${
             loadingRoughLot ? "animate-pulse bg-neutral-100" : ""
           }`}
         >
@@ -693,26 +693,26 @@ export function RoughLotForm() {
             </div>
 
             <div className="flex w-full items-center gap-2">
-              <Label className="text-nowrap w-40">Result Total</Label>
+              <Label className="text-nowrap w-40">Result Per Cts.</Label>
               <Input
                 type="number"
-                {...register("resultTotal", { valueAsNumber: true })}
+                {...register("resultPerCarat", { valueAsNumber: true })}
                 step={0.01}
-                // placeholder="10000"
                 className="w-full"
                 onChange={(e) => {
                   const value = e.target.value
                     ? parseFloat(e.target.value)
                     : undefined;
 
-                  const resultPerCarat = parseFloat(
-                    ((value ?? 0) / roughCts).toFixed(2)
+                  const resultTotal = parseFloat(
+                    ((value ?? 0) * roughCts).toFixed(2)
                   );
 
-                  setValue("resultPerCarat", resultPerCarat);
+                  setValue("resultTotal", resultTotal);
                 }}
               />
             </div>
+            
             <div className="flex w-full items-center gap-2">
               <Label className="text-nowrap w-40">Final Bid Price</Label>
               <Input
@@ -759,22 +759,23 @@ export function RoughLotForm() {
             </div>
 
             <div className="flex w-full items-center gap-2">
-              <Label className="text-nowrap w-40">Result Per Cts.</Label>
+              <Label className="text-nowrap w-40">Result Total</Label>
               <Input
                 type="number"
-                {...register("resultPerCarat", { valueAsNumber: true })}
+                {...register("resultTotal", { valueAsNumber: true })}
                 step={0.01}
+                // placeholder="10000"
                 className="w-full"
                 onChange={(e) => {
                   const value = e.target.value
                     ? parseFloat(e.target.value)
                     : undefined;
 
-                  const resultTotal = parseFloat(
-                    ((value ?? 0) * roughCts).toFixed(2)
+                  const resultPerCarat = parseFloat(
+                    ((value ?? 0) / roughCts).toFixed(2)
                   );
 
-                  setValue("resultTotal", resultTotal);
+                  setValue("resultPerCarat", resultPerCarat);
                 }}
               />
             </div>
@@ -818,11 +819,11 @@ export function RoughLotForm() {
         </div>
       )}
 
-      <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 items-center">
-        <Button className="mt-4" type="button" onClick={() => router.back()}>
+      <div className="flex justify-end gap-2 items-center">
+        <Button type="button" onClick={() => router.back()}>
           Cancel
         </Button>
-        <Button disabled={isPending} className="mt-4" type="submit">
+        <Button disabled={isPending} type="submit">
           Submit {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
         </Button>
       </div>

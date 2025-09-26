@@ -66,82 +66,139 @@ function FilterResultsPage() {
   const DetailCard: React.FC<{
     detail: any;
     type: "single" | "rough" | "mix";
-  }> = ({ detail }) => (
-    <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-900">
-          {detail.stLotNo}
-        </span>
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-          Grade {detail.inColorGrade || 0}
-        </span>
-      </div>
+  }> = ({ detail, type }) => {
+    console.log(detail, "detail");
+    let flr = {
+      id: 0,
+      stShortName: "",
+      stName: "",
+    };
+    if (type === "single") {
+      flr = detail.flr;
+    } else {
+      flr = detail.fluorescence;
+    }
+    return (
+      <div className="bg-white rounded-lg p-2 space-y-4 border border-gray-200">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-gray-900">
+            {detail.stLotNo}
+          </span>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="space-y-1">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">
-            Polish Cts
-          </p>
-          <p className="text-sm font-semibold text-gray-900">
-            {formatNumber(detail.dcPolCts)}
-          </p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">
-            Rough Cts
-          </p>
-          <p className="text-sm font-semibold text-gray-900">
-            {formatNumber(detail.dcRoughCts)}
-          </p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">
-            Sale Price
-          </p>
-          <p className="text-sm font-semibold text-green-700">
-            {formatCurrency(detail.dcSalePrice)}
-          </p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">
-            Cost Price
-          </p>
-          <p className="text-sm font-semibold text-red-700">
-            {formatCurrency(detail.dcCostPrice)}
-          </p>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-3 pt-2 border-t border-gray-200">
-        <div className="flex items-center space-x-2">
-          <GemIcon className="w-4 h-4 text-gray-400" />
-          <span className="text-sm text-gray-600">
-            {detail.shape?.stShortName}
-          </span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Eye className="w-4 h-4 text-gray-400" />
-          <span className="text-sm text-gray-600">
-            {detail.clarity?.stShortName}
-          </span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 rounded-full bg-yellow-300 border border-gray-300"></div>
-          <span className="text-sm text-gray-600">
-            {detail.color?.stShortName}
-          </span>
-        </div>
-        {detail.fluorescence && (
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 rounded-full bg-blue-200 border border-gray-300"></div>
-            <span className="text-sm text-gray-600">
-              {detail.fluorescence.stShortName}
+          <div className="flex items-center gap-2">
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                detail.isWon
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
+              }`}
+            >
+              {detail.isWon ? "Won" : "Lost"} ({detail.margin}%)
+            </span>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              Grade {detail.inColorGrade || 0}
             </span>
           </div>
-        )}
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="space-y-1">
+            <p className="text-xs text-gray-500 uppercase tracking-wide">Pcs</p>
+            <p className="text-sm font-semibold text-gray-900">
+              {detail.inRoughPcs}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-gray-500 uppercase tracking-wide">
+              Rf. Cts
+            </p>
+            <p className="text-sm font-semibold text-gray-900">
+              {formatNumber(detail.dcRoughCts)}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-gray-500 uppercase tracking-wide">Pol</p>
+            <div className="flex items-center divide divide-x">
+              <p className="pr-1 text-sm font-semibold text-gray-900">
+                {formatNumber(detail.dcPolCts)}
+              </p>
+              <p className="pl-1 text-xs text-gray-900">
+                {formatNumber(detail.dcPolPercent)}{detail.dcPolPercent && "%"}
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-xs text-gray-500 uppercase tracking-wide">
+              Sale
+            </p>
+            <p className="text-sm font-semibold">
+              {formatCurrency(detail.dcSalePrice)}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-gray-500 uppercase tracking-wide">
+              Cost
+            </p>
+            <p className="text-sm font-semibold">
+              {formatCurrency(detail.dcCostPrice)}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-gray-500 uppercase tracking-wide">Bid</p>
+            <p className="text-sm font-semibold">
+              {formatCurrency(detail.dcBidPrice)}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-gray-500 uppercase tracking-wide">
+              Final Bid
+            </p>
+            <p className="text-sm font-semibold">
+              {formatCurrency(detail.dcFinalBidPrice)}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-gray-500 uppercase tracking-wide">
+              Result
+            </p>
+            <p className="text-sm font-semibold">
+              {formatCurrency(detail.dcResultPerCt)}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3 pt-2 border-t border-gray-200">
+          <div className="flex items-center space-x-2">
+            <GemIcon className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-600">
+              {detail.shape?.stShortName}
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Eye className="w-4 h-4 text-gray-400" />
+            <span className="text-sm text-gray-600">
+              {detail.clarity?.stShortName}
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-4 rounded-full bg-yellow-300 border border-gray-300"></div>
+            <span className="text-sm text-gray-600">
+              {detail.color?.stShortName}
+            </span>
+          </div>
+          {flr.id && (
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 rounded-full bg-blue-200 border border-gray-300"></div>
+              <span className="text-sm text-gray-600">
+                {flr.stShortName}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const TenderSection: React.FC<{
     title: string;
@@ -153,7 +210,7 @@ function FilterResultsPage() {
     if (!tenders || tenders.length === 0) return null;
 
     return (
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div className="flex items-center space-x-3">
           <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100">
             {icon}
@@ -179,7 +236,7 @@ function FilterResultsPage() {
               >
                 <button
                   onClick={() => toggleTender(tenderKey)}
-                  className="w-full px-6 py-4 bg-white hover:bg-gray-50 transition-colors duration-150 ease-in-out"
+                  className="w-full p-3 bg-white hover:bg-gray-50 transition-colors duration-150 ease-in-out"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -206,8 +263,8 @@ function FilterResultsPage() {
                 </button>
 
                 {isExpanded && (
-                  <div className="px-6 pb-6 bg-gray-50 border-t border-gray-200">
-                    <div className="grid gap-4 mt-4">
+                  <div className="p-3 pb-3 bg-gray-50 border-t border-gray-200">
+                    <div className="grid gap-4">
                       {tender.details.map(
                         (detail: any, detailIndex: number) => (
                           <DetailCard
@@ -347,4 +404,6 @@ function FilterResultsPage() {
   );
 }
 
-export const FilterResults =  dynamic(() => Promise.resolve(FilterResultsPage), { ssr: false });
+export const FilterResults = dynamic(() => Promise.resolve(FilterResultsPage), {
+  ssr: false,
+});

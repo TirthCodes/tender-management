@@ -2,10 +2,11 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const colorOptions = await prisma.clarity.findMany({
+    const clarityOptions = await prisma.clarity.findMany({
       select: {
         id: true,
         stShortName: true,
+        stName: true,
       },
       orderBy: {
         inSerial: "asc",
@@ -14,14 +15,14 @@ export async function GET() {
 
     return Response.json({
       success: true,
-      message: "Color options fetched successfully",
-      data: colorOptions,
+      message: "Clarity options fetched successfully",
+      data: clarityOptions,
     });
   } catch (error) {
     return Response.json({
       success: false,
       message:
-        error instanceof Error ? error.message : "Error fetching color options",
+        error instanceof Error ? error.message : "Error fetching clarity options",
     });
   }
 }

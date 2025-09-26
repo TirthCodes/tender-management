@@ -205,31 +205,51 @@ export function RoughLotDetails({
                             ? parseFloat(e.target.value)
                             : undefined;
 
-                          const polPercent = parseFloat(
-                            (((row.dcPolCts ?? 0) / (value ?? 0)) * 100).toFixed(2)
-                          );
 
-                          const costPrice = parseFloat(
+                          const polCts = parseFloat(
                             (
-                              (row.dcSalePrice ?? 0) *
-                                (polPercent
-                                  ? (polPercent / 100)
-                                  : 0) -
-                              (row.dcLabour ?? 0)
+                              ((row.dcPolPer ?? 0) * (value ?? 0)) /
+                              100
                             ).toFixed(2)
                           );
 
-                          const costAmount = parseFloat(
-                            (costPrice * (value ?? 0)).toFixed(2)
+                          const saleAmount = parseFloat(
+                            ((row.dcSalePrice ?? 0) * (value ?? 0)).toFixed(2)
                           );
+
+                          const costAmount = parseFloat(
+                            ((row.dcCostPrice ?? 0) * (value ?? 0)).toFixed(2)
+                          );
+
+                          // const polPercent = parseFloat(
+                          //   (((row.dcPolCts ?? 0) / (value ?? 0)) * 100).toFixed(2)
+                          // );
+
+                          // const costPrice = parseFloat(
+                          //   (
+                          //     (row.dcSalePrice ?? 0) *
+                          //       (polPercent
+                          //         ? (polPercent / 100)
+                          //         : 0) -
+                          //     (row.dcLabour ?? 0)
+                          //   ).toFixed(2)
+                          // );
+
+                          // const costAmount = parseFloat(
+                          //   (costPrice * (value ?? 0)).toFixed(2)
+                          // );
 
                           handleValueChange(
                             {
                               ...row,
-                              dcPolPer: polPercent,
-                              dcRoughCts: value,
-                              dcCostPrice: costPrice,
+                              // dcPolPer: polPercent,
                               dcCostAmount: costAmount,
+                              dcSaleAmount: saleAmount,
+                              dcRoughCts: value,
+                              dcPolCts: polCts,
+
+                              // dcCostPrice: costPrice,
+                              // dcCostAmount: costAmount,
                             },
                             index
                           );

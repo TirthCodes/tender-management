@@ -34,11 +34,11 @@ import { calculateMargin } from "@/lib/formula";
 export const initialRow: MixLotTenderDetails = {
   inRoughPcs: 0,
   dcRoughCts: 0,
-  color: { id: 0, stShortName: "" },
+  color: { id: 0, stShortName: "" , stName: ""},
   inColorGrade: 0,
-  clarity: { id: 0, stShortName: "" },
-  fluorescence: { id: 0, stShortName: "" },
-  shape: { id: 0, stShortName: "" },
+  clarity: { id: 0, stShortName: "" , stName: ""},
+  fluorescence: { id: 0, stShortName: "" , stName: ""},
+  shape: { id: 0, stShortName: "" , stName: ""},
   stRemark: "",
   dcPolCts: 0,
   dcPolPer: 0,
@@ -717,7 +717,7 @@ export function MixLotForm() {
 
       {!mainLotId && (
         <div
-          className={`p-3 border border-neutral-300 rounded-lg shadow-sm mt-4 mb-10 ${
+          className={`p-3 border border-neutral-300 rounded-lg shadow-sm my-4 ${
             loadingMixLot ? "animate-pulse bg-neutral-100" : ""
           }`}
         >
@@ -738,6 +738,106 @@ export function MixLotForm() {
                 type="number"
                 step={0.01}
                 {...register("bidPrice", { valueAsNumber: true })}
+                readOnly
+                disabled
+                className="w-full"
+              />
+            </div>
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-44">Final Bid Price</Label>
+              <Input
+                type="number"
+                step={0.01}
+                {...register("finalBidPrice", { valueAsNumber: true })}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+
+                  const finalBidAmount = parseFloat(
+                    ((value ?? 0) * roughCts).toFixed(2)
+                  );
+
+                  const resultPercent = parseFloat(
+                    ((netPercent - 100) / 100).toFixed(2)
+                  );
+
+                  const giaCharge = Number(baseTender?.data.dcGiaCharge);
+
+                  const finalCostPrice = parseFloat(
+                    (
+                      ((((value ?? 0) * resultPercent + (value ?? 0) + labour) *
+                        totalValues.carats) /
+                        totalValues.polCts +
+                        giaCharge) /
+                      0.97
+                    ).toFixed(2)
+                  );
+
+                  const margin = calculateMargin(bidPrice, value ?? 0);
+
+                  setValue("margin", margin)
+                  setValue("finalCostPrice", finalCostPrice);
+                  setValue("finalBidAmount", finalBidAmount);
+                }}
+                className="w-full"
+              />
+            </div>
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Result / Cts</Label>
+              <Input
+                type="number"
+                {...register("resultPerCarat", { valueAsNumber: true })}
+                step={0.01}
+                className={cn(
+                  errors.resultPerCarat?.message &&
+                    "w-full border border-rexd-500 placeholder:text-red-500"
+                )}
+                onChange={(e) => {
+                  const value = e.target.value
+                    ? parseFloat(e.target.value)
+                    : undefined;
+
+                  const resultTotal = parseFloat(
+                    ((value ?? 0) * roughCts).toFixed(2)
+                  );
+                  setValue("resultTotal", resultTotal);
+
+                  const resultPercent = parseFloat(
+                    ((netPercent - 100) / 100).toFixed(2)
+                  );
+
+                  const giaCharge = Number(baseTender?.data.dcGiaCharge);
+
+                  const resultCost = parseFloat(
+                    (
+                      ((((value ?? 0) * resultPercent + (value ?? 0) + labour) *
+                        totalValues.carats) /
+                        totalValues.polCts +
+                        giaCharge) /
+                      0.97
+                    ).toFixed(2)
+                  );
+                  setValue("resultCost", resultCost);
+                }}
+              />
+            </div>
+            
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Sale Amount</Label>
+              <Input
+                type="number"
+                {...register("saleAmount", { valueAsNumber: true })}
+                step={0.01}
+                className="w-full"
+              />
+            </div>
+            <div className="flex w-full max-w-sm items-center gap-2">
+              <Label className="text-nowrap w-32">Bid Amount</Label>
+              <Input
+                type="number"
+                step={0.01}
+                {...register("totalAmount", { valueAsNumber: true })}
                 readOnly
                 disabled
                 className="w-full"
@@ -842,105 +942,6 @@ export function MixLotForm() {
                 }}
               />
             </div>
-            <div className="flex w-full max-w-sm items-center gap-2">
-              <Label className="text-nowrap w-32">Sale Amount</Label>
-              <Input
-                type="number"
-                {...register("saleAmount", { valueAsNumber: true })}
-                step={0.01}
-                className="w-full"
-              />
-            </div>
-            <div className="flex w-full max-w-sm items-center gap-2">
-              <Label className="text-nowrap w-32">Bid Amount</Label>
-              <Input
-                type="number"
-                step={0.01}
-                {...register("totalAmount", { valueAsNumber: true })}
-                readOnly
-                disabled
-                className="w-full"
-              />
-            </div>
-            <div className="flex w-full max-w-sm items-center gap-2">
-              <Label className="text-nowrap w-44">Final Bid Price</Label>
-              <Input
-                type="number"
-                step={0.01}
-                {...register("finalBidPrice", { valueAsNumber: true })}
-                onChange={(e) => {
-                  const value = e.target.value
-                    ? parseFloat(e.target.value)
-                    : undefined;
-
-                  const finalBidAmount = parseFloat(
-                    ((value ?? 0) * roughCts).toFixed(2)
-                  );
-
-                  const resultPercent = parseFloat(
-                    ((netPercent - 100) / 100).toFixed(2)
-                  );
-
-                  const giaCharge = Number(baseTender?.data.dcGiaCharge);
-
-                  const finalCostPrice = parseFloat(
-                    (
-                      ((((value ?? 0) * resultPercent + (value ?? 0) + labour) *
-                        totalValues.carats) /
-                        totalValues.polCts +
-                        giaCharge) /
-                      0.97
-                    ).toFixed(2)
-                  );
-
-                  const margin = calculateMargin(bidPrice, value ?? 0);
-
-                  setValue("margin", margin)
-                  setValue("finalCostPrice", finalCostPrice);
-                  setValue("finalBidAmount", finalBidAmount);
-                }}
-                className="w-full"
-              />
-            </div>
-            <div className="flex w-full max-w-sm items-center gap-2">
-              <Label className="text-nowrap w-32">Result / Cts</Label>
-              <Input
-                type="number"
-                {...register("resultPerCarat", { valueAsNumber: true })}
-                step={0.01}
-                className={cn(
-                  errors.resultPerCarat?.message &&
-                    "w-full border border-rexd-500 placeholder:text-red-500"
-                )}
-                onChange={(e) => {
-                  const value = e.target.value
-                    ? parseFloat(e.target.value)
-                    : undefined;
-
-                  const resultTotal = parseFloat(
-                    ((value ?? 0) * roughCts).toFixed(2)
-                  );
-                  setValue("resultTotal", resultTotal);
-
-                  const resultPercent = parseFloat(
-                    ((netPercent - 100) / 100).toFixed(2)
-                  );
-
-                  const giaCharge = Number(baseTender?.data.dcGiaCharge);
-
-                  const resultCost = parseFloat(
-                    (
-                      ((((value ?? 0) * resultPercent + (value ?? 0) + labour) *
-                        totalValues.carats) /
-                        totalValues.polCts +
-                        giaCharge) /
-                      0.97
-                    ).toFixed(2)
-                  );
-                  setValue("resultCost", resultCost);
-                }}
-              />
-            </div>
             <div className="flex w-full items-center justify-center gap-2">
               <label className="font-semibold text-red-600">Loss</label>
               <Switch
@@ -980,11 +981,11 @@ export function MixLotForm() {
           </div>
         </div>
       )}
-      <div className="fixed bottom-4 left-0 right-4 flex justify-end gap-2 items-center">
-        <Button className="mt-4" type="button" onClick={() => router.back()}>
+      <div className="flex justify-end gap-2 items-center">
+        <Button type="button" onClick={() => router.back()}>
           Cancel
         </Button>
-        <Button disabled={isPending} className="mt-4" type="submit">
+        <Button disabled={isPending} type="submit">
           Submit {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
         </Button>
       </div>

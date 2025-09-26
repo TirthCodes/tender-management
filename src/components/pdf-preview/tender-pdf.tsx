@@ -136,17 +136,18 @@ const styles = StyleSheet.create({
   },
   fontBold: { fontWeight: "bold" },
   // Column widths
-  singleColLotNo: { width: "7%", paddingVertical: 2 },
+  singleColLotNo: { width: "6%", paddingVertical: 2 },
   singleColParticular: { width: "17%", paddingVertical: 2 },
   singleColMeasurement: { width: "11%", paddingVertical: 2 },
-  singleColRough: { width: "7%", paddingVertical: 2 },
-  singleColPolish: { width: "7%", paddingVertical: 2 },
+  singleColRough: { width: "6%", paddingVertical: 2 },
+  singleColPolish: { width: "5%", paddingVertical: 2 },
   singleColSale: { width: "7%", paddingVertical: 2 },
   singleColCost: { width: "7%", paddingVertical: 2 },
-  singleColTops: { width: "5%", paddingVertical: 2 },
-  singleColBid: { width: "9%", paddingVertical: 2 },
-  singleColResult: { width: "16%" },
-  singleColWinLoss: { width: "7%", paddingVertical: 2 },
+  singleColTops: { width: "3%", paddingVertical: 2 },
+  singleColBid: { width: "7%", paddingVertical: 2 },
+  singleColResult: { width: "13%" },
+  singleColFinal: { width: "13%" },
+  singleColWinLoss: { width: "5%", paddingVertical: 2 },
 
   //Rough Lot
   roughColRough: { width: "14%", paddingVertical: 2 },
@@ -203,6 +204,9 @@ interface SingleLotTender {
         resultCost: number;
         resultPerCarat: number;
         resultTotal: number;
+        finalBidPrice: number;
+        finalBidAmount: number;
+        finalCostPrice: number;
         isWon: boolean;
         margin?: number;
         incription: string;
@@ -926,9 +930,10 @@ function SingleStoneTender({
         topsAmount: acc.topsAmount + curr.topsAmount,
         bidPrice: acc.bidPrice + curr.bidPrice,
         totalAmount: acc.totalAmount + curr.totalAmount,
-        resultCost: acc.resultCost + curr.resultCost,
-        resultPerCarat: acc.resultPerCarat + curr.resultPerCarat,
+        // resultCost: acc.resultCost + curr.resultCost,
+        // resultPerCarat: acc.resultPerCarat + curr.resultPerCarat,
         resultTotal: acc.resultTotal + curr.resultTotal,
+        finalBidAmount: acc.finalBidAmount + curr.finalBidAmount,
       };
     },
     {
@@ -938,9 +943,10 @@ function SingleStoneTender({
       topsAmount: 0,
       bidPrice: 0,
       totalAmount: 0,
-      resultCost: 0,
-      resultPerCarat: 0,
+      // resultCost: 0,
+      // resultPerCarat: 0,
       resultTotal: 0,
+      finalBidAmount: 0,
     }
   );
 
@@ -1032,6 +1038,9 @@ function SingleStoneTender({
                 </View>
                 <View style={[styles.tableColHeader, styles.singleColResult]}>
                   <Text style={styles.tableCellHeader}>Result</Text>
+                </View>
+                <View style={[styles.tableColHeader, styles.singleColFinal]}>
+                  <Text style={styles.tableCellHeader}>Final</Text>
                 </View>
                 <View
                   style={[
@@ -1241,6 +1250,56 @@ function SingleStoneTender({
                     </View>
                   </View>
 
+                  {/* Final */}
+                  <View
+                    style={[
+                      styles.tableCol,
+                      styles.singleColFinal,
+                      {
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.rightCell,
+                        { width: "50%", paddingRight: 2 },
+                      ]}
+                    >
+                      {detail.finalCostPrice.toFixed(2)}
+                    </Text>
+                    <View
+                      style={{
+                        borderLeft: 0.5,
+                        borderLeftColor: "#444",
+                        borderLeftStyle: "solid",
+                        width: "50%",
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.tableCellCenter,
+                          styles.rightCell,
+                          styles.cellBorderBottom,
+                          { paddingTop: 2, paddingRight: 2 },
+                        ]}
+                      >
+                        {detail.finalBidPrice.toFixed(2)}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.fontBold,
+                          styles.rightCell,
+                          { paddingBottom: 2, paddingRight: 2 },
+                        ]}
+                      >
+                        {detail.finalBidAmount.toFixed(2)}
+                      </Text>
+                    </View>
+                  </View>
+
                   {/* Description */}
                   <View
                     style={[
@@ -1391,22 +1450,28 @@ function SingleStoneTender({
                   style={[
                     styles.tableCol,
                     styles.singleColResult,
-                    {
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    },
+                    styles.centerCell,
                   ]}
+                  // style={[
+                  //   styles.tableCol,
+                  //   styles.singleColResult,
+                  //   {
+                  //     flexDirection: "row",
+                  //     alignItems: "center",
+                  //     justifyContent: "space-between",
+                  //   },
+                  // ]}
                 >
                   <Text
                     style={[
-                      styles.rightCell,
-                      { width: "50%", paddingRight: 2 },
+                      styles.centerCell,
+                      styles.fontBold,
+                      // { width: "50%", paddingRight: 2 },
                     ]}
                   >
-                    {singleTotalValues?.resultCost?.toFixed(2)}
+                    {singleTotalValues?.resultTotal?.toFixed(2)}
                   </Text>
-                  <View
+                  {/* <View
                     style={{
                       borderLeft: 0.5,
                       borderLeftColor: "#444",
@@ -1433,7 +1498,20 @@ function SingleStoneTender({
                     >
                       {singleTotalValues?.resultTotal?.toFixed(2)}
                     </Text>
-                  </View>
+                  </View> */}
+                </View>
+
+                {/* Final */}
+                <View
+                  style={[
+                    styles.tableCol,
+                    styles.singleColFinal,
+                    styles.centerCell,
+                  ]}
+                >
+                  <Text style={[styles.tableCellCenter, styles.fontBold]}>
+                    {singleTotalValues?.finalBidAmount?.toFixed(2)}
+                  </Text>
                 </View>
 
                 {/* Description */}

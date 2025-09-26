@@ -236,33 +236,31 @@ export function MixLotTendersPage({
               {/* <p className="font-semibold">{totalValues?.bidPrice}</p> */}
             </div>
             <div className="flex items-center justify-center gap-2">
-              <p className="text-nowrap shrink-0 w-28">Result Total:</p>
+              <p className="text-nowrap shrink-0 w-28">Result Per Ct:</p>
               <Input
                 type="number"
                 step={0.01}
-                value={resultTotal ?? 0}
+                value={resultPerCarat ?? 0}
                 onChange={(e) => {
                   const value = e.target.value
                     ? parseFloat(e.target.value)
                     : undefined;
-
-                  setResultTotal(value);
-                  const resultPerCarat = parseFloat(
-                    ((value ?? 0) / (mainLot?.dcCts ?? 0)).toFixed(2)
+                  setResultPerCarat(value);
+                  const resultTotal = parseFloat(
+                    ((value ?? 0) * (mainLot?.dcCts ?? 0)).toFixed(2)
                   );
+                  setResultTotal(resultTotal);
 
-                  setResultPerCarat(resultPerCarat);
                   const netPercent = baseTender.dcNetPercentage - 100;
                   const resultPercent = parseFloat(
                     (netPercent / 100).toFixed(2)
                   );
-
                   const giaCharge = baseTender.dcGiaCharge;
 
                   const resultCost = parseFloat(
                     (
-                      (((resultPerCarat * resultPercent +
-                        resultPerCarat +
+                      ((((value ?? 0) * resultPercent +
+                        (value ?? 0) +
                         baseTender.dcLabour) *
                         totalValues.carats) /
                         totalValues.polCts +
@@ -325,31 +323,33 @@ export function MixLotTendersPage({
               {/* <p className="font-semibold">{totalValues?.bidPrice}</p> */}
             </div>
             <div className="flex items-center justify-center gap-2">
-              <p className="text-nowrap shrink-0 w-28">Result Per Ct:</p>
+              <p className="text-nowrap shrink-0 w-28">Result Total:</p>
               <Input
                 type="number"
                 step={0.01}
-                value={resultPerCarat ?? 0}
+                value={resultTotal ?? 0}
                 onChange={(e) => {
                   const value = e.target.value
                     ? parseFloat(e.target.value)
                     : undefined;
-                  setResultPerCarat(value);
-                  const resultTotal = parseFloat(
-                    ((value ?? 0) * (mainLot?.dcCts ?? 0)).toFixed(2)
-                  );
-                  setResultTotal(resultTotal);
 
+                  setResultTotal(value);
+                  const resultPerCarat = parseFloat(
+                    ((value ?? 0) / (mainLot?.dcCts ?? 0)).toFixed(2)
+                  );
+
+                  setResultPerCarat(resultPerCarat);
                   const netPercent = baseTender.dcNetPercentage - 100;
                   const resultPercent = parseFloat(
                     (netPercent / 100).toFixed(2)
                   );
+
                   const giaCharge = baseTender.dcGiaCharge;
 
                   const resultCost = parseFloat(
                     (
-                      ((((value ?? 0) * resultPercent +
-                        (value ?? 0) +
+                      (((resultPerCarat * resultPercent +
+                        resultPerCarat +
                         baseTender.dcLabour) *
                         totalValues.carats) /
                         totalValues.polCts +
@@ -363,6 +363,7 @@ export function MixLotTendersPage({
                 className="py-1 h-9 px-2 w-full font-semibold"
               />
             </div>
+            
             {/* <div className="flex items-center gap-2">
               <p className="text-nowrap w-16">Pol Cts.:</p>
               <p className="font-semibold">{totalValues?.polCts}</p>

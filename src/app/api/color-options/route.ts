@@ -6,6 +6,7 @@ export async function GET() {
       select: {
         id: true,
         stShortName: true,
+        stName: true,
       },
       orderBy: {
         inSerial: "asc",
