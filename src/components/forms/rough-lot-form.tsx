@@ -512,6 +512,11 @@ export function RoughLotForm() {
                     (finalBidPrice * (value ?? 0)).toFixed(2)
                   );
 
+                  const resultTotal = parseFloat(
+                    ((watch("resultPerCarat") ?? 0) * (value ?? 0)).toFixed(2)
+                  );
+
+                  setValue("resultTotal", resultTotal);
                   setValue("roughCts", value ?? 0);
                   setValue("finalBidAmount", finalBidAmount);
                 }}
